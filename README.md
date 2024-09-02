@@ -36,8 +36,8 @@ Yes! with the stock config, you can do this. <br/><br/>
 And of course: No garbage any more!<br/>
 
 What started as a hobby project for my personal use has grown significantly. <br/>
-To meet the community's needs, I've spent hundreds of hours working on features I don't even personally need or use <br/>
-to give you the best control interface the stock printers can have.<br/>
+To meet the community's needs, I've spent hundreds of hours working on features I don't<br/>
+even personally need or use to give you the best control interface the stock printers can have.<br/>
 **I hope you like it!**<br/>
 <br/>
 <br/>
@@ -74,9 +74,9 @@ If you own a different printer but the same/similar LCD, you can start a feature
 <br/>
 
 ## You cant wait, right?
-I dont make it any longer.
-Head over to the Wiki for the [Installation Guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide) to use it.
-But I invite you to read the other parts as well!
+I dont make it any longer.<br/>
+Head over to the Wiki for the [Installation Guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide) to use it.<br/>
+But I invite you to read the other parts as well!<br/>
 <br/>
 <br/>
 
@@ -84,8 +84,9 @@ But I invite you to read the other parts as well!
 
 Qidi's X3 series printers are built with hardware that has great potential, but they run on outdated software.  
 **With the right software, these printers can work better, faster, and be more user-friendly for everyone.**  
-I believe that what I offer provides you with a better overall experience and ensures you aren't locked out of the latest features from Klipper,  
-as well as all the great software that integrates with it (such as Moonraker, Mainsail/Fluidd, Crowsnest, Shaketune, and thousands of plugins).
+I believe that what I offer provides you with a better overall experience and ensures you aren't locked out<br/>
+of the latest features from Klipper, as well as all the great software that integrates with it <br/>
+(such as Moonraker, Mainsail/Fluidd, Crowsnest, Shaketune, and thousands of plugins).
 
 Here's a list of software that unlocks the full functionality of the printer through my clean and updated Armbian-Klipper system:
 
@@ -105,11 +106,13 @@ The printer already has a screen, and you paid for it... So let's get that thing
 ## Disclaimer
 
 Before you start, please understand that this is a hobby project, and using my firmware is at your own risk.  
-I have spent many hours testing and flashed the LCD more than 1,000 times to ensure it provides the best possible experience,  
-but I can't test every possible scenario. If you encounter any issues, please report them here on GitHub.
+I have spent many hours testing and flashed the LCD more than 1,000 times to ensure it provides <br/>
+the best possible experience,but I can't test every possible scenario. If you encounter any issues,<br/>
+please report them here on GitHub.
 
-Please do not contact Qidi support if you have any problems. By making these modifications, you will void your warranty in this regard.  
-If you ever want or need to revert to the stock system after flashing my firmware, don't worry – it's possible.  
+Please do not contact Qidi support if you have any problems. By making these modifications,<br/> 
+you will void your warranty in this regard.<br/>  
+If you ever want or need to revert to the stock system after flashing my firmware, don't worry – it's possible.<br/>  
 You can use a "recovery" image provided by Qidi and flash the official *.tft firmware back to the LCD.
 <br /><br /><br /><br /><br /><br /><br /><br />
 
