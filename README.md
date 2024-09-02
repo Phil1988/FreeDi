@@ -6,12 +6,13 @@ Lets unlock the full potential of your printer together!
   <img src="https://github.com/user-attachments/assets/745a7b53-ab59-433f-a441-291efb53926c" alt="Bild_thumb">
 </p>
 
-This here is about the next step in the evolution: 
-**Bringing the stock LCD back to life!**
+This here is about the next step in the evolution: <br/>
+**Bringing the stock LCD screen back to life!**
 
 ---
 
-The LCD firmware is called **X3seriesLCD** and created for those who want to use Qidi X3 series printers with mainline (vanilla) Klipper and **the stock LCD screen**.<br/>
+The LCD firmware is called **X3seriesLCD** and created for those who want to use Qidi X3 series printers<br/>
+with mainline (vanilla) Klipper and **the stock LCD screen**.<br/>
 But it is more then "only" a screen firmware.<br/>
 <br/>
 What began as a straightforward tutorial has blossomed into a complete ecosystem.<br/>
@@ -22,7 +23,7 @@ This includes:
 * Recent Klipper firmware - the 3d-Printer firmware
 * X3SeriesLCD - my screen firmware
 
-This makes it a perfect symbiosis and I call it **FreeDi** ;)
+This makes it a perfect symbiosis and I call it **"FreeDi"** ;)
 <p align="center">
   <img src="https://github.com/user-attachments/assets/12e4dae0-9322-4cac-84e7-235b4980031c" alt="Symbiosis">
 </p>
@@ -36,13 +37,15 @@ FreeDi has a clear structure, macros have been optimized and created from scratc
 And of course: No garbage any more!<br/>
 
 What started as a hobby project for my personal use has grown significantly. <br/>
-To meet the community's needs, I've spent hundreds of hours working on features I don't even personally need or use to give you the best control interface the stock printers can have.<br/>
+To meet the community's needs, I've spent hundreds of hours working on features I don't even personally need or use <br/>
+to give you the best control interface the stock printers can have.<br/>
 I hope you like it!<br/>
 
 If you appreciate my work and it has been beneficial to you,  <br/>
 I would be grateful if you consider supporting my efforts with a tip:<br/>
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B4V3TJ6)
-
+<br/>
+<br/>
 ## But, why creating this project?
 
 I am incredibly thankful and proud that my [FreeQIDI tutorial](https://github.com/Phil1988/FreeQIDI) has gained so much popularity.  
@@ -67,13 +70,15 @@ While I appreciate the effort of [CChen616](https://github.com/CChen616) to prov
 
 So I started this project and its quite versataille.<br/>
 If you own a different printer but the same/similar LCD, you can start a feature request in the "issues" section.
-
+<br/>
+<br/>
 
 ## You cant wait, right?
 I dont make it any longer.
 Head over to the Wiki for the [Installation Guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide) to use it.
 But I invite you to read the other parts as well!
-
+<br/>
+<br/>
 
 ## Why Should You Use This?
 
@@ -94,6 +99,8 @@ However, even though the tutorial was straightforward, there was one drawback th
 No more touchscreen.  
 You could get a new mainboard and attach an HDMI touchscreen, or use (Tiger-)VNC to turn a wireless screen into a monitor, but come on:  
 The printer already has a screen, and you paid for it... So let's get that thing working again! ;)
+<br/>
+<br/>
 
 ## Disclaimer
 
