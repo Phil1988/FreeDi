@@ -1,13 +1,9 @@
 # FreeDi
-A project aiming to use Qidis X3 series stock displays with mainline Klipper.
-
-Lets unlock the full potential of your printer together!
+A project aiming to use Qidis X3 series stock displays with mainline Klipper.<br/>
+**Lets unlock the full potential of your printer together!**
 <p align="center">
   <img src="https://github.com/user-attachments/assets/745a7b53-ab59-433f-a441-291efb53926c" alt="Bild_thumb">
 </p>
-
-This here is about the next step in the evolution: <br/>
-**Bringing the stock LCD screen back to life!**
 
 ---
 
@@ -28,19 +24,23 @@ This makes it a perfect symbiosis and I call it **"FreeDi"** ;)
   <img src="https://github.com/user-attachments/assets/12e4dae0-9322-4cac-84e7-235b4980031c" alt="Symbiosis">
 </p>
 
-But honestly:<br/>
-**It is more then this**.<br/>
+**But it is more then this.** <br/>
 Have you ever had a look at the stock printer.cfg and macros?<br/>
 Yes! Its a mess. <br/>
 Its full of garbage sections, not optimized and the naming is "confusing".<br/>
-FreeDi has a clear structure, macros have been optimized and created from scratch.<br/>
+And it is dangerous:<br/>
+Have you ever homed only the X or Y axis and run the bed into the nozzle or against the printers bottom? <br/>
+Yes! with the stock config, you can do this. <br/><br/>
+
+**FreeDi has a clear structure, macros have been optimized and created from scratch to not hit the bed into anything.**<br/>
 And of course: No garbage any more!<br/>
 
 What started as a hobby project for my personal use has grown significantly. <br/>
 To meet the community's needs, I've spent hundreds of hours working on features I don't even personally need or use <br/>
 to give you the best control interface the stock printers can have.<br/>
 **I hope you like it!**<br/>
-
+<br/>
+<br/>
 If you appreciate my work and it has been beneficial to you,  <br/>
 I would be grateful if you consider supporting my efforts with a tip:<br/>
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B4V3TJ6)
