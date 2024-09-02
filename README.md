@@ -1,18 +1,51 @@
 # FreeDi
-A LCD firmware for your Qidi X3 series printer to run mainline Klipper.
+A project aiming to use Qidis X3 series stock displays with mainline Klipper.
 
-What started as a simple tutorial has evolved into a whole new ecosystem of firmware:  
-Pure Armbian + vanilla Klipper as the foundation for a custom LCD firmware and a dedicated printer configuration.
+Lets unlock the full potential of your printer together!
 <p align="center">
   <img src="https://github.com/user-attachments/assets/745a7b53-ab59-433f-a441-291efb53926c" alt="Bild_thumb">
 </p>
-This setup gives you all the advantages and freedom to do whatever you like with this fantastic printer.  
-Let's jailbreak it together!
 
-## Who and What?
+This here is about the next step in the evolution: 
+**Bringing the stock LCD back to life!**
 
-This firmware is for those who want to use Qidi X3 series printers with mainline (vanilla) Klipper and the stock LCD screen.  
-I am incredibly proud that my [FreeQIDI tutorial](https://github.com/Phil1988/FreeQIDI) has gained so much popularity.  
+---
+
+The LCD firmware is called **X3seriesLCD** and created for those who want to use Qidi X3 series printers with mainline (vanilla) Klipper and **the stock LCD screen**.<br/>
+But it is more then "only" a screen firmware.<br/>
+<br/>
+What began as a straightforward tutorial has blossomed into a complete ecosystem.<br/>
+Its goal is to give you the best printer experience you can have and as lightweight and pure as it can be.<br/>
+
+This includes:
+* Recent armbian bookwork - the base
+* Recent Klipper firmware - the 3d-Printer firmware
+* X3SeriesLCD - my screen firmware
+
+This makes it a perfect symbiosis and I call it **FreeDi** ;)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/e9e22094-b427-426d-8ff5-4a4eef93bb18" alt="Symbiosis">
+</p>
+
+But honestly:<br/>
+It is more then this.<br/>
+Have you ever had a look at the stock printer.cfg and macros?<br/>
+Yes! Its a mess. <br/>
+Its full of garbage sections, not optimized and the naming is "confusing".<br/>
+FreeDi has a clear structure, macros have been optimized and created from scratch.<br/>
+And of course: No garbage any more!<br/>
+
+What started as a hobby project for my personal use has grown significantly. <br/>
+To meet the community's needs, I've spent hundreds of hours working on features I don't even personally need or use to give you the best control interface the stock printers can have.<br/>
+I hope you like it!<br/>
+
+If you appreciate my work and it has been beneficial to you,  <br/>
+I would be grateful if you consider supporting my efforts with a tip:<br/>
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B4V3TJ6)
+
+## But, why creating this project?
+
+I am incredibly thankful and proud that my [FreeQIDI tutorial](https://github.com/Phil1988/FreeQIDI) has gained so much popularity.  
 I've seen forum posts, GitHub repositories, and Reddit threads linking to my project in various languages, such as:
 
 * German
@@ -21,16 +54,26 @@ I've seen forum posts, GitHub repositories, and Reddit threads linking to my pro
 * Spanish
 * Russian
 
-At least, those are the languages I've come across so far :)
+And I am very happy that this gave you so much benefit and you like your printers more since.
 
-This is the next step in the evolution: Bringing the LCD back to life!  
-What started as a hobby project for my personal needs has grown significantly.  
-To meet the community's needs, I've spent hundreds of hours working on features I don't even personally need or use.
+But I also noticed while many were interested and wanted to get the benefits of a pure and recent system, my guide had a disadvantage that cannot be dismissed out of hand:
+No touch screen functionallty any more.
 
-If you appreciate my work and it has been beneficial to you,  
-I would be grateful if you consider supporting my efforts.
+While I appreciate the effort of [CChen616](https://github.com/CChen616) to provide a system based on a recent [bookworm](https://github.com/whb0514/QIDI_Max3_Bookworm), it still has several drawbacks:
+* Limited updates: Modified Klipper and Moonraker files prevent easy updates from mainline sources.
+* Unreliable thumbnails: Thumbnails only work if configured correctly in your slicer software (and at least for me it never really worked on the stock printer)
+* Z-offset risks: Applying the Z-offset to an additional file has reportedly caused "nozzle into bed" accidents for some users.
+* Reduced disk space: The additional included software can decrease available disk space.
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B4V3TJ6)
+So I started this project and its quite versataille.<br/>
+If you own a different printer but the same/similar LCD, you can start a feature request in the "issues" section.
+
+
+## You cant wait, right?
+I dont make it any longer.
+Head over to the Wiki for the [Installation Guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide) to use it.
+But I invite you to read the other parts as well!
+
 
 ## Why Should You Use This?
 
@@ -52,7 +95,7 @@ No more touchscreen.
 You could get a new mainboard and attach an HDMI touchscreen, or use (Tiger-)VNC to turn a wireless screen into a monitor, but come on:  
 The printer already has a screen, and you paid for it... So let's get that thing working again! ;)
 
-### Disclaimer
+## Disclaimer
 
 Before you start, please understand that this is a hobby project, and using my firmware is at your own risk.  
 I have spent many hours testing and flashed the LCD more than 1,000 times to ensure it provides the best possible experience,  
@@ -63,9 +106,7 @@ If you ever want or need to revert to the stock system after flashing my firmwar
 You can use a "recovery" image provided by Qidi and flash the official *.tft firmware back to the LCD.
 <br /><br /><br /><br /><br /><br /><br /><br />
 
-### You cant wait, right?
-I dont make it any longer.
-Head over to the Wiki for the [Installation Guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide) to use it :)
+
 
 
 
