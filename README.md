@@ -24,7 +24,7 @@ This includes:
 
 This makes it a perfect symbiosis and I call it **FreeDi** ;)
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e9e22094-b427-426d-8ff5-4a4eef93bb18" alt="Symbiosis">
+  <img src="https://github.com/user-attachments/assets/12e4dae0-9322-4cac-84e7-235b4980031c" alt="Symbiosis">
 </p>
 
 But honestly:<br/>
