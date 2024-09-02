@@ -29,7 +29,7 @@ This makes it a perfect symbiosis and I call it **"FreeDi"** ;)
 </p>
 
 But honestly:<br/>
-It is more then this.<br/>
+**It is more then this**.<br/>
 Have you ever had a look at the stock printer.cfg and macros?<br/>
 Yes! Its a mess. <br/>
 Its full of garbage sections, not optimized and the naming is "confusing".<br/>
@@ -39,7 +39,7 @@ And of course: No garbage any more!<br/>
 What started as a hobby project for my personal use has grown significantly. <br/>
 To meet the community's needs, I've spent hundreds of hours working on features I don't even personally need or use <br/>
 to give you the best control interface the stock printers can have.<br/>
-I hope you like it!<br/>
+**I hope you like it!**<br/>
 
 If you appreciate my work and it has been beneficial to you,  <br/>
 I would be grateful if you consider supporting my efforts with a tip:<br/>
