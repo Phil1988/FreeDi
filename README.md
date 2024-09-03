@@ -24,13 +24,13 @@ This makes it a perfect symbiosis and I call it **"FreeDi"** ;)
   <img src="https://github.com/user-attachments/assets/12e4dae0-9322-4cac-84e7-235b4980031c" alt="Symbiosis">
 </p>
 
-**But it is more then this.** <br/>
-Have you ever had a look at the stock printer.cfg and macros?<br/>
-Yes! Its a mess. <br/>
-Its full of garbage sections, not optimized and the naming is "confusing".<br/>
+**But it is more than this.** <br/>
+Have you ever taken a look at the stock printer.cfg and macros?<br/>
+Yes! It's a mess.<br/>
+It's full of unnecessary sections, not optimized, and the naming is confusing.<br/>
 And it is dangerous:<br/>
-Have you ever homed only the X or Y axis and run the bed into the nozzle or against the printers bottom? <br/>
-Yes! with the stock config, you can do this. <br/><br/>
+Have you ever homed only the X or Y axis and ended up running the bed into the nozzle or against the bottom of the printer?<br/>
+Yes! With the stock config, you can do this.<br/><br/>
 
 **FreeDi has a clear structure, macros have been optimized and created from scratch to not hit the bed into anything.**<br/>
 And of course: No garbage any more!<br/>
