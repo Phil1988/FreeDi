@@ -42,7 +42,7 @@ even personally need or use to give you the best control interface the stock pri
 <br/>
 <br/>
 If you appreciate my work and it has been beneficial to you,  <br/>
-I would be grateful if you consider supporting my efforts with a tip:<br/>
+I would be grateful if you consider supporting my efforts with a Ko-fi:<br/>
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B4V3TJ6)
 <br/>
 <br/>
