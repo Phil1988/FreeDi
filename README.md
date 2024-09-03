@@ -75,7 +75,7 @@ If you own a different printer but the same/similar LCD, you can start a feature
 
 ## You cant wait, right?
 I dont make it any longer.<br/>
-Head over to the Wiki for the [Installation Guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide) to use it.<br/>
+Head over to the [Wiki](https://github.com/Phil1988/FreeDi/wiki) for the [Installation Guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide) to use it.<br/>
 But I invite you to read the other parts as well!<br/>
 <br/>
 <br/>
