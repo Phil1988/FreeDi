@@ -5,6 +5,9 @@ A project aiming to use Qidis X3 series printers with the stock display and main
   <img src="https://github.com/user-attachments/assets/745a7b53-ab59-433f-a441-291efb53926c" alt="unlock">
 </p>
 
+Current supported printers:
+* X-Max 3
+* X-Plus 3
 ---
 
 The LCD firmware is called **X3seriesLCD** and created for those who want to use Qidi X3 series printers<br/>
