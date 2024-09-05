@@ -95,9 +95,9 @@ of the latest features from Klipper, as well as all the great software that inte
 
 Here's a list of software that unlocks the full functionality of the printer through my clean and updated Armbian-Klipper system:
 
-* Latest Klipper 0.12.0+ instead of 0.10.0  
-* Armbian Bookworm instead of Buster  
-* Python 3.12 instead of 2.7  
+* **Latest Klipper 0.12.0+** instead of 0.10.0  
+* **Armbian Bookworm** instead of Buster  
+* **Python 3.12** instead of 2.7  
 * And all the possibilities that come with the latest software versions (Fluidd, Moonraker, etc.)  
 * More available disk space  
 
