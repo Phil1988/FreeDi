@@ -13,9 +13,8 @@ Current supported printers:
 The LCD firmware is called **X3seriesLCD** and created for those who want to use Qidi X3 series printers<br/>
 with mainline (vanilla) Klipper and **the stock LCD screen**.<br/>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/4dc0d736-5878-4435-965b-18bd3e405728" alt="animated_menue"><img src="https://github.com/Phil1988/FreeDi/blob/main/animation.gif" alt="animated_menue">
+  <img src="https://github.com/user-attachments/assets/a98c5b18-c3e9-48b0-a21b-7799c58e283e" alt="animated_menue"><img src="https://github.com/Phil1988/FreeDi/blob/main/animation.gif" alt="animated_menue">
 </p>
-
 
 But it is more then "only" a screen firmware.<br/>
 <br/>
