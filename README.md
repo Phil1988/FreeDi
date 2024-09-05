@@ -110,9 +110,9 @@ The printer already has a screen, and you paid for it... So let's get that thing
 
 ## Disclaimer
 
-Before you start, please understand that this is a hobby project, and using my firmware is at your own risk.  
+Before you start, please understand that this is a hobby project and using my firmware is at your own risk.  
 I have spent many hours testing and flashed the LCD more than 1,000 times to ensure it provides <br/>
-the best possible experience,but I can't test every possible scenario. If you encounter any issues,<br/>
+the best possible experience, but I can't test every possible scenario. If you encounter any issues,<br/>
 please report them here on GitHub.
 
 Please do not contact Qidi support if you have any problems. By making these modifications,<br/> 
