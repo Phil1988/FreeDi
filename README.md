@@ -1,5 +1,5 @@
 # FreeDi
-A project aiming to use Qidis X3 series stock displays with mainline Klipper.<br/>
+A project aiming to use Qidis X3 series printers with the stock display and mainline Klipper.<br/>
 **Lets unlock the full potential of your printer together!**
 <p align="center">
   <img src="https://github.com/user-attachments/assets/745a7b53-ab59-433f-a441-291efb53926c" alt="Bild_thumb">
