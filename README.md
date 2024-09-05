@@ -80,14 +80,12 @@ So I started this project and its quite versataille.<br/>
 If you own a different printer but the same/similar LCD, you can start a feature request in the "issues" section.
 <br/>
 <br/>
-
 ## You cant wait, right?
 I dont make it any longer.<br/>
 Head over to the [Wiki](https://github.com/Phil1988/FreeDi/wiki) for the [Installation Guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide) to use it.<br/>
-But I invite you to read the other parts as well!<br/>
+But I invite you to read the other parts as well!
 <br/>
 <br/>
-
 ## Why Should You Use This?
 
 Qidi's X3 series printers are built with hardware that has great potential, but they run on outdated software.  
@@ -110,7 +108,6 @@ You could get a new mainboard and attach an HDMI touchscreen, or use (Tiger-)VNC
 The printer already has a screen, and you paid for it... So let's get that thing working again! ;)
 <br/>
 <br/>
-
 ## Disclaimer
 
 Before you start, please understand that this is a hobby project and using my firmware is at your own risk.  
@@ -122,7 +119,21 @@ Please do not contact Qidi support if you have any problems. By making these mod
 you will void your warranty in this regard.<br/>  
 If you ever want or need to revert to the stock system after flashing my firmware, don't worry – it's possible.<br/>  
 You can use a "recovery" image provided by Qidi and flash the official *.tft firmware back to the LCD.
-<br /><br /><br /><br /><br /><br /><br /><br />
+<br/>
+<br/>
+## Notice Regarding Guides and Contributions
+
+I kindly ask that you **do not copy or redistribute any parts of my guide** without explicit permission.<br/>
+In the past, sections of my work have been used without proper credit and claimed as their work.<br/>
+Or incorrect parts have been added to their guides and resulted in additional effort on my part,<br/>
+as I was contacted for support related to these unauthorized copies which had errors.<br/>
+<br/>
+If you have suggestions or improvements, I warmly invite you to **submit your contributions directly to me**.<br/>
+I will gladly consider integrating them to improve the guide and firmwares for everyone.<br/>
+This helps ensure accuracy and reduces unnecessary support issues that everyone benefits from.<br/>
+<br/>
+Thank you for respecting this request and for helping to foster a supportive and fair community.<br/>
+<br/><br/>
 
 
 
