@@ -10,8 +10,9 @@ A project aiming to use Qidis X3 series printers with the stock display and main
 The LCD firmware is called **X3seriesLCD** and created for those who want to use Qidi X3 series printers<br/>
 with mainline (vanilla) Klipper and **the stock LCD screen**.<br/>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/ebb533a3-c913-410d-a14e-57b98fa75d45" alt="screen">
+  <img src="https://github.com/user-attachments/assets/4dc0d736-5878-4435-965b-18bd3e405728" alt="animated_menue"><img src="https://github.com/Phil1988/FreeDi/blob/main/animation.gif" alt="animated_menue">
 </p>
+
 
 But it is more then "only" a screen firmware.<br/>
 <br/>
