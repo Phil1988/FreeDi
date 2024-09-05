@@ -126,7 +126,7 @@ You can use a "recovery" image provided by Qidi and flash the official *.tft fir
 I kindly ask that you **do not copy or redistribute any parts of my guide** without explicit permission.<br/>
 In the past, sections of my work have been used without proper credit and claimed as their work.<br/>
 Or incorrect parts have been added to their guides and resulted in additional effort on my part,<br/>
-as I was contacted for support related to these unauthorized copies which had errors.<br/>
+as I was contacted for support related to these guides which had errors.<br/>
 <br/>
 If you have suggestions or improvements, I warmly invite you to **submit your contributions directly to me**.<br/>
 I will gladly consider integrating them to improve the guide and firmwares for everyone.<br/>
