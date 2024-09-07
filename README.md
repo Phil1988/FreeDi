@@ -15,7 +15,8 @@ with mainline (vanilla) Klipper and **the stock LCD screen**.<br/>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/a98c5b18-c3e9-48b0-a21b-7799c58e283e" alt="animated_menue"><img src="https://github.com/Phil1988/FreeDi/blob/main/animation.gif" alt="animated_menue">
 </p>
-
+If you want to see more, check out the [Menue-guide](https://github.com/Phil1988/FreeDi/wiki/Menue-guide) for a walk through the most important functions.<br/>
+<br/>
 But it is more then "only" a screen firmware.<br/>
 <br/>
 What began as a straightforward tutorial has blossomed into a complete ecosystem.<br/>
