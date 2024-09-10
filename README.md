@@ -13,9 +13,10 @@ Current supported printers:
 The LCD firmware is called **X3seriesLCD** and created for those who want to use Qidi X3 series printers<br/>
 with mainline (vanilla) Klipper and **the stock LCD screen**.<br/>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/a98c5b18-c3e9-48b0-a21b-7799c58e283e" alt="animated_menue"><img src="https://github.com/Phil1988/FreeDi/blob/main/animation.gif" alt="animated_menue">
+  <img src="https://github.com/user-attachments/assets/378c20ba-1330-44b9-b7c2-e433fe61a699" alt="menue_teaser">
 </p>
-If you want to see more, check out the [Menue-guide](https://github.com/Phil1988/FreeDi/wiki/Menue-guide) for a walk through the most important functions.<br/>
+
+If you want to see more, check out the [menue guide](https://github.com/Phil1988/FreeDi/wiki/Menue-guide) for a walk through the most important functions.<br/>
 <br/>
 But it is more then "only" a screen firmware.<br/>
 <br/>
@@ -43,6 +44,11 @@ Yes! With the stock config, you can do this.<br/><br/>
 **FreeDi has a clear structure, macros have been optimized and created from scratch to not hit the bed into anything.**<br/>
 And of course: No garbage any more!<br/>
 
+It also fixes the "System starts abnormally"-error
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a98c5b18-c3e9-48b0-a21b-7799c58e283e" alt="animated_menue"><img src="https://github.com/Phil1988/FreeDi/blob/main/animation.gif" alt="animated_menue">
+</p>
+
 What started as a hobby project for my personal use has grown significantly. <br/>
 To meet the community's needs, I've spent hundreds of hours working on features I don't<br/>
 even personally need or use to give you the best control interface the stock printers can have.<br/>
@@ -57,14 +63,7 @@ I would be grateful if you consider supporting my efforts with a Ko-fi:<br/>
 ## But, why creating this project?
 
 I am incredibly thankful and proud that my [FreeQIDI tutorial](https://github.com/Phil1988/FreeQIDI) has gained so much popularity.  
-I've seen forum posts, GitHub repositories, and Reddit threads linking to my project in various languages, such as:
-
-* German
-* French
-* Portuguese
-* Spanish
-* Russian
-
+I've seen forum posts, GitHub repositories, and Reddit threads linking to my project in various languages, such as German, French, Portuguese, Spanish, Russian, ...
 And I am very happy that this gave you so much benefit and you like your printers more since.
 
 But I also noticed while many were interested and wanted to get the benefits of a pure and recent system, my guide had a disadvantage that cannot be dismissed out of hand:
