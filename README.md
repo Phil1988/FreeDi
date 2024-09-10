@@ -1,5 +1,5 @@
 # FreeDi
-A project aiming to use Qidis X3 series printers with the stock display and mainline Klipper.<br/>
+A project aiming to use QIDIs X3 series printers with the stock display and mainline Klipper.<br/>
 **Lets unlock the full potential of your printer together!**
 <p align="center">
   <img src="https://github.com/user-attachments/assets/745a7b53-ab59-433f-a441-291efb53926c" alt="unlock">
@@ -63,7 +63,7 @@ I would be grateful if you consider supporting my efforts with a Ko-fi:<br/>
 ## But, why creating this project?
 
 I am incredibly thankful and proud that my [FreeQIDI tutorial](https://github.com/Phil1988/FreeQIDI) has gained so much popularity.  
-I've seen forum posts, GitHub repositories, and Reddit threads linking to my project in various languages, such as German, French, Portuguese, Spanish, Russian, ...
+I've seen forum posts, GitHub repositories, and Reddit threads linking to my project in various languages, such as German, French, Portuguese, Spanish, Russian, ... <br/>
 And I am very happy that this gave you so much benefit and you like your printers more since.
 
 But I also noticed while many were interested and wanted to get the benefits of a pure and recent system, my guide had a disadvantage that cannot be dismissed out of hand:
