@@ -3,9 +3,13 @@
 # to delete '\r' signs use
 # sed -i 's/\r$//' install.sh
 
+# Define variables
+USER_NAME=$(whoami)
+NM_CONF_FILE="/etc/NetworkManager/NetworkManager.conf"
+
 # Set ownership and permissions for the ~/X3seriesLCD directory
 echo "Setting ownership and permissions for ~/X3seriesLCD"
-sudo chown -R mks:mks ~/X3seriesLCD
+sudo chown -R $USER_NAME:$USER_NAME ~/X3seriesLCD
 sudo chmod -R 755 ~/X3seriesLCD
 echo "Ownership and permissions set"
 
@@ -92,9 +96,6 @@ fi
 # Console output
 echo "Changing permissions to enable nmcli commands without sudo (necessary for setting wifi via screen)..."
 
-# Define variables
-USER_NAME=$(whoami)
-NM_CONF_FILE="/etc/NetworkManager/NetworkManager.conf"
 
 # Add the user to the netdev group
 echo "Adding the user ${USER_NAME} to the 'netdev' group..."
