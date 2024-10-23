@@ -120,16 +120,17 @@ If you ever want or need to revert to the stock system after flashing my firmwar
 You can use a "recovery" image provided by Qidi and flash the official *.tft firmware back to the LCD.
 <br/>
 <br/>
-## Notice Regarding Guides and Contributions
+## Notice Regarding Guides, Contributions And Sharing
 
-I kindly ask that you **do not copy or redistribute any parts of my guide** without explicit permission.<br/>
+I kindly ask that you **do not copy, share or redistribute any parts of my guide and software** without explicit permission.<br/>
 In the past, sections of my work have been used without proper credit and claimed as their work.<br/>
-Or incorrect parts have been added to their guides and resulted in additional effort on my part,<br/>
-as I was contacted for support related to these guides which had errors.<br/>
+Or incorrect parts have been added to other guides and resulted in additional effort on my part.<br/>
+This resulted in me being contacted for support related to these guides which had errors.<br/>
+I hope you do understand that I dont like to spend extra time to fix other faults :).<br/>
 <br/>
 If you have suggestions or improvements, I warmly invite you to **submit your contributions directly to me**.<br/>
 I will gladly consider integrating them to improve the guide and firmwares for everyone.<br/>
-This helps ensure accuracy and reduces unnecessary support issues that everyone benefits from.<br/>
+This not only improves the usability for everyone, but also helps to ensure accuracy and reduces unnecessary support issues.<br/>
 <br/>
 Thank you for respecting this request and for helping to foster a supportive and fair community.<br/>
 <br/><br/>
