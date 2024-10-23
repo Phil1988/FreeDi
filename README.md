@@ -8,9 +8,57 @@ A project aiming to use QIDIs X3 series printers with the stock display and main
 Current supported printers:
 * **X-Max 3**
 * **X-Plus 3**
----
+<br/>
+If you appreciate my work and it has been beneficial to you,  <br/>
+I would be grateful if you consider supporting my efforts with a Ko-fi:<br/>
 
-The LCD firmware is called **X3seriesLCD** and created for those who want to use Qidi X3 series printers<br/>
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B4V3TJ6)
+
+This also helps me to justify puting more time to maintain this project for the future :)
+
+---
+## Why Should You Use This?
+
+Qidi's X3 series printers are built with hardware that has great potential, but they run on outdated software.  
+**With the right software, these printers can work better, faster, and be more user-friendly for everyone.**  
+I believe that what I offer provides you with a better overall experience and ensures you aren't locked out<br/>
+of the latest features from Klipper, as well as all the great software that integrates with it <br/>
+(such as Moonraker, Mainsail/Fluidd, Crowsnest, Shaketune, and thousands of plugins).
+
+Here's a list of software that unlocks the full functionality of the printer through my clean and updated Armbian-Klipper system:
+
+* **Latest Klipper 0.12.0+** instead of 0.10.0
+* **Pure Klipper** instead of a modified/hacked klipper and moonraker 
+* **Armbian Bookworm** instead of Buster  
+* **Python 3.12** instead of 2.7  
+* And all the possibilities that come with the latest software versions (Fluidd, Moonraker, etc.)  
+* More available disk space 
+<br/>
+
+**But it is more than this.** <br/>
+Have you ever taken a look at the stock printer config and macros?<br/>
+Yes! It's a mess.<br/>
+It's full of unnecessary sections, not optimized, and the naming is confusing.<br/>
+Have you ever homed only the X or Y axis and ended up running the bed into the nozzle or against the bottom of the printer?<br/>
+Yes! With the stock config, you can do this.<br/><br/>
+
+**FreeDi has a clear structure, macros have been optimized and created from scratch to not hit the bed into anything.**<br/>
+And of course: No garbage any more!<br/>
+You will notice many things are now snappier and just works better/faster eg. like almost 50% reduced bed meshing time.<br/>
+
+It also fixes the "System starts abnormally"-error
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a98c5b18-c3e9-48b0-a21b-7799c58e283e" alt="animated_menue"><img src="https://github.com/Phil1988/FreeDi/blob/main/animation.gif" alt="animated_menue">
+</p>
+
+What started as a hobby project for my personal use has grown significantly. <br/>
+To meet the community's needs, I've spent hundreds of hours working on features I don't<br/>
+even personally need or use to give you the best control interface the stock printers can have.<br/>
+**I hope you like it!**<br/>
+
+---
+## The Touchscreen Ecosystem
+The LCD software is called **X3seriesLCD** and created for those who want to use Qidi X3 series printers<br/>
 with mainline (vanilla) Klipper and **the stock LCD screen**.<br/>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/378c20ba-1330-44b9-b7c2-e433fe61a699" alt="menue_teaser">
@@ -32,42 +80,21 @@ This makes it a perfect symbiosis and I call it **"FreeDi"** ;)
 <p align="center">
   <img src="https://github.com/user-attachments/assets/12e4dae0-9322-4cac-84e7-235b4980031c" alt="Symbiosis">
 </p>
-
-**But it is more than this.** <br/>
-Have you ever taken a look at the stock printer.cfg and macros?<br/>
-Yes! It's a mess.<br/>
-It's full of unnecessary sections, not optimized, and the naming is confusing.<br/>
-And it is dangerous:<br/>
-Have you ever homed only the X or Y axis and ended up running the bed into the nozzle or against the bottom of the printer?<br/>
-Yes! With the stock config, you can do this.<br/><br/>
-
-**FreeDi has a clear structure, macros have been optimized and created from scratch to not hit the bed into anything.**<br/>
-And of course: No garbage any more!<br/>
-
-It also fixes the "System starts abnormally"-error
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/a98c5b18-c3e9-48b0-a21b-7799c58e283e" alt="animated_menue"><img src="https://github.com/Phil1988/FreeDi/blob/main/animation.gif" alt="animated_menue">
-</p>
-
-What started as a hobby project for my personal use has grown significantly. <br/>
-To meet the community's needs, I've spent hundreds of hours working on features I don't<br/>
-even personally need or use to give you the best control interface the stock printers can have.<br/>
-**I hope you like it!**<br/>
 <br/>
-<br/>
-If you appreciate my work and it has been beneficial to you,  <br/>
-I would be grateful if you consider supporting my efforts with a Ko-fi:<br/>
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B4V3TJ6)
-<br/>
-<br/>
+
 ## But, why creating this project?
 
-I am incredibly thankful and proud that my [FreeQIDI tutorial](https://github.com/Phil1988/FreeQIDI) has gained so much popularity.  
-I've seen forum posts, GitHub repositories, and Reddit threads linking to my project in various languages, such as German, French, Portuguese, Spanish, Russian, ... <br/>
-And I am very happy that this gave you so much benefit and you like your printers more since.
+I am incredibly thankful and proud that my [FreeQIDI tutorial](https://github.com/Phil1988/FreeQIDI) has gained so much popularity.<br/>
+I've seen forum posts, GitHub repositories, Reddit threads and more linking to my project in various languages such as English, German, French, Portuguese, Spanish, Russian, ...<br/>
+And I am very happy that this gave you so much benefit and you like your printers more since.<br/>
 
-But I also noticed while many were interested and wanted to get the benefits of a pure and recent system, my guide had a disadvantage that cannot be dismissed out of hand:
-No touch screen functionallty any more.
+But I also noticed while many were interested and wanted to get the benefits of a pure and recent system, my guide had a disadvantage that cannot be dismissed out of hand:<br/>
+No touch screen functionallty any more.<br/>
+You could get a new mainboard and attach an HDMI touchscreen, or use (Tiger-)VNC to turn a wireless screen into a monitor, but come on:  <br/>
+The printer already has a screen, and you paid for it... So let's get that thing working again! ;)<br/>
+
+Additionally my FreeQIDI tutorial was mainly followed by the more "techy people" and simple users have been somehow locked out.<br/>
+My goal is to give **every owner** of a X-3 series printer an improved user experience over the stock system.<br/>
 
 While I appreciate the effort of [CChen616](https://github.com/CChen616) to provide a system based on a recent [bookworm](https://github.com/whb0514/QIDI_Max3_Bookworm), it still has several drawbacks:
 * Limited updates: Modified Klipper and Moonraker files prevent easy updates from mainline sources.
@@ -85,28 +112,7 @@ Head over to the [Wiki](https://github.com/Phil1988/FreeDi/wiki) for the [Instal
 But I invite you to read the other parts as well!
 <br/>
 <br/>
-## Why Should You Use This?
 
-Qidi's X3 series printers are built with hardware that has great potential, but they run on outdated software.  
-**With the right software, these printers can work better, faster, and be more user-friendly for everyone.**  
-I believe that what I offer provides you with a better overall experience and ensures you aren't locked out<br/>
-of the latest features from Klipper, as well as all the great software that integrates with it <br/>
-(such as Moonraker, Mainsail/Fluidd, Crowsnest, Shaketune, and thousands of plugins).
-
-Here's a list of software that unlocks the full functionality of the printer through my clean and updated Armbian-Klipper system:
-
-* **Latest Klipper 0.12.0+** instead of 0.10.0  
-* **Armbian Bookworm** instead of Buster  
-* **Python 3.12** instead of 2.7  
-* And all the possibilities that come with the latest software versions (Fluidd, Moonraker, etc.)  
-* More available disk space  
-
-However, even though the tutorial was straightforward, there was one drawback that was a dealbreaker for some:  
-No more touchscreen.  
-You could get a new mainboard and attach an HDMI touchscreen, or use (Tiger-)VNC to turn a wireless screen into a monitor, but come on:  
-The printer already has a screen, and you paid for it... So let's get that thing working again! ;)
-<br/>
-<br/>
 ## Disclaimer
 
 Before you start, please understand that this is a hobby project and using my firmware is at your own risk.  
