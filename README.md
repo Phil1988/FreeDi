@@ -10,7 +10,7 @@ Current supported printers:
 * **X-Plus 3**
 <br/>
 If you appreciate my work and it has been beneficial to you,  <br/>
-I would be grateful if you consider supporting my efforts with a Ko-fi:<br/>
+I would be grateful if you consider supporting my efforts with a ko-fi:<br/>
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B4V3TJ6)
 
