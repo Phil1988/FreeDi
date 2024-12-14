@@ -8,6 +8,16 @@ A project aiming to use QIDIs X3 series printers with the stock display and main
 Current supported printers:
 * **X-Max 3**
 * **X-Plus 3**
+* **X-Smart 3** (beta)
+<br>
+
+Possibly working:
+* * **Plus 4** (Testers needed)
+<br>
+
+Future support:
+* * **Q1 Pro** (Estimated firmware release: April 2025)
+
 <br/>
 If you appreciate my work and it has been beneficial to you,  <br/>
 I would be grateful if you consider supporting my efforts with a ko-fi:<br/>
