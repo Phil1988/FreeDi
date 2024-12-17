@@ -120,6 +120,23 @@ else
 	exit 1
 fi
 
+# Define the file path
+file="/home/mks/printer_data/moonraker.asvc"
+
+# Check if the file exists
+if [ -f "$file" ]; then
+    # Search for the string "FreeDi" in the file
+    if grep -Fxq "FreeDi" "$file"; then
+        echo "\"FreeDi\" is already present in the file. No changes made."
+    else
+        # Append "FreeDi" to the end of the file
+        echo "FreeDi" >> "$file"
+        echo "\"FreeDi\" has been added to the file."
+    fi
+else
+    echo "File not found: $file"
+fi
+
 
 # Define variables
 USER_NAME=$(whoami)
