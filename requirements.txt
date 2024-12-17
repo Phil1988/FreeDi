@@ -1,2 +1,5 @@
 pip
 configparser
+requests
+pyserial
+Pillow
