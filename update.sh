@@ -4,7 +4,7 @@
 # sed -i 's/\r$//' install.sh
 
 #Set variables
-SERVICE="FreeDiLCD.service"
+SERVICE="FreeDi.service"
 BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 LCDDIR="${BKDIR}/FreeDiLCD"
 LCDFIRMWAREDIR="${BKDIR}/screen_firmwares"
@@ -74,7 +74,7 @@ fi
 
 # Start FreeDiLCD.service
 echo "Starting FreeDiLCD.service..."
-systemctl --user start FreeDiLCD.service
+systemctl --user start $SERVICE
 echo "FreeDiLCD.service started!"
 
 # Console output
