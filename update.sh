@@ -74,6 +74,11 @@ else
 	echo "Firmware up to date"
 fi
 
+# Start FreeDiLCD.service
+echo "Starting FreeDiLCD.service..."
+systemctl start FreeDiLCD.service
+echo "FreeDiLCD.service started!"
+
 # Console output
 echo "Update complete!"
 echo "Please restart your system for the changes to take effect."
