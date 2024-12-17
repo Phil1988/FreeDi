@@ -7,7 +7,9 @@
 config_file="config.ini"
 
 # Read the printer model from the config file
-printer_model=$(grep -oP '^printer_model\s*=\s*\K.+' "$config_file")
+#printer_model=$(grep -oP '^printer_model\s*=\s*\K.+' "$config_file")
+printer_model=$(grep -oP '^\s*printer_model\s*=\s*\K.+' "$config_file" | tr -d '[:space:]')
+
 
 # Check if the value was read successfully
 if [ -n "$printer_model" ]; then
