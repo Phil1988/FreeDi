@@ -249,29 +249,31 @@ echo "Making FreeDiLCD.service executable..."
 sudo chmod +x ${X3DIR}/FreeDiLCD.service
 echo "FreeDiLCD.service is now executable!"
 
-# Move FreeDiLCD.service to systemd system directory
-echo "Moving FreeDiLCD.service to /etc/systemd/system/"
-sudo cp ${X3DIR}/FreeDiLCD.service /etc/systemd/system/FreeDiLCD.service
-echo "FreeDiLCD.service moved to /etc/systemd/system/"
+# Move FreeDiLCD.service to systemd directory
+echo "Creating folder ~/.config/systemd/user"
+mkdir -p ~/.config/systemd/user
+echo "Moving FreeDiLCD.service to ~/.config/systemd/user/"
+sudo cp ${X3DIR}/FreeDiLCD.service ~/.config/systemd/user/FreeDiLCD.service
+echo "FreeDiLCD.service moved to ~/.config/systemd/user/"
 
 # Set correct permissions for FreeDiLCD.service
 echo "Setting permissions for /etc/systemd/system/FreeDiLCD.service"
-sudo chmod 644 /etc/systemd/system/FreeDiLCD.service
+#sudo chmod 644 /etc/systemd/system/FreeDiLCD.service
 echo "Permissions set to 644 for /etc/systemd/system/FreeDiLCD.service!"
 
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
-sudo systemctl daemon-reload
+sudo systemctl --user daemon-reload
 echo "systemd manager configuration reloaded!"
 
 # Enable FreeDiLCD.service to start at boot
 echo "Enabling FreeDiLCD.service to start at boot..."
-sudo systemctl enable FreeDiLCD.service
+sudo systemctl --user enable FreeDiLCD.service
 echo "FreeDiLCD.service enabled to start at boot!"
 
 # Start FreeDiLCD.service
 echo "Starting FreeDiLCD.service..."
-sudo systemctl start FreeDiLCD.service
+sudo systemctl --user start FreeDiLCD.service
 echo "FreeDiLCD.service started!"
 
 # Update package lists
