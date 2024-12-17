@@ -87,10 +87,10 @@ if [ -f "$MOONFILE" ]; then
 	echo "File exists: $MOONFILE"
 	
 	# Check if the line [update_manager freeDi] exists
-	if grep -q "^\[update_manager freeDi\]" "$MOONFILE"; then
-		echo "The section [update_manager freeDi] already exists in the file."
+	if grep -q "^\[update_manager FreeDi\]" "$MOONFILE"; then
+		echo "The section [update_manager FreeDi] already exists in the file."
 	else
-		echo "The section [update_manager freeDi] does not exist. Adding it to the end of the file."
+		echo "The section [update_manager FreeDi] does not exist. Adding it to the end of the file."
 		
 		# Append the block to the end of the file
 		cat <<EOL >> "$MOONFILE"
