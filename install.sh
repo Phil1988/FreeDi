@@ -17,7 +17,7 @@ else
 fi
 
 #Set variables
-SERVICE="X3seriesLCD.service"
+SERVICE="FreeDiLCD.service"
 BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 X3DIR="${BKDIR}/FreeDiLCD"
 LCDFIRMWAREDIR="${BKDIR}/screen_firmwares"
