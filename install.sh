@@ -69,7 +69,7 @@ LCD_SERIAL_INIT_BAUD=0
 LCD_SERIAL_FLASH_BAUD=921600
 LCD_FIRMWARE="${LCDFIRMWAREDIR}/X3seriesLCD_firmware_v1.03.tft"
 
-$PYTHON_EXEC "${X3DIR}/lcd_helper.py" ${LCD_FIRMWARE} ${LCD_SERIAL_PORT} ${LCD_SERIAL_INIT_BAUD} ${LCD_SERIAL_FLASH_BAUD}
+#$PYTHON_EXEC "${X3DIR}/lcd_helper.cpython-311-aarch64-linux-gnu.so" ${LCD_FIRMWARE} ${LCD_SERIAL_PORT} ${LCD_SERIAL_INIT_BAUD} ${LCD_SERIAL_FLASH_BAUD}
 
 if [ $? -ne 0 ]; then
 	echo "Error: Firmware update failed!"
