@@ -246,14 +246,14 @@ echo "start.py is now executable!"
 
 # Make FreeDiLCD.service file executable
 echo "Making FreeDiLCD.service executable..."
-sudo chmod +x ${X3DIR}/FreeDiLCD.service
+#sudo chmod +x ${X3DIR}/FreeDiLCD.service
 echo "FreeDiLCD.service is now executable!"
 
 # Move FreeDiLCD.service to systemd directory
 echo "Creating folder ~/.config/systemd/user"
 mkdir -p ~/.config/systemd/user
 echo "Moving FreeDiLCD.service to ~/.config/systemd/user/"
-sudo cp ${X3DIR}/FreeDiLCD.service ~/.config/systemd/user/FreeDiLCD.service
+cp ${X3DIR}/FreeDiLCD.service ~/.config/systemd/user/FreeDiLCD.service
 echo "FreeDiLCD.service moved to ~/.config/systemd/user/"
 
 # Set correct permissions for FreeDiLCD.service
@@ -263,17 +263,17 @@ echo "Permissions set to 644 for /etc/systemd/system/FreeDiLCD.service!"
 
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
-sudo systemctl --user daemon-reload
+systemctl --user daemon-reload
 echo "systemd manager configuration reloaded!"
 
 # Enable FreeDiLCD.service to start at boot
 echo "Enabling FreeDiLCD.service to start at boot..."
-sudo systemctl --user enable FreeDiLCD.service
+systemctl --user enable FreeDiLCD.service
 echo "FreeDiLCD.service enabled to start at boot!"
 
 # Start FreeDiLCD.service
 echo "Starting FreeDiLCD.service..."
-sudo systemctl --user start FreeDiLCD.service
+systemctl --user start FreeDiLCD.service
 echo "FreeDiLCD.service started!"
 
 # Update package lists
