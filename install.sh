@@ -19,7 +19,7 @@ fi
 #Set variables
 SERVICE="X3seriesLCD.service"
 BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-X3DIR="${BKDIR}/X3seriesLCD"
+X3DIR="${BKDIR}/FreeDiLCD"
 LCDFIRMWAREDIR="${BKDIR}/screen_firmwares"
 
 #doing homework
