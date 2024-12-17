@@ -1,0 +1,15 @@
+[Unit]
+Description=Starting the FreeDiLCD service
+After=moonraker.service
+
+[Service]
+Type=simple
+User=mks
+WorkingDirectory=/home/mks/FreeDiLCD
+ExecStartPre=/bin/sleep 10
+ExecStart=/bin/sh -c '/usr/bin/env python3 /home/mks/FreeDiLCD/start.py  > /tmp/FreeDiLCD.log 2>&1'
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target
