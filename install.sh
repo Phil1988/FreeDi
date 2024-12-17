@@ -127,14 +127,14 @@ file="/home/mks/printer_data/moonraker.asvc"
 if [ -f "$file" ]; then
     # Search for the string "FreeDi" in the file
     if grep -Fxq "FreeDi" "$file"; then
-        echo "\"FreeDi\" is already present in the file. No changes made."
+        echo "\"FreeDi\" is already present in the moonraker.asvc file. No changes made."
     else
         # Append "FreeDi" to the end of the file
         echo "FreeDi" >> "$file"
-        echo "\"FreeDi\" has been added to the file."
+        echo "\"FreeDi\" has been added to the moonraker.asvc file."
     fi
 else
-    echo "File not found: $file"
+    echo "moonraker.asvc file not found: $file"
 fi
 
 
