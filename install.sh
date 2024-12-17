@@ -105,7 +105,7 @@ virtualenv: ~/klippy-env
 requirements: requirements.txt
 install_script: install.sh
 is_system_service: False
-managed_services: klipper
+managed_services: FreeDi
 info_tags:
 	desc=FreeDi LCD Screen
 	sparse_dirs:
