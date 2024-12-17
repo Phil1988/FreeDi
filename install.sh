@@ -136,7 +136,6 @@ else
     echo "moonraker.asvc file not found: $file"
 fi
 
-
 # Define variables
 USER_NAME=$(whoami)
 NM_CONF_FILE="/etc/NetworkManager/NetworkManager.conf"
