@@ -1,5 +1,5 @@
 [Unit]
-Description=Starting the FreeDiLCD service
+Description=Starting the FreeDi service
 After=moonraker.service
 
 [Service]
