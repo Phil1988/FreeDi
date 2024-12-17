@@ -269,6 +269,10 @@ echo "Enabling FreeDiLCD.service to start at boot..."
 sudo systemctl enable FreeDiLCD.service
 echo "FreeDiLCD.service enabled to start at boot!"
 
+# Start FreeDiLCD.service
+echo "Starting FreeDiLCD.service..."
+sudo systemctl start FreeDiLCD.service
+echo "FreeDiLCD.service started!"
 
 # Update package lists
 echo "Updating package lists..."
