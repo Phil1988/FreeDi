@@ -51,7 +51,20 @@ LCD_SERIAL_INIT_BAUD=0
 LCD_SERIAL_FLASH_BAUD=921600
 LCD_FIRMWARE="${LCDFIRMWAREDIR}/X3seriesLCD_firmware_v1.03.tft"
 
-#$PYTHON_EXEC "${X3DIR}/lcd_helper.cpython-311-aarch64-linux-gnu.so" ${LCD_FIRMWARE} ${LCD_SERIAL_PORT} ${LCD_SERIAL_INIT_BAUD} ${LCD_SERIAL_FLASH_BAUD}
+# Find the lcd_helper shared object file
+lcd_helper_file=$(find "${X3DIR}" -name "lcd_helper*.so" | head -n 1)
+
+# Check if the file was found
+if [ -z "$lcd_helper_file" ]; then
+    echo "lcd_helper shared object file not found in ${X3DIR}."
+    exit 1
+fi
+
+#echo "Found lcd_helper file: $lcd_helper_file"
+
+# Run the shared object with the given arguments
+$PYTHON_EXEC -c "import sys; sys.path.insert(0, '${X3DIR}'); import lcd_helper; lcd_helper.run('${LCD_FIRMWARE}', '${LCD_SERIAL_PORT}', ${LCD_SERIAL_INIT_BAUD}, ${LCD_SERIAL_FLASH_BAUD})"
+
 
 if [ $? -ne 0 ]; then
 	echo "Error: Firmware update failed!"
