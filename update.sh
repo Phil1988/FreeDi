@@ -32,7 +32,7 @@ if systemctl list-units --type=service --all | grep "$SERVICE"; then
 	#echo "Service $SERVICE is available."
 	
 	# Stop the service
-	if systemctl --user stop "$SERVICE"; then
+	if systemctl stop "$SERVICE"; then
 		echo "Service $SERVICE stopped successfully."
 	else
 		echo "Failed to stop service $SERVICE." >&2
@@ -74,7 +74,7 @@ fi
 
 # Start FreeDiLCD.service
 echo "Starting FreeDiLCD.service..."
-systemctl --user start $SERVICE
+systemctl start $SERVICE
 echo "FreeDiLCD.service started!"
 
 # Console output
