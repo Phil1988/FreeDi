@@ -104,7 +104,6 @@ origin: https://github.com/Phil1988/FreeDi
 virtualenv: ~/klippy-env
 requirements: requirements.txt
 install_script: install.sh
-is_system_service: False
 managed_services: FreeDi
 info_tags:
 	desc=FreeDi LCD Screen
