@@ -3,21 +3,6 @@
 # to delete '\r' signs use
 # sed -i 's/\r$//' install.sh
 
-# Path to the config.ini file
-config_file="config.ini"
-
-# Read the printer model from the config file
-#printer_model=$(grep -oP '^printer_model\s*=\s*\K.+' "$config_file")
-printer_model=$(grep -oP '^\s*printer_model\s*=\s*\K.+' "$config_file" | tr -d '[:space:]')
-
-
-# Check if the value was read successfully
-if [ -n "$printer_model" ]; then
-    echo "The printer model is: $printer_model"
-else
-    echo "Error: Printer model not found."
-fi
-
 #Set variables
 SERVICE="FreeDiLCD.service"
 BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
@@ -27,6 +12,19 @@ LCDFIRMWAREDIR="${BKDIR}/screen_firmwares"
 # Set python path to klipper env
 KENV="${HOME}/klippy-env"
 PYTHON_EXEC="$KENV/bin/python"
+
+# Path to the config.ini file
+config_file="${X3DIR}/config.ini"
+
+# Read the printer model from the config file
+printer_model=$(grep -oP '^printer_model\s*=\s*\K.+' "$config_file")
+
+# Check if the value was read successfully
+if [ -n "$printer_model" ]; then
+    echo "The printer model is: $printer_model"
+else
+    echo "Error: Printer model not found."
+fi
 
 
 # LCD firmware logic
