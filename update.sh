@@ -26,7 +26,6 @@ else
     echo "Error: Printer model not found."
 fi
 
-
 # LCD firmware logic
 # Check if the service exists
 if systemctl list-units --type=service --all | grep "$SERVICE"; then
