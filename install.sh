@@ -23,7 +23,7 @@ X3DIR="${BKDIR}/FreeDiLCD"
 LCDFIRMWAREDIR="${BKDIR}/screen_firmwares"
 
 #doing homework
-git sparse-checkout add X3seriesLCD/
+git sparse-checkout add FreeDiLCD/
 git sparse-checkout add screen_firmwares/
 
 # Set python path to klipper env
@@ -124,10 +124,10 @@ fi
 USER_NAME=$(whoami)
 NM_CONF_FILE="/etc/NetworkManager/NetworkManager.conf"
 
-# Set ownership and permissions for the ~/X3seriesLCD directory
-echo "Setting ownership and permissions for ~/X3seriesLCD"
-sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}/X3seriesLCD
-sudo chmod -R 755 ${BKDIR}/X3seriesLCD
+# Set ownership and permissions for the ~/FreeDiLCD directory
+echo "Setting ownership and permissions for ~/FreeDiLCD"
+sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}/FreeDiLCD
+sudo chmod -R 755 ${BKDIR}/FreeDiLCD
 echo "Ownership and permissions set"
 
 # Console output
@@ -243,30 +243,30 @@ echo "Making start.py executable..."
 sudo chmod +x ${X3DIR}/start.py
 echo "start.py is now executable!"
 
-# Make X3seriesLCD.service file executable
-echo "Making X3seriesLCD.service executable..."
-sudo chmod +x ${X3DIR}/X3seriesLCD.service
-echo "X3seriesLCD.service is now executable!"
+# Make FreeDiLCD.service file executable
+echo "Making FreeDiLCD.service executable..."
+sudo chmod +x ${X3DIR}/FreeDiLCD.service
+echo "FreeDiLCD.service is now executable!"
 
-# Move X3seriesLCD.service to systemd system directory
-echo "Moving X3seriesLCD.service to /etc/systemd/system/"
-sudo cp ${X3DIR}/X3seriesLCD.service /etc/systemd/system/X3seriesLCD.service
-echo "X3seriesLCD.service moved to /etc/systemd/system/"
+# Move FreeDiLCD.service to systemd system directory
+echo "Moving FreeDiLCD.service to /etc/systemd/system/"
+sudo cp ${X3DIR}/FreeDiLCD.service /etc/systemd/system/FreeDiLCD.service
+echo "FreeDiLCD.service moved to /etc/systemd/system/"
 
-# Set correct permissions for X3seriesLCD.service
-echo "Setting permissions for /etc/systemd/system/X3seriesLCD.service"
-sudo chmod 644 /etc/systemd/system/X3seriesLCD.service
-echo "Permissions set to 644 for /etc/systemd/system/X3seriesLCD.service!"
+# Set correct permissions for FreeDiLCD.service
+echo "Setting permissions for /etc/systemd/system/FreeDiLCD.service"
+sudo chmod 644 /etc/systemd/system/FreeDiLCD.service
+echo "Permissions set to 644 for /etc/systemd/system/FreeDiLCD.service!"
 
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
 echo "systemd manager configuration reloaded!"
 
-# Enable X3seriesLCD.service to start at boot
-echo "Enabling X3seriesLCD.service to start at boot..."
-sudo systemctl enable X3seriesLCD.service
-echo "X3seriesLCD.service enabled to start at boot!"
+# Enable FreeDiLCD.service to start at boot
+echo "Enabling FreeDiLCD.service to start at boot..."
+sudo systemctl enable FreeDiLCD.service
+echo "FreeDiLCD.service enabled to start at boot!"
 
 
 # Update package lists
