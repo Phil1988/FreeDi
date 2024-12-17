@@ -56,11 +56,11 @@ if systemctl list-units --type=service --all | grep "$SERVICE"; then
 		echo "Service $SERVICE stopped successfully."
 	else
 		echo "Failed to stop service $SERVICE." >&2
-		exit 1
+		#exit 1
 	fi
 else
-	#echo "Service $SERVICE is not available." >&2
-	exit 1
+	echo "Service $SERVICE is not available." >&2
+	#exit 1
 fi
 
 echo "Checking LCD firmware version"
