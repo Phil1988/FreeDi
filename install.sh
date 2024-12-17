@@ -97,7 +97,7 @@ if [ -f "$MOONFILE" ]; then
 
 [update_manager freeDi]
 type: git_repo
-path: ~/freeDi
+path: ~/FreeDi
 channel: dev
 origin: https://github.com/Phil1988/FreeDi
 virtualenv: ~/klippy-env
@@ -108,7 +108,7 @@ managed_services: klipper
 info_tags:
 	desc=FreeDi LCD Screen
 	sparse_dirs:
-	- X3seriesLCD
+	- FreeDiLCD
 	- screen_firmwares
 EOL
 
