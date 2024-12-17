@@ -265,11 +265,9 @@ echo "Making FreeDi.service executable..."
 echo "FreeDi.service is now executable!"
 
 # Move FreeDi.service to systemd directory
-echo "Creating folder ~/.config/systemd/user"
-mkdir -p ~/.config/systemd/user
-echo "Moving FreeDi.service to ~/.config/systemd/user/"
-cp ${X3DIR}/FreeDi.service ~/.config/systemd/user/FreeDi.service
-echo "FreeDi.service moved to ~/.config/systemd/user/"
+echo "Moving FreeDi.service to /etc/systemd/system/"
+sudo cp ${X3DIR}/FreeDi.service /etc/systemd/system/FreeDi.service
+echo "FreeDi.service moved to /etc/systemd/system/"
 
 # Set correct permissions for FreeDi.service
 echo "Setting permissions for /etc/systemd/system/FreeDi.service"
@@ -278,17 +276,17 @@ echo "Permissions set to 644 for /etc/systemd/system/FreeDi.service!"
 
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
-systemctl --user daemon-reload
+systemctl daemon-reload
 echo "systemd manager configuration reloaded!"
 
 # Enable FreeDi.service to start at boot
-echo "Enabling FreeDiLCD.service to start at boot..."
-systemctl --user enable FreeDi.service
+echo "Enabling FreeDi.service to start at boot..."
+systemctl enable FreeDi.service
 echo "FreeDi.service enabled to start at boot!"
 
 # Start FreeDiLCD.service
-echo "Starting FreeDiLCD.service..."
-systemctl --user start FreeDi.service
+echo "Starting FreeDi.service..."
+systemctl start FreeDi.service
 echo "FreeDiLCD.service started!"
 
 # Update package lists
