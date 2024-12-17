@@ -95,7 +95,7 @@ if [ -f "$MOONFILE" ]; then
 		# Append the block to the end of the file
 		cat <<EOL >> "$MOONFILE"
 
-[update_manager freeDi]
+[update_manager FreeDi]
 type: git_repo
 path: ~/FreeDi
 channel: dev
