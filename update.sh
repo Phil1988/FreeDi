@@ -6,7 +6,7 @@
 #Set variables
 SERVICE="FreeDiLCD.service"
 BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-X3DIR="${BKDIR}/FreeDiLCD"
+LCDDIR="${BKDIR}/FreeDiLCD"
 LCDFIRMWAREDIR="${BKDIR}/screen_firmwares"
 
 # Set python path to klipper env
@@ -14,7 +14,7 @@ KENV="${HOME}/klippy-env"
 PYTHON_EXEC="$KENV/bin/python"
 
 # Path to the config.ini file
-config_file="${X3DIR}/config.ini"
+config_file="${LCDDIR}/config.ini"
 
 # Read the printer model from the config file
 printer_model=$(grep -oP '^printer_model\s*=\s*\K.+' "$config_file")
@@ -52,18 +52,18 @@ LCD_SERIAL_FLASH_BAUD=921600
 LCD_FIRMWARE="${LCDFIRMWAREDIR}/X3seriesLCD_firmware_v1.03.tft"
 
 # Find the lcd_helper shared object file
-lcd_helper_file=$(find "${X3DIR}" -name "lcd_helper*.so" | head -n 1)
+lcd_helper_file=$(find "${LCDDIR}" -name "lcd_helper*.so" | head -n 1)
 
 # Check if the file was found
 if [ -z "$lcd_helper_file" ]; then
-    echo "lcd_helper shared object file not found in ${X3DIR}."
+    echo "lcd_helper shared object file not found in ${LCDDIR}."
     exit 1
 fi
 
 #echo "Found lcd_helper file: $lcd_helper_file"
 
 # Run the shared object with the given arguments
-$PYTHON_EXEC -c "import sys; sys.path.insert(0, '${X3DIR}'); import lcd_helper; lcd_helper.run('${LCD_FIRMWARE}', '${LCD_SERIAL_PORT}', ${LCD_SERIAL_INIT_BAUD}, ${LCD_SERIAL_FLASH_BAUD})"
+$PYTHON_EXEC -c "import sys; sys.path.insert(0, '${LCDDIR}'); import lcd_helper; lcd_helper.run('${LCD_FIRMWARE}', '${LCD_SERIAL_PORT}', ${LCD_SERIAL_INIT_BAUD}, ${LCD_SERIAL_FLASH_BAUD})"
 
 
 if [ $? -ne 0 ]; then
