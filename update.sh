@@ -28,7 +28,6 @@ fi
 
 
 # LCD firmware logic
-
 # Check if the service exists
 if systemctl list-units --type=service --all | grep "$SERVICE"; then
 	#echo "Service $SERVICE is available."
