@@ -3,7 +3,12 @@
 # to delete '\r' signs use
 # sed -i 's/\r$//' install.sh
 
-
+#Set variables
+USER_NAME=$(whoami)
+SERVICE="FreeDi.service"
+BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+X3DIR="${BKDIR}/FreeDiLCD"
+LCDFIRMWAREDIR="${BKDIR}/screen_firmwares"
 
 # Ask the user if they use the stock Mainboard
 echo "Do you use the stock Mainboard? (y/n)"
@@ -15,6 +20,59 @@ if [ "$RESPONSE" = "n" ]; then
 else
     echo "Starting the installation..."
 fi
+
+# Creating klipper freedi section
+USER_NAME="${USER_NAME:-mks}"  # Default to 'mks' if USER_NAME is not set
+CONFIG_FILE="/home/$USER_NAME/printer_data/printer.cfg"
+FREEDI_SECTION="[freedi]"
+SAVE_CONFIG_MARKER="#*# <---------------------- SAVE_CONFIG ---------------------->"
+
+# Prompt user for printer model
+echo "Please input the printer model (options: x-max3, x-plus3):"
+read -r printer_model
+
+# Validate input
+if [[ "$printer_model" != "x-max3" && "$printer_model" != "x-plus3" ]]; then
+    echo "Error: Invalid printer model. Allowed values are: x-max3, x-plus3."
+    exit 1
+fi
+
+# Replacement content for [freedi] block
+FREEDI_CONTENT="[freedi]
+# Printer model. Currently supported: x-smart3, x-plus3, x-max3, q1-pro, plus4
+printer_model: $printer_model
+# Baud rate for serial communication. Stock mainboard with standard firmware: 921600 | Legacy firmware: 115200
+baudrate: 921600
+# Serial port for the LCD. Stock: /dev/ttyS1 | USB<->TTL adapter: /dev/ttyUSB0 | BTT Manta M5P: /dev/ttyS0
+serial_port: /dev/ttyS1
+# URL of the printer service
+url: 127.0.0.1
+# API key for the printer
+api_key: XXXXXX
+# Path to the Klippy socket file
+klippy_socket: /home/$USER_NAME/printer_data/comms/klippy.sock
+# Specify if you want to use the stable or beta channel. Caution: beta firmwares have more potential to have bugs.
+channel: beta"
+
+# Step 1: Remove old [freedi] block if it exists
+if grep -q "^\[freedi\]" "$CONFIG_FILE"; then
+    sed -i '/^\[freedi\]/,/^\[.*\]\|#*# <---------------------- SAVE_CONFIG ---------------------->/c\
+'"$FREEDI_CONTENT" "$CONFIG_FILE"
+    echo "[freedi] section replaced successfully."
+    exit 0
+fi
+
+# Step 2: Insert before SAVE_CONFIG marker
+if grep -q "$SAVE_CONFIG_MARKER" "$CONFIG_FILE"; then
+    sed -i "/$SAVE_CONFIG_MARKER/i $FREEDI_CONTENT" "$CONFIG_FILE"
+    echo "[freedi] section inserted before SAVE_CONFIG marker."
+    exit 0
+fi
+
+# Step 3: If neither [freedi] nor SAVE_CONFIG marker found, throw an error
+echo "Error: Neither [freedi] section nor SAVE_CONFIG marker found in the configuration file."
+exit 1
+
 
 # Varialbles for the klipper module
 KLIPPER_EXTRAS_DIR="$HOME/klipper/klippy/extras"
@@ -51,11 +109,7 @@ else
     exit 1
 fi
 
-#Set variables
-SERVICE="FreeDi.service"
-BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-X3DIR="${BKDIR}/FreeDiLCD"
-LCDFIRMWAREDIR="${BKDIR}/screen_firmwares"
+
 
 #doing homework
 git sparse-checkout add FreeDiLCD/
@@ -172,7 +226,6 @@ else
 fi
 
 # Define variables
-USER_NAME=$(whoami)
 NM_CONF_FILE="/etc/NetworkManager/NetworkManager.conf"
 
 # Set ownership and permissions for the ~/FreeDiLCD directory
