@@ -21,6 +21,10 @@ else
     echo "Starting the installation..."
 fi
 
+#doing homework
+git sparse-checkout add FreeDiLCD/
+git sparse-checkout add screen_firmwares/
+
 # Creating klipper freedi section
 USER_NAME="${USER_NAME:-mks}"  # Default to 'mks' if USER_NAME is not set
 CONFIG_FILE="/home/$USER_NAME/printer_data/config/printer.cfg"
@@ -117,12 +121,6 @@ else
     echo "Error: Failed to restart Klipper service."
     exit 1
 fi
-
-
-
-#doing homework
-git sparse-checkout add FreeDiLCD/
-git sparse-checkout add screen_firmwares/
 
 # Set python path to klipper env
 KENV="${HOME}/klippy-env"
