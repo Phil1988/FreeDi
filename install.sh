@@ -16,6 +16,41 @@ else
     echo "Starting the installation..."
 fi
 
+# Varialbles for the klipper module
+KLIPPER_EXTRAS_DIR="$HOME/klipper/klippy/extras"
+MODULE_NAME="freedi.py"
+REPO_MODULE_PATH="./klipper_module/$MODULE_NAME"
+
+# Ensure the Klipper extras directory exists
+if [ ! -d "$KLIPPER_EXTRAS_DIR" ]; then
+    echo "Error: Klipper extras directory not found at $KLIPPER_EXTRAS_DIR."
+    echo "Make sure Klipper is installed correctly."
+    exit 1
+fi
+
+# Copy the freedi.py module to the Klipper extras directory
+echo "Copying $MODULE_NAME to $KLIPPER_EXTRAS_DIR..."
+cp "$REPO_MODULE_PATH" "$KLIPPER_EXTRAS_DIR"
+
+if [ $? -eq 0 ]; then
+    echo "Successfully installed $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
+else
+    echo "Error: Failed to copy $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
+    exit 1
+fi
+
+# Restart Klipper to load the new module
+echo "Restarting Klipper service..."
+sudo systemctl restart klipper
+
+if [ $? -eq 0 ]; then
+    echo "Klipper service restarted successfully."
+    echo "Installation complete."
+else
+    echo "Error: Failed to restart Klipper service."
+    exit 1
+fi
+
 #Set variables
 SERVICE="FreeDi.service"
 BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
