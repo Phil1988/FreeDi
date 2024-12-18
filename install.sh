@@ -148,7 +148,7 @@ if systemctl list-units --type=service --all | grep "$SERVICE"; then
 	#echo "Service $SERVICE is available."
 	
 	# Stop the service
-	if systemctl stop "$SERVICE"; then
+	if sudo systemctl stop "$SERVICE"; then
 		echo "Service $SERVICE stopped successfully."
 	else
 		echo "Failed to stop service $SERVICE." >&2
@@ -371,17 +371,17 @@ echo "Permissions set to 644 for /etc/systemd/system/FreeDi.service!"
 
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
-systemctl daemon-reload
+sudo systemctl daemon-reload
 echo "systemd manager configuration reloaded!"
 
 # Enable FreeDi.service to start at boot
 echo "Enabling FreeDi.service to start at boot..."
-systemctl enable FreeDi.service
+sudo systemctl enable FreeDi.service
 echo "FreeDi.service enabled to start at boot!"
 
 # Start FreeDiLCD.service
 echo "Starting FreeDi.service..."
-systemctl start FreeDi.service
+sudo systemctl start FreeDi.service
 echo "FreeDiLCD.service started!"
 
 # Update package lists
