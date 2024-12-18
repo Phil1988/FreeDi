@@ -23,7 +23,7 @@ fi
 
 # Creating klipper freedi section
 USER_NAME="${USER_NAME:-mks}"  # Default to 'mks' if USER_NAME is not set
-CONFIG_FILE="/home/$USER_NAME/printer_data/printer.cfg"
+CONFIG_FILE="/home/$USER_NAME/printer_data/config/printer.cfg"
 FREEDI_SECTION="[freedi]"
 SAVE_CONFIG_MARKER="#*# <---------------------- SAVE_CONFIG ---------------------->"
 
@@ -52,7 +52,8 @@ api_key: XXXXXX
 # Path to the Klippy socket file
 klippy_socket: /home/$USER_NAME/printer_data/comms/klippy.sock
 # Specify if you want to use the stable or beta channel. Caution: beta firmwares have more potential to have bugs.
-channel: beta"
+channel: stable
+"
 
 # Step 1: Remove old [freedi] block if it exists
 if grep -q "^\[freedi\]" "$CONFIG_FILE"; then
