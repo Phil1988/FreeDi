@@ -24,6 +24,7 @@ fi
 #doing homework
 git sparse-checkout add FreeDiLCD/
 git sparse-checkout add screen_firmwares/
+git sparse-checkout add klipper_module/
 
 # Creating klipper freedi section
 USER_NAME="${USER_NAME:-mks}"  # Default to 'mks' if USER_NAME is not set
