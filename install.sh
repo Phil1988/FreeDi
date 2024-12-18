@@ -155,7 +155,7 @@ else
 fi
 
 # Define the file path
-file="/home/mks/printer_data/moonraker.asvc"
+file="/home/${USER_NAME}/printer_data/moonraker.asvc"
 
 # Check if the file exists
 if [ -f "$file" ]; then
