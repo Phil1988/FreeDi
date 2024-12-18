@@ -27,6 +27,8 @@ git sparse-checkout add screen_firmwares/
 git sparse-checkout add klipper_module/
 
 # Creating klipper freedi section
+#!/bin/bash
+
 USER_NAME="${USER_NAME:-mks}"  # Default to 'mks' if USER_NAME is not set
 CONFIG_FILE="/home/$USER_NAME/printer_data/config/printer.cfg"
 FREEDI_SECTION="[freedi]"
@@ -69,7 +71,7 @@ channel: stable"
 
 # Step 1: Remove old [freedi] block if it exists
 if grep -q "^\[freedi\]" "$CONFIG_FILE"; then
-    sed -i "/^\[freedi\]/,/^\[.*\]\|$SAVE_CONFIG_MARKER/d" "$CONFIG_FILE"
+    sed -i "/^\[freedi\]/,/^\[.*\]/ {/^\#*# <---------------------- SAVE_CONFIG ---------------------->/!d}" "$CONFIG_FILE"
     printf "%s\n" "$FREEDI_CONTENT" >> "$CONFIG_FILE"
     echo "[freedi] section replaced successfully."
 else
