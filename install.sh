@@ -27,22 +27,6 @@ CONFIG_FILE="/home/$USER_NAME/printer_data/config/printer.cfg"
 FREEDI_SECTION="[freedi]"
 SAVE_CONFIG_MARKER="#*# <---------------------- SAVE_CONFIG ---------------------->"
 
-# Prompt user for printer model
-echo "Please input the printer model (options: x-max3, x-plus3):"
-read -r printer_model
-
-# Validate input
-if [[ "$printer_model" != "x-max3" && "$printer_model" != "x-plus3" ]]; then
-    echo "Error: Invalid printer model. Allowed values are: x-max3, x-plus3."
-    exit 1
-fi
-
-# Replacement content for [freedi] block
-USER_NAME="${USER_NAME:-mks}"  # Default to 'mks' if USER_NAME is not set
-CONFIG_FILE="/home/$USER_NAME/printer_data/config/printer.cfg"
-FREEDI_SECTION="[freedi]"
-SAVE_CONFIG_MARKER="#*# <---------------------- SAVE_CONFIG ---------------------->"
-
 # Prompt user for printer model only once
 if [[ -z "$printer_model" ]]; then
     echo "Please input the printer model (options: x-max3, x-plus3):"
@@ -76,12 +60,12 @@ api_key: XXXXXX
 # Path to the Klippy socket file
 klippy_socket: /home/$USER_NAME/printer_data/comms/klippy.sock
 # Specify if you want to use the stable or beta channel. Caution: beta firmwares have more potential to have bugs.
-channel: beta"
+channel: stable"
 
 # Step 1: Remove old [freedi] block if it exists
 if grep -q "^\[freedi\]" "$CONFIG_FILE"; then
-    sed -i '/^\[freedi\]/,/^\[.*\]\|#*# <---------------------- SAVE_CONFIG ---------------------->/c\
-'"$FREEDI_CONTENT" "$CONFIG_FILE"
+    sed -i "/^\[freedi\]/,/^\[.*\]\|$SAVE_CONFIG_MARKER/d" "$CONFIG_FILE"
+    printf "%s\n" "$FREEDI_CONTENT" >> "$CONFIG_FILE"
     echo "[freedi] section replaced successfully."
 else
     # Step 2: Insert before SAVE_CONFIG marker
