@@ -8,8 +8,13 @@ class FreeDi:
     def __init__(self, config):
         # Read parameters from the configuration file
         self.printer_model = config.get('printer_model', 'unknown')
-        self.baudrate = config.getint('baudrate', 115200)
-        self.serial_port = config.get('serial_port', '/dev/ttyS0')
+        self.baudrate = config.get('baudrate', 115200)
+        self.serial_port = config.get('serial_port', '/dev/ttyS1')
+        self.url = config.get('url', '127.0.0.1')
+        self.api_key = config.get('api_key', 'XXXXXX')
+        self.klippy_socket = config.get('klippy_socket', '/home/mks/printer_data/comms/klippy.sock')
+        self.channel = config.get('channel', 'stable')
+
 
         # Log the loaded parameters (for debugging purposes)
         self.log_info(f"FreeDi loaded: printer_model={self.printer_model}, "
