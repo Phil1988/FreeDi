@@ -38,16 +38,16 @@ if [[ "$printer_model" != "x-max3" && "$printer_model" != "x-plus3" ]]; then
 fi
 
 # Replacement content for [freedi] block
-#!/bin/bash
-
 USER_NAME="${USER_NAME:-mks}"  # Default to 'mks' if USER_NAME is not set
-CONFIG_FILE="/home/$USER_NAME/printer_data/printer.cfg"
+CONFIG_FILE="/home/$USER_NAME/printer_data/config/printer.cfg"
 FREEDI_SECTION="[freedi]"
 SAVE_CONFIG_MARKER="#*# <---------------------- SAVE_CONFIG ---------------------->"
 
-# Prompt user for printer model
-echo "Please input the printer model (options: x-max3, x-plus3):"
-read -r printer_model
+# Prompt user for printer model only once
+if [[ -z "$printer_model" ]]; then
+    echo "Please input the printer model (options: x-max3, x-plus3):"
+    read -r printer_model
+fi
 
 # Validate input
 if [[ "$printer_model" != "x-max3" && "$printer_model" != "x-plus3" ]]; then
@@ -97,6 +97,7 @@ fi
 
 # Final confirmation
 echo "Script execution completed. Review the file: $CONFIG_FILE"
+
 
 # Varialbles for the klipper module
 KLIPPER_EXTRAS_DIR="$HOME/klipper/klippy/extras"
