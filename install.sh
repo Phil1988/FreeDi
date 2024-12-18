@@ -26,33 +26,6 @@ git sparse-checkout add FreeDiLCD/
 git sparse-checkout add screen_firmwares/
 git sparse-checkout add klipper_module/
 
-# Creating klipper freedi section
-#!/bin/bash
-
-USER_NAME="${USER_NAME:-mks}"  # Default to 'mks' if USER_NAME is not set
-CONFIG_FILE="/home/$USER_NAME/printer_data/config/printer.cfg"
-FREEDI_SECTION="[freedi]"
-SAVE_CONFIG_MARKER="#*# <---------------------- SAVE_CONFIG ---------------------->"
-
-# Prompt user for printer model only once
-if [[ -z "$printer_model" ]]; then
-    echo "Please input the printer model (options: x-max3, x-plus3):"
-    read -r printer_model
-fi
-
-# Validate input
-if [[ "$printer_model" != "x-max3" && "$printer_model" != "x-plus3" ]]; then
-    echo "Error: Invalid printer model. Allowed values are: x-max3, x-plus3."
-    exit 1
-fi
-
-# Check if CONFIG_FILE exists
-if [[ ! -f "$CONFIG_FILE" ]]; then
-    echo "Error: Configuration file not found at $CONFIG_FILE."
-    exit 1
-fi
-
-
 # Varialbles for the klipper module
 KLIPPER_EXTRAS_DIR="$HOME/klipper/klippy/extras"
 MODULE_NAME="freedi.py"
