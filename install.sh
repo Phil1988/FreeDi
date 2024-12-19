@@ -40,12 +40,13 @@ fi
 
 # Copy the freedi.py module to the Klipper extras directory
 echo "Copying $MODULE_NAME to $KLIPPER_EXTRAS_DIR..."
-cp "$REPO_MODULE_PATH" "$KLIPPER_EXTRAS_DIR"
+#cp "$REPO_MODULE_PATH" "$KLIPPER_EXTRAS_DIR"
+ln -s "$REPO_MODULE_PATH" "$KLIPPER_EXTRAS_DIR"
 
 if [ $? -eq 0 ]; then
     echo "Successfully installed $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
 else
-    echo "Error: Failed to copy $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
+    echo "Error: Failed to symlink $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
     exit 1
 fi
 
