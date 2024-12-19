@@ -1,5 +1,5 @@
 pip
 configparser
 requests
-pyserial
+pyserial>=3.5
 Pillow
