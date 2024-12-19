@@ -5,9 +5,9 @@ After=moonraker.service
 [Service]
 Type=simple
 User=mks
-WorkingDirectory=~/FreeDi/FreeDiLCD
+WorkingDirectory=/home/mks/FreeDi/FreeDiLCD
 ExecStartPre=/bin/sleep 10
-ExecStart=/bin/sh -c '~/klippy-env/bin/python3 ~/FreeDi/FreeDiLCD/start.py  > /tmp/FreeDiLCD.log 2>&1'
+ExecStart=/bin/sh -c '/home/mks/klippy-env/bin/python3 /home/mks/FreeDi/FreeDiLCD/start.py  > /tmp/FreeDiLCD.log 2>&1'
 Restart=always
 RestartSec=1
 
