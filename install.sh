@@ -74,7 +74,7 @@ PYTHON_V=$($PYTHON_EXEC -c 'import sys; print(".".join(map(str, sys.version_info
 echo "Klipper environment python version: $PYTHON_V"
 
 echo "Arranging python requirements..."
-	"${KENV}/bin/pip" install -r "${BKDIR}/requirements.txt"
+"${KENV}/bin/pip" install -r "${BKDIR}/requirements.txt"
 	
 # Install required packages for input shaping
 echo "Installing required packages for input shaping..."
