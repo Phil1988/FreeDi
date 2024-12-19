@@ -161,8 +161,8 @@ NM_CONF_FILE="/etc/NetworkManager/NetworkManager.conf"
 
 # Set ownership and permissions for the ~/FreeDiLCD directory
 echo "Setting ownership and permissions for ~/FreeDi"
-sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}/FreeDi
-sudo chmod -R 755 ${BKDIR}/FreeDi
+sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}
+sudo chmod -R 755 ${BKDIR}
 echo "Ownership and permissions set"
 
 
