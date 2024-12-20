@@ -147,9 +147,9 @@ if [ -f "$MOONFILE" ]; then
 		# Append the block to the end of the file
 		cat <<EOL >> "$MOONFILE"
 
-[update_manager freeDi]
+[update_manager FreeDi]
 type: git_repo
-path: ~/freeDi
+path: ~/FreeDi
 channel: dev
 origin: https://github.com/Phil1988/FreeDi
 virtualenv: ~/klippy-env
