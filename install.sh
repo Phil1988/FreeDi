@@ -277,22 +277,10 @@ echo "Making start.py executable..."
 sudo chmod +x ${FREEDI_LCD_DIR}/start.py
 echo "start.py is now executable!"
 
-# Make FreeDi.service file executable
-echo "Making FreeDi.service executable..."
-### nötig?
-sudo chmod +x FreeDi.service
-echo "FreeDi.service is now executable!"
-
 # Move FreeDi.service to systemd directory
 echo "Moving FreeDi.service to /etc/systemd/system/"
 sudo cp ${FREEDI_LCD_DIR}/FreeDi.service /etc/systemd/system/FreeDi.service
 echo "FreeDi.service moved to /etc/systemd/system/"
-
-# Set correct permissions for FreeDi.service
-echo "Setting permissions for /etc/systemd/system/FreeDi.service"
-### nötig?
-sudo chmod 644 /etc/systemd/system/FreeDi.service
-echo "Permissions set to 644 for /etc/systemd/system/FreeDi.service!"
 
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
