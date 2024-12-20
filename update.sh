@@ -153,26 +153,7 @@ fi
 
 ###### Setup FreeDi ######
 
-# Set ownership and permissions for the ~/FreeDi directory
-echo "Setting ownership and permissions for ~/FreeDi"
-sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}
-sudo chmod -R 755 ${BKDIR}
-echo "Ownership and permissions set"
 
-# Autostart the program
-echo "Installing the service to starts this program automatically at boot time..."
-
-# Make start.py executable
-echo "Making start.py executable..."
-sudo chmod +x ${FREEDI_LCD_DIR}/start.py
-echo "start.py is now executable!"
-
-# Make FreeDi.service file executable
-echo "Making FreeDi.service executable..."
-### nötig?
-#sudo chmod +x FreeDi.service
-sudo chmod 644 FreeDi.service
-echo "FreeDi.service is now executable!"
 
 # Stop and disable old X3seriesLCD service
 echo "Stopping and disabling old X3seriesLCD service..."
@@ -185,16 +166,30 @@ echo "Removing old X3seriesLCD.service..."
 sudo rm /etc/systemd/system/X3seriesLCD.service
 echo "X3seriesLCD.service removed!"
 
+# Removing old X3seriesLCD directory
+echo "Removing old X3seriesLCD directory..."
+sudo rm -rf $HOME/X3seriesLCD
+echo "X3seriesLCD directory removed!"
+
+# Autostart the program
+echo "Installing the service to starts this program automatically at boot time..."
+
+# Set ownership and permissions for the ~/FreeDi directory
+echo "Setting ownership and permissions for ~/FreeDi"
+sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}
+sudo chmod -R 755 ${BKDIR}
+echo "Ownership and permissions set"
+
+# Make start.py executable
+echo "Making start.py executable..."
+sudo chmod +x ${FREEDI_LCD_DIR}/start.py
+echo "start.py is now executable!"
+
+
 # Move new FreeDi.service to systemd directory
 echo "Moving new FreeDi.service to /etc/systemd/system/"
 sudo cp ${FREEDI_LCD_DIR}/FreeDi.service /etc/systemd/system/FreeDi.service
 echo "FreeDi.service moved to /etc/systemd/system/"
-
-# Set correct permissions for FreeDi.service
-echo "Setting permissions for /etc/systemd/system/FreeDi.service"
-### nötig?
-sudo chmod 644 /etc/systemd/system/FreeDi.service
-echo "Permissions set to 644 for /etc/systemd/system/FreeDi.service!"
 
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
