@@ -126,6 +126,7 @@ if [ -f "$MOONFILE" ]; then
         echo "Adding FreeDi update manager configuration to Moonraker..."
         cat <<EOL >> "$MOONFILE"
 
+# FreeDi update_manager entry
 [update_manager FreeDi]
 type: git_repo
 path: ~/FreeDi
@@ -134,13 +135,12 @@ origin: https://github.com/Phil1988/FreeDi
 virtualenv: ~/klippy-env
 requirements: requirements.txt
 install_script: install.sh
-is_system_service: False
-managed_services: klipper
+managed_services: FreeDi
 info_tags:
-    desc=FreeDi LCD Screen
-    sparse_dirs:
-    - X3seriesLCD
-    - screen_firmwares
+	desc=FreeDi LCD
+	sparse_dirs:
+	- FreeDiLCD
+	- screen_firmwares
 EOL
         echo "Update manager configuration for [update_manager freeDi] added successfully."
     else
