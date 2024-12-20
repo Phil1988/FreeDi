@@ -3,47 +3,39 @@
 # to delete '\r' signs use
 # sed -i 's/\r$//' install.sh
 
-
+# Set variables
+USER_NAME=$(whoami)
+SERVICE="FreeDi.service"
+BKDIR="$( cd -- \"$(dirname \"$0\")\" >/dev/null 2>&1 ; pwd -P )"
+FREEDI_LCD_DIR="${BKDIR}/FreeDi/FreeDiLCD"
+LCD_FIRMWARE_DIR="${BKDIR}/FreeDi/screen_firmwares"
 
 # Ask the user if they use the stock Mainboard
-echo "Do you use the stock Mainboard? (y/n)"
+echo "Do you have a system where the stock LCD screen runs the FreeDi or X3seriesLCD on a firmware up to v1.03? (y/n)"
 read RESPONSE
 
 if [ "$RESPONSE" = "n" ]; then
-	echo "As you have modified hardware, please go to the https://github.com/Phil1988/FreeDi and open a ticket to get help."
+	echo "This update script is only for users that have already a working setup with FreeDi/X3seriesLCD up to v1.03."
 	exit 1
 else
-    echo "Starting the installation..."
+    echo "Ok! Starting the update process..."
 fi
 
 
-# Path to config.ini-file
-config_file="config.ini"
-
-# Get the printer model
-printer_model=$(grep -oP '^printer_model\s*=\s*\K.+' "$config_file")
-
-# Check printer model value
-if [ -n "$printer_model" ]; then
-    echo "Your printer model is: $printer_model"
-else
-    echo "Error: Couldnt find printer_model in config.ini. Make sure to add it to your printer.cfg after update has been completed."
+# Check if the script is run inside a Git repository
+if [ ! -d ".git" ]; then
+    echo "Error: Not a git repository. Please initialize the repository first."
+    exit 1
 fi
 
-
-#Set variables
-SERVICE="X3seriesLCD.service"
-BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-X3DIR="${BKDIR}/X3seriesLCD"
-LCDFIRMWAREDIR="${BKDIR}/screen_firmwares"
-
-# Checking out only the necessary folders
+# Sparse checkout only the required folders
 git sparse-checkout add FreeDiLCD/
 git sparse-checkout add screen_firmwares/
 git sparse-checkout add klipper_module/
 
+###### Installing klipper module ######
 
-# Varialbles for the klipper module
+# Variables for the Klipper module
 KLIPPER_EXTRAS_DIR="$HOME/klipper/klippy/extras"
 MODULE_NAME="freedi.py"
 REPO_MODULE_PATH="./klipper_module/$MODULE_NAME"
@@ -55,73 +47,83 @@ if [ ! -d "$KLIPPER_EXTRAS_DIR" ]; then
     exit 1
 fi
 
-# Creating a symbolic link for freedi.py module to the Klipper extras directory
+# Create a symbolic link for freedi.py module to the Klipper extras directory
 echo "Creating a symbolic link for $MODULE_NAME to $KLIPPER_EXTRAS_DIR..."
-#cp "$REPO_MODULE_PATH" "$KLIPPER_EXTRAS_DIR"
-ln -sf /home/${USER_NAME}/FreeDi/klipper_module/freedi.py /home/${USER_NAME}/klipper/klippy/extras/
+ln -sf "${FREEDI_LCD_DIR}/freedi.py" "${KLIPPER_EXTRAS_DIR}/freedi.py"
 
 if [ $? -eq 0 ]; then
     echo "Successfully installed $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
 else
-    echo "Error: Failed to copy $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
+    echo "Error: Failed to create a symbolic link for $MODULE_NAME."
     exit 1
 fi
 
+# Restart Klipper to load the new module
+echo "Restarting Klipper service..."
+sudo systemctl restart klipper
 
+if [ $? -eq 0 ]; then
+    echo "Klipper service restarted successfully."
+else
+    echo "Error: Failed to restart Klipper service."
+    exit 1
+fi
 
-# Set python path to klipper env
+###### Setup Python environment ######
+
+# Set Python path to Klipper environment
 KENV="${HOME}/klippy-env"
 PYTHON_EXEC="$KENV/bin/python"
 
+# Check if the Klipper environment exists
 if [ ! -d "$KENV" ]; then
-	echo "Klippy env doesn't exist so I can't continue installation..."
-	exit 1
+    echo "Error: Klipper environment not found. Cannot continue installation."
+    exit 1
 fi
 
+# Activate the Klipper virtual environment and install required Python packages
+echo "Activating Klipper virtual environment and installing Python packages..."
+source "$KENV/bin/activate"
+pip install --upgrade numpy matplotlib
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to install Python packages."
+    deactivate
+    exit 1
+fi
+deactivate
+
+# Verify Python version
 PYTHON_V=$($PYTHON_EXEC -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
-echo "Klipper environment python version: $PYTHON_V"
+echo "Klipper environment Python version: $PYTHON_V"
 
-echo "Arranging python requirements..."
-	"${KENV}/bin/pip" install -r "${BKDIR}/requirements.txt"
-	
-# Install required packages for input shaping
-echo "Installing required packages for input shaping..."
+# Install additional Python requirements from requirements.txt
+echo "Installing Python requirements from requirements.txt..."
+"$KENV/bin/pip" install -r "${BKDIR}/requirements.txt" || {
+    echo "Error: Failed to install Python requirements."
+    exit 1
+}
+echo "Python requirements installed successfully."
+
+###### Install system dependencies ######
+
+echo "Installing system dependencies for input shaping (if needed)..."
 sudo apt install -y libatlas-base-dev libopenblas-dev
-
-# LCD firmware logic
-
-# Check if the service exists
-if systemctl list-units --type=service --all | grep "$SERVICE"; then
-	#echo "Service $SERVICE is available."
-	
-	# Stop the service
-	if systemctl stop "$SERVICE"; then
-		echo "Service $SERVICE stopped successfully."
-	else
-		echo "Failed to stop service $SERVICE." >&2
-		exit 1
-	fi
-else
-	#echo "Service $SERVICE is not available." >&2
-	exit 1
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to install system dependencies."
+    exit 1
 fi
+echo "System dependencies installed successfully."
 
+###### Setup Moonraker update manager ######
 
-# Add update entry to moonraker conf
+# Add update entry to Moonraker configuration
 MOONFILE="$HOME/printer_data/config/moonraker.conf"
 
-# Check if the file exists
 if [ -f "$MOONFILE" ]; then
-	echo "File exists: $MOONFILE"
-	
-	# Check if the line [update_manager freeDi] exists
-	if grep -q "^\[update_manager freeDi\]" "$MOONFILE"; then
-		echo "The section [update_manager freeDi] already exists in the file."
-	else
-		echo "The section [update_manager freeDi] does not exist. Adding it to the end of the file."
-		
-		# Append the block to the end of the file
-		cat <<EOL >> "$MOONFILE"
+    echo "Moonraker configuration file found."
+    if ! grep -q "^\[update_manager freeDi\]" "$MOONFILE"; then
+        echo "Adding FreeDi update manager configuration to Moonraker..."
+        cat <<EOL >> "$MOONFILE"
 
 [update_manager freeDi]
 type: git_repo
@@ -134,51 +136,48 @@ install_script: install.sh
 is_system_service: False
 managed_services: klipper
 info_tags:
-	desc=FreeDi LCD Screen
-	sparse_dirs:
-	- X3seriesLCD
-	- screen_firmwares
+    desc=FreeDi LCD Screen
+    sparse_dirs:
+    - X3seriesLCD
+    - screen_firmwares
 EOL
-
-		echo "The section [update_manager freeDi] has been added to the file."
-	fi
+        echo "Update manager configuration for [update_manager freeDi] added successfully."
+    else
+        echo "FreeDi update manager configuration already exists in Moonraker."
+    fi
 else
-	echo "File does not exist: $MOONFILE"
-	exit 1
+    echo "Error: Moonraker configuration file not found."
+    exit 1
 fi
 
+###### Setup FreeDi ######
 
-# Define variables
-USER_NAME=$(whoami)
-NM_CONF_FILE="/etc/NetworkManager/NetworkManager.conf"
-
-# Set ownership and permissions for the ~/X3seriesLCD directory
-echo "Setting ownership and permissions for ~/X3seriesLCD"
-sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}/X3seriesLCD
-sudo chmod -R 755 ${BKDIR}/X3seriesLCD
+# Set ownership and permissions for the ~/FreeDi directory
+echo "Setting ownership and permissions for ~/FreeDi"
+sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}/FreeDi
+sudo chmod -R 755 ${BKDIR}/FreeDi
 echo "Ownership and permissions set"
-
-
-
-# Display information
-echo "User ${USER_NAME} has been successfully configured to run nmcli commands without sudo."
-
 
 # Autostart the program
 echo "Installing the service to starts this program automatically at boot time..."
 
 # Make start.py executable
 echo "Making start.py executable..."
-sudo chmod +x ${X3DIR}/start.py
+sudo chmod +x ${FREEDI_LCD_DIR}/start.py
 echo "start.py is now executable!"
 
 # Make FreeDi.service file executable
 echo "Making FreeDi.service executable..."
+### nötig?
+#sudo chmod +x FreeDi.service
+sudo chmod 644 FreeDi.service
 echo "FreeDi.service is now executable!"
 
-# Stopping olt X3seriesLCD service
-echo "Stopping X3seriesLCD.service..."
+# Stop and disable old X3seriesLCD service
+echo "Stopping and disabling old X3seriesLCD service..."
 sudo systemctl stop X3seriesLCD.service
+sudo systemctl disable X3seriesLCD.service
+echo "X3seriesLCD service stopped and disabled."
 
 # Removing old X3seriesLCD service
 echo "Removing old X3seriesLCD.service..."
@@ -187,14 +186,13 @@ echo "X3seriesLCD.service removed!"
 
 # Move new FreeDi.service to systemd directory
 echo "Moving new FreeDi.service to /etc/systemd/system/"
-sudo cp ${X3DIR}/FreeDi.service /etc/systemd/system/FreeDi.service
+sudo cp ${FREEDI_LCD_DIR}/FreeDi.service /etc/systemd/system/FreeDi.service
 echo "FreeDi.service moved to /etc/systemd/system/"
-
-
 
 # Set correct permissions for FreeDi.service
 echo "Setting permissions for /etc/systemd/system/FreeDi.service"
-#sudo chmod 644 /etc/systemd/system/FreeDi.service
+### nötig?
+sudo chmod 644 /etc/systemd/system/FreeDi.service
 echo "Permissions set to 644 for /etc/systemd/system/FreeDi.service!"
 
 # Reload systemd manager configuration

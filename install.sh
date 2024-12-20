@@ -7,8 +7,8 @@
 USER_NAME=$(whoami)
 SERVICE="FreeDi.service"
 BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-X3DIR="${BKDIR}/FreeDiLCD"
-LCDFIRMWAREDIR="${BKDIR}/screen_firmwares"
+FREEDI_LCD_DIR="${BKDIR}/FreeDiLCD"
+LCD_FIRMWARE_DIR="${BKDIR}/screen_firmwares"
 
 # Ask the user if they use the stock Mainboard
 echo "Do you use the stock Mainboard? (y/n)"
@@ -21,26 +21,35 @@ else
     echo "Starting the installation..."
 fi
 
-# Checking out only the necessary folders
+# Check if the script is run inside a Git repository
+if [ ! -d ".git" ]; then
+    echo "Error: Not a git repository. Please initialize the repository first."
+    exit 1
+fi
+
+# Sparse checkout only the required folders
 git sparse-checkout add FreeDiLCD/
 git sparse-checkout add screen_firmwares/
 git sparse-checkout add klipper_module/
+
+
+###### Installing klipper module ######
 
 # Varialbles for the klipper module
 KLIPPER_EXTRAS_DIR="$HOME/klipper/klippy/extras"
 MODULE_NAME="freedi.py"
 REPO_MODULE_PATH="./klipper_module/$MODULE_NAME"
 
-# Ensure the Klipper extras directory exists
+# Ensure if the Klipper extras directory exists
 if [ ! -d "$KLIPPER_EXTRAS_DIR" ]; then
     echo "Error: Klipper extras directory not found at $KLIPPER_EXTRAS_DIR."
     echo "Make sure Klipper is installed correctly."
     exit 1
 fi
 
-# Copy the freedi.py module to the Klipper extras directory
-echo "Copying $MODULE_NAME to $KLIPPER_EXTRAS_DIR..."
-cp "$REPO_MODULE_PATH" "$KLIPPER_EXTRAS_DIR"
+# Creating a symbolic link for freedi.py module to the Klipper extras directory
+echo "Creating a symbolic link for $MODULE_NAME to $KLIPPER_EXTRAS_DIR..."
+ln -sf "${FREEDI_LCD_DIR}/freedi.py" "${KLIPPER_EXTRAS_DIR}/freedi.py"
 
 if [ $? -eq 0 ]; then
     echo "Successfully installed $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
@@ -61,6 +70,9 @@ else
     exit 1
 fi
 
+
+###### Setup python environment ######
+
 # Set python path to klipper env
 KENV="${HOME}/klippy-env"
 PYTHON_EXEC="$KENV/bin/python"
@@ -70,34 +82,54 @@ if [ ! -d "$KENV" ]; then
 	exit 1
 fi
 
+# Activate the Klipper virtual environment and install required Python packages
+echo "Activating Klipper virtual environment and installing Python packages..."
+source ~/klippy-env/bin/activate
+pip install --upgrade numpy matplotlib
+deactivate
+echo "Python packages numpy and matplotlib installed and virtual environment deactivated."
+
 PYTHON_V=$($PYTHON_EXEC -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
 echo "Klipper environment python version: $PYTHON_V"
 
-echo "Arranging python requirements..."
-"${KENV}/bin/pip" install -r "${BKDIR}/requirements.txt"
-	
-# Install required packages for input shaping
-echo "Installing required packages for input shaping..."
-sudo apt install -y libatlas-base-dev libopenblas-dev
+# Arrange Python requirements from requirements.txt
+echo "Arranging Python requirements..."
+"${KENV}/bin/pip" install -r "${BKDIR}/requirements.txt" || {
+    echo "Failed to install Python requirements."
+    exit 1
+}
+echo "Python requirements installed from requirements.txt."
 
-# LCD firmware logic
+
+###### Setup necessary dependencies for FreeDi and input shaping ######
+
+# Install required system packages for input shaping (again for clarity, if needed)
+echo "Installing required packages for input shaping (if not already installed)..."
+sudo apt install -y libatlas-base-dev libopenblas-dev
+echo "System packages for input shaping installed."
+
+
+###### Stop FreeDi service ######
 
 # Check if the service exists
 if systemctl list-units --type=service --all | grep "$SERVICE"; then
 	#echo "Service $SERVICE is available."
 	
 	# Stop the service
-	if sudo systemctl stop "$SERVICE"; then
+	if systemctl stop "$SERVICE"; then
 		echo "Service $SERVICE stopped successfully."
 	else
 		echo "Failed to stop service $SERVICE." >&2
-		#exit 1
+		exit 1
 	fi
 else
-	echo "Service $SERVICE is not available." >&2
-	#exit 1
+	echo "Service $SERVICE not found. Please ensure it is installed or the name is correct." >&2
+	exit 1
 fi
 
+
+
+###### Setup Moonraker update manager ######
 
 # Add update entry to moonraker conf
 MOONFILE="$HOME/printer_data/config/moonraker.conf"
@@ -107,28 +139,28 @@ if [ -f "$MOONFILE" ]; then
 	echo "File exists: $MOONFILE"
 	
 	# Check if the line [update_manager freeDi] exists
-	if grep -q "^\[update_manager FreeDi\]" "$MOONFILE"; then
-		echo "The section [update_manager FreeDi] already exists in the file."
+	if grep -q "^\[update_manager freeDi\]" "$MOONFILE"; then
+		echo "The section [update_manager freeDi] already exists in the file."
 	else
-		echo "The section [update_manager FreeDi] does not exist. Adding it to the end of the file."
+		echo "The section [update_manager freeDi] does not exist. Adding it to the end of the file."
 		
 		# Append the block to the end of the file
 		cat <<EOL >> "$MOONFILE"
 
-# FreeDi update_manager entry
-[update_manager FreeDi]
+[update_manager freeDi]
 type: git_repo
-path: ~/FreeDi
+path: ~/freeDi
 channel: dev
 origin: https://github.com/Phil1988/FreeDi
 virtualenv: ~/klippy-env
 requirements: requirements.txt
 install_script: install.sh
-managed_services: FreeDi
+is_system_service: False
+managed_services: klipper
 info_tags:
 	desc=FreeDi LCD Screen
 	sparse_dirs:
-	- FreeDiLCD
+	- X3seriesLCD
 	- screen_firmwares
 EOL
 
@@ -139,54 +171,127 @@ else
 	exit 1
 fi
 
-# Define the file path
-file="/home/${USER_NAME}/printer_data/moonraker.asvc"
 
-# Check if the file exists
-if [ -f "$file" ]; then
-    # Search for the string "FreeDi" in the file
-    if grep -Fxq "FreeDi" "$file"; then
-        echo "\"FreeDi\" is already present in the moonraker.asvc file. No changes made."
-    else
-        # Append "FreeDi" to the end of the file
-        echo "FreeDi" >> "$file"
-        echo "\"FreeDi\" has been added to the moonraker.asvc file."
-    fi
-else
-    echo "moonraker.asvc file not found: $file"
-fi
+###### Setup NetworkManager ######
 
 # Define variables
 NM_CONF_FILE="/etc/NetworkManager/NetworkManager.conf"
 
+# Console output
+echo "Changing permissions to enable nmcli commands without sudo (necessary for setting wifi via screen)..."
+
+
+# Add the user to the netdev group
+echo "Adding the user ${USER_NAME} to the 'netdev' group..."
+sudo usermod -aG netdev $USER_NAME
+
+# Check if the auth-polkit line already exists in the config file
+# Add the auth-polkit=false line after plugins=ifupdown,keyfile in the [main] section
+if grep -q '^\[main\]' "$NM_CONF_FILE"; then
+	if ! grep -q '^auth-polkit=false' "$NM_CONF_FILE"; then
+		echo "Adding 'auth-polkit=false' to ${NM_CONF_FILE}..."
+		sudo sed -i '/^plugins=ifupdown,keyfile/a auth-polkit=false' "$NM_CONF_FILE"
+	else
+		echo "'auth-polkit=false' is already present in ${NM_CONF_FILE}."
+	fi
+else
+	echo "The [main] section was not found in ${NM_CONF_FILE}."
+fi
+
+# Display information
+echo "User ${USER_NAME} has been successfully configured to run nmcli commands without sudo."
+
+
+###### Setup Wifi ######
+
+# Console output
+echo "Installing WiFi..."
+
+# Update package lists
+sudo apt-get update
+
+# Install usb-modeswitch
+sudo apt-get install -y usb-modeswitch || {
+    echo "Failed to install usb-modeswitch."
+    exit 1
+}
+
+# Check for connected USB devices and identify the WiFi chip
+echo "Detecting WiFi chip..."
+
+# Find RTL8188GU device
+device_info_rtl=$(lsusb | grep -i "RTL8188GU")
+
+# Find AIC8800DC device
+device_info_aic=$(lsusb | grep -i "a69c:5721")
+
+if [ -n "$device_info_rtl" ]; then
+    echo "RTL8188GU detected."
+    vendor_id=$(echo $device_info_rtl | awk '{print $6}' | cut -d: -f1)
+    product_id=$(echo $device_info_rtl | awk '{print $6}' | cut -d: -f2)
+    echo "vendor_id: $vendor_id, product_id: $product_id"
+
+    # Configure the USB WLAN dongle
+    sudo usb_modeswitch -v $vendor_id -p $product_id -J
+
+    # Copy the firmware file
+    sudo cp wifi/rtl8710bufw_SMIC.bin /lib/firmware/rtlwifi/
+    echo "WiFi installation for RTL8188GU completed!"
+
+elif [ -n "$device_info_aic" ]; then
+    echo "AIC8800DC detected."
+    vendor_id=$(echo $device_info_aic | awk '{print $6}' | cut -d: -f1)
+    product_id=$(echo $device_info_aic | awk '{print $6}' | cut -d: -f2)
+    echo "vendor_id: $vendor_id, product_id: $product_id"
+
+    # Configure the USB WLAN dongle for AIC8800DC
+    sudo usb_modeswitch -KQ -v $vendor_id -p $product_id
+
+    # Create udev rule to handle future connections automatically
+    echo "Creating udev rule for AIC8800DC..."
+    echo "ACTION==\"add\", ATTR{idVendor}==\"$vendor_id\", ATTR{idProduct}==\"$product_id\", RUN+=\"/usr/sbin/usb_modeswitch -v $vendor_id -p $product_id -KQ\"" | sudo tee /etc/udev/rules.d/99-usb_modeswitch.rules
+
+    # Reload udev rules
+    sudo udevadm control --reload
+    echo "WiFi installation for AIC8800DC completed!"
+
+else
+    echo "No supported WiFi chip detected. Please ensure the device is connected."
+fi
+
+
+
+###### Setup FreeDi ######
+
 # Set ownership and permissions for the ~/FreeDiLCD directory
 echo "Setting ownership and permissions for ~/FreeDi"
-sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}
-sudo chmod -R 755 ${BKDIR}
+sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}/FreeDi
+sudo chmod -R 755 ${BKDIR}/FreeDi
 echo "Ownership and permissions set"
-
-
 
 # Autostart the program
 echo "Installing the service to starts this program automatically at boot time..."
 
 # Make start.py executable
 echo "Making start.py executable..."
-sudo chmod +x ${X3DIR}/start.py
+sudo chmod +x ${FREEDI_LCD_DIR}/start.py
 echo "start.py is now executable!"
 
 # Make FreeDi.service file executable
 echo "Making FreeDi.service executable..."
+### nötig?
+sudo chmod +x FreeDi.service
 echo "FreeDi.service is now executable!"
 
 # Move FreeDi.service to systemd directory
 echo "Moving FreeDi.service to /etc/systemd/system/"
-sudo cp ${X3DIR}/FreeDi.service /etc/systemd/system/FreeDi.service
+sudo cp ${FREEDI_LCD_DIR}/FreeDi.service /etc/systemd/system/FreeDi.service
 echo "FreeDi.service moved to /etc/systemd/system/"
 
 # Set correct permissions for FreeDi.service
 echo "Setting permissions for /etc/systemd/system/FreeDi.service"
-#sudo chmod 644 /etc/systemd/system/FreeDi.service
+### nötig?
+sudo chmod 644 /etc/systemd/system/FreeDi.service
 echo "Permissions set to 644 for /etc/systemd/system/FreeDi.service!"
 
 # Reload systemd manager configuration
@@ -207,15 +312,6 @@ echo "FreeDiLCD.service started!"
 # Update package lists
 echo "Updating package lists..."
 sudo apt update -y
-
-# Install required packages
-#echo "Installing required packages for input shaping..."
-#sudo apt install -y python3-numpy python3-matplotlib libatlas-base-dev libopenblas-dev
-
-# Install numpy using pip within the virtual environment
-#echo "Installing numpy in the virtual environment..."
-#~/klippy-env/bin/pip install -v numpy
-
 
 # Console output
 echo "Setup complete!"
