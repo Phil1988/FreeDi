@@ -153,8 +153,6 @@ fi
 
 ###### Setup FreeDi ######
 
-
-
 # Stop and disable old X3seriesLCD service
 echo "Stopping and disabling old X3seriesLCD service..."
 sudo systemctl stop X3seriesLCD.service
@@ -185,7 +183,6 @@ echo "Making start.py executable..."
 sudo chmod +x ${FREEDI_LCD_DIR}/start.py
 echo "start.py is now executable!"
 
-
 # Move new FreeDi.service to systemd directory
 echo "Moving new FreeDi.service to /etc/systemd/system/"
 sudo cp ${FREEDI_LCD_DIR}/FreeDi.service /etc/systemd/system/FreeDi.service
@@ -206,12 +203,9 @@ echo "Starting FreeDi.service..."
 sudo systemctl start FreeDi.service
 echo "FreeDiLCD.service started!"
 
-
 # Update package lists
 echo "Updating package lists..."
 sudo apt update -y
-
-
 
 # Console output
 echo "Setup complete!"
