@@ -8,6 +8,7 @@ USER_NAME=$(whoami)
 SERVICE="FreeDi.service"
 BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 FREEDI_LCD_DIR="${BKDIR}/FreeDiLCD"
+REPO_MODULE_DIR="${BKDIR}/klipper_module"
 LCD_FIRMWARE_DIR="${BKDIR}/screen_firmwares"
 
 # Ask the user if they use the stock Mainboard
@@ -38,7 +39,6 @@ git sparse-checkout add klipper_module/
 # Varialbles for the klipper module
 KLIPPER_EXTRAS_DIR="$HOME/klipper/klippy/extras"
 MODULE_NAME="freedi.py"
-REPO_MODULE_PATH="./klipper_module/$MODULE_NAME"
 
 # Ensure if the Klipper extras directory exists
 if [ ! -d "$KLIPPER_EXTRAS_DIR" ]; then
@@ -47,14 +47,14 @@ if [ ! -d "$KLIPPER_EXTRAS_DIR" ]; then
     exit 1
 fi
 
-# Creating a symbolic link for freedi.py module to the Klipper extras directory
-echo "Creating a symbolic link for $MODULE_NAME to $KLIPPER_EXTRAS_DIR..."
-ln -sf "${FREEDI_LCD_DIR}/freedi.py" "${KLIPPER_EXTRAS_DIR}/freedi.py"
+# Create a symbolic link for freedi.py module to the Klipper extras directory
+echo "Creating a symbolic link for $MODULE_NAME from $REPO_MODULE_DIR to $KLIPPER_EXTRAS_DIR..."
+ln -sf "${REPO_MODULE_DIR}/freedi.py" "${KLIPPER_EXTRAS_DIR}/freedi.py"
 
 if [ $? -eq 0 ]; then
     echo "Successfully installed $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
 else
-    echo "Error: Failed to copy $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
+    echo "Error: Failed to create a symbolic link for $MODULE_NAME."
     exit 1
 fi
 
@@ -263,7 +263,7 @@ fi
 
 ###### Setup FreeDi ######
 
-# Set ownership and permissions for the ~/FreeDiLCD directory
+# Set ownership and permissions for the ~/FreeDi directory
 echo "Setting ownership and permissions for ~/FreeDi"
 sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}/FreeDi
 sudo chmod -R 755 ${BKDIR}/FreeDi
