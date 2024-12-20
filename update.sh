@@ -6,7 +6,7 @@
 # Set variables
 USER_NAME=$(whoami)
 SERVICE="FreeDi.service"
-BKDIR="$( cd -- \"$(dirname \"$0\")\" >/dev/null 2>&1 ; pwd -P )"
+BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 FREEDI_LCD_DIR="${BKDIR}/FreeDiLCD"
 REPO_MODULE_DIR="${BKDIR}/klipper_module"
 LCD_FIRMWARE_DIR="${BKDIR}/screen_firmwares"
