@@ -260,7 +260,6 @@ else
 fi
 
 
-
 ###### Setup FreeDi ######
 
 # Set ownership and permissions for the ~/FreeDi directory
