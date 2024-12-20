@@ -7,7 +7,8 @@
 USER_NAME=$(whoami)
 SERVICE="FreeDi.service"
 BKDIR="$( cd -- \"$(dirname \"$0\")\" >/dev/null 2>&1 ; pwd -P )"
-FREEDI_LCD_DIR="${BKDIR}/FreeDi/FreeDiLCD"
+FREEDI_LCD_DIR="${BKDIR}/FreeDiLCD"
+REPO_MODULE_DIR="${BKDIR}/klipper_module"
 LCD_FIRMWARE_DIR="${BKDIR}/FreeDi/screen_firmwares"
 
 # Ask the user if they use the stock Mainboard
@@ -38,7 +39,7 @@ git sparse-checkout add klipper_module/
 # Variables for the Klipper module
 KLIPPER_EXTRAS_DIR="$HOME/klipper/klippy/extras"
 MODULE_NAME="freedi.py"
-REPO_MODULE_PATH="./klipper_module/$MODULE_NAME"
+#REPO_MODULE_PATH="./klipper_module/$MODULE_NAME"
 
 # Ensure the Klipper extras directory exists
 if [ ! -d "$KLIPPER_EXTRAS_DIR" ]; then
@@ -48,8 +49,8 @@ if [ ! -d "$KLIPPER_EXTRAS_DIR" ]; then
 fi
 
 # Create a symbolic link for freedi.py module to the Klipper extras directory
-echo "Creating a symbolic link for $MODULE_NAME to $KLIPPER_EXTRAS_DIR..."
-ln -sf "${FREEDI_LCD_DIR}/freedi.py" "${KLIPPER_EXTRAS_DIR}/freedi.py"
+echo "Creating a symbolic link for $MODULE_NAME from $REPO_MODULE_DIR to $KLIPPER_EXTRAS_DIR..."
+ln -sf "${REPO_MODULE_DIR}/freedi.py" "${KLIPPER_EXTRAS_DIR}/freedi.py"
 
 if [ $? -eq 0 ]; then
     echo "Successfully installed $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
