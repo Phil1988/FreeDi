@@ -147,6 +147,7 @@ if [ -f "$MOONFILE" ]; then
 		# Append the block to the end of the file
 		cat <<EOL >> "$MOONFILE"
 
+# FreeDi update_manager entry
 [update_manager FreeDi]
 type: git_repo
 path: ~/FreeDi
@@ -155,12 +156,11 @@ origin: https://github.com/Phil1988/FreeDi
 virtualenv: ~/klippy-env
 requirements: requirements.txt
 install_script: install.sh
-is_system_service: False
-managed_services: klipper
+managed_services: FreeDi
 info_tags:
-	desc=FreeDi LCD Screen
+	desc=FreeDi LCD
 	sparse_dirs:
-	- X3seriesLCD
+	- FreeDiLCD
 	- screen_firmwares
 EOL
 
