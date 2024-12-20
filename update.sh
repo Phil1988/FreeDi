@@ -9,7 +9,7 @@ SERVICE="FreeDi.service"
 BKDIR="$( cd -- \"$(dirname \"$0\")\" >/dev/null 2>&1 ; pwd -P )"
 FREEDI_LCD_DIR="${BKDIR}/FreeDiLCD"
 REPO_MODULE_DIR="${BKDIR}/klipper_module"
-LCD_FIRMWARE_DIR="${BKDIR}/FreeDi/screen_firmwares"
+LCD_FIRMWARE_DIR="${BKDIR}/screen_firmwares"
 
 # Ask the user if they use the stock Mainboard
 echo "Do you have a system where the stock LCD screen runs the FreeDi or X3seriesLCD on a firmware up to v1.03? (y/n)"
