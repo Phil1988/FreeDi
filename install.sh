@@ -3,7 +3,7 @@
 # to delete '\r' signs use
 # sed -i 's/\r$//' install.sh
 
-#Set variables
+# Set variables
 USER_NAME=$(whoami)
 SERVICE="FreeDi.service"
 BKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
