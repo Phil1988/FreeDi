@@ -126,9 +126,9 @@ if [ -f "$MOONFILE" ]; then
         echo "Adding FreeDi update manager configuration to Moonraker..."
         cat <<EOL >> "$MOONFILE"
 
-[update_manager freeDi]
+[update_manager FreeDi]
 type: git_repo
-path: ~/freeDi
+path: ~/FreeDi
 channel: dev
 origin: https://github.com/Phil1988/FreeDi
 virtualenv: ~/klippy-env
