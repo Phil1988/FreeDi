@@ -149,7 +149,7 @@ requirements: requirements.txt
 install_script: install.sh
 managed_services: FreeDi
 info_tags:
-	desc=FreeDi LCD
+	desc=FreeDi
 	sparse_dirs:
 	- FreeDiLCD
 	- screen_firmwares
