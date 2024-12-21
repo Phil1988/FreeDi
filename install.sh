@@ -162,7 +162,7 @@ if [ -f "$MOONFILE" ]; then
 [update_manager FreeDi]
 type: git_repo
 path: ~/FreeDi
-channel: dev
+channel: stable
 origin: https://github.com/Phil1988/FreeDi
 virtualenv: ~/klippy-env
 requirements: requirements.txt
