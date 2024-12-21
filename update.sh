@@ -202,15 +202,15 @@ echo "X3seriesLCD directory removed!"
 echo "Installing the service to starts this program automatically at boot time..."
 
 # Set ownership and permissions for the ~/FreeDi directory
-echo "Setting ownership and permissions for ~/FreeDi"
-sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}
-sudo chmod -R 755 ${BKDIR}
-echo "Ownership and permissions set"
+#echo "Setting ownership and permissions for ~/FreeDi"
+#sudo chown -R $USER_NAME:$USER_NAME ${BKDIR}
+#sudo chmod -R 755 ${BKDIR}
+#echo "Ownership and permissions set"
 
 # Make start.py executable
-echo "Making start.py executable..."
-sudo chmod +x ${FREEDI_LCD_DIR}/start.py
-echo "start.py is now executable!"
+#echo "Making start.py executable..."
+#sudo chmod +x ${FREEDI_LCD_DIR}/start.py
+#echo "start.py is now executable!"
 
 # Move new FreeDi.service to systemd directory
 echo "Moving new FreeDi.service to /etc/systemd/system/"
