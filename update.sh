@@ -22,7 +22,6 @@ else
     echo "Ok! Starting the update process..."
 fi
 
-
 # Check if the script is run inside a Git repository
 if [ ! -d ".git" ]; then
     echo "Error: Not a git repository. Please initialize the repository first."
@@ -146,7 +145,6 @@ channel: stable
 origin: https://github.com/Phil1988/FreeDi
 virtualenv: ~/klippy-env
 requirements: requirements.txt
-install_script: install.sh
 managed_services: FreeDi
 info_tags:
 	desc=FreeDi
