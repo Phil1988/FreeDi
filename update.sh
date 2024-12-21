@@ -39,7 +39,6 @@ git sparse-checkout add klipper_module/
 # Variables for the Klipper module
 KLIPPER_EXTRAS_DIR="$HOME/klipper/klippy/extras"
 MODULE_NAME="freedi.py"
-#REPO_MODULE_PATH="./klipper_module/$MODULE_NAME"
 
 # Ensure the Klipper extras directory exists
 if [ ! -d "$KLIPPER_EXTRAS_DIR" ]; then
@@ -72,6 +71,9 @@ fi
 
 ###### Setup Python environment ######
 
+# Activate the Klipper virtual environment and install required Python packages
+echo "Activating Klipper virtual environment and installing Python packages..."
+
 # Set Python path to Klipper environment
 KENV="${HOME}/klippy-env"
 PYTHON_EXEC="$KENV/bin/python"
@@ -82,8 +84,6 @@ if [ ! -d "$KENV" ]; then
     exit 1
 fi
 
-# Activate the Klipper virtual environment and install required Python packages
-echo "Activating Klipper virtual environment and installing Python packages..."
 source "$KENV/bin/activate"
 pip install --upgrade numpy matplotlib
 if [ $? -ne 0 ]; then
@@ -107,7 +107,9 @@ echo "Python requirements installed successfully."
 
 ###### Install system dependencies ######
 
-echo "Installing system dependencies for input shaping (if needed)..."
+# Installing required packages for input shaping (if not already installed)
+echo "Installing required packages for input shaping (if not already installed)..."
+
 sudo apt install -y libatlas-base-dev libopenblas-dev
 if [ $? -ne 0 ]; then
     echo "Error: Failed to install system dependencies."
@@ -117,7 +119,10 @@ echo "System dependencies installed successfully."
 
 ###### Setup Moonraker update manager ######
 
-# Add update entry to Moonraker configuration
+# Adding [FreeDi] section to moonraker update manager
+echo "Adding [FreeDi] section to moonraker update manager..."
+
+# Add update entry to moonraker conf
 MOONFILE="$HOME/printer_data/config/moonraker.conf"
 
 if [ -f "$MOONFILE" ]; then
@@ -150,6 +155,9 @@ else
     echo "Error: Moonraker configuration file not found."
     exit 1
 fi
+
+# Permit Moonraker to restart FreeDi service
+echo "Permit Moonraker to restart FreeDi service..."
 
 # Define moonraker.asvc file path
 file="$HOME/printer_data/moonraker.asvc"
