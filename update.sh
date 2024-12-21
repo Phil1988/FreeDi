@@ -119,17 +119,24 @@ echo "System dependencies installed successfully."
 
 ###### Setup Moonraker update manager ######
 
-# Adding [FreeDi] section to moonraker update manager
-echo "Adding [FreeDi] section to moonraker update manager..."
+# Adding FreeDi section to moonraker update manager
+echo "Adding FreeDi section to moonraker update manager..."
 
 # Add update entry to moonraker conf
 MOONFILE="$HOME/printer_data/config/moonraker.conf"
 
+# Check if the file exists
 if [ -f "$MOONFILE" ]; then
-    echo "Moonraker configuration file found."
-    if ! grep -q "^\[update_manager freeDi\]" "$MOONFILE"; then
-        echo "Adding FreeDi update manager configuration to Moonraker..."
-        cat <<EOL >> "$MOONFILE"
+	echo "Moonraker configuration file $MOONFILE found"
+	
+	# Check if the section [update_manager FreeDi] exists
+	if grep -q "^\[update_manager FreeDi\]" "$MOONFILE"; then
+		echo "The section [update_manager FreeDi] already exists in the file."
+	else
+		echo "The section [update_manager FreeDi] does not exist. Adding it to the end of the file."
+		
+		# Append the block to the end of the file
+		cat <<EOL >> "$MOONFILE"
 
 # FreeDi update_manager entry
 [update_manager FreeDi]
