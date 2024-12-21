@@ -73,6 +73,9 @@ fi
 
 ###### Setup python environment ######
 
+# Activate the Klipper virtual environment and install required Python packages
+echo "Activating Klipper virtual environment and installing Python packages..."
+
 # Set python path to klipper env
 KENV="${HOME}/klippy-env"
 PYTHON_EXEC="$KENV/bin/python"
@@ -82,8 +85,6 @@ if [ ! -d "$KENV" ]; then
 	exit 1
 fi
 
-# Activate the Klipper virtual environment and install required Python packages
-echo "Activating Klipper virtual environment and installing Python packages..."
 source ~/klippy-env/bin/activate
 pip install --upgrade numpy matplotlib
 deactivate
@@ -103,13 +104,21 @@ echo "Python requirements installed from requirements.txt."
 
 ###### Setup necessary dependencies for FreeDi and input shaping ######
 
-# Install required system packages for input shaping (again for clarity, if needed)
+# Installing required packages for input shaping (if not already installed)
 echo "Installing required packages for input shaping (if not already installed)..."
+
 sudo apt install -y libatlas-base-dev libopenblas-dev
-echo "System packages for input shaping installed."
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to install system dependencies."
+    exit 1
+fi
+echo "System dependencies installed successfully."
 
 
 ###### Stop FreeDi service ######
+
+# Stop FreeDi service
+echo "Stopping FreeDi service..."
 
 # Check if the service exists
 if systemctl list-units --type=service --all | grep "$SERVICE"; then
@@ -128,8 +137,10 @@ else
 fi
 
 
-
 ###### Setup Moonraker update manager ######
+
+# Adding [FreeDi] section to moonraker update manager
+echo "Adding [FreeDi] section to moonraker update manager..."
 
 # Add update entry to moonraker conf
 MOONFILE="$HOME/printer_data/config/moonraker.conf"
@@ -171,6 +182,9 @@ else
 	exit 1
 fi
 
+# Permit Moonraker to restart FreeDi service
+echo "Permit Moonraker to restart FreeDi service..."
+
 # Define moonraker.asvc file path
 file="$HOME/printer_data/moonraker.asvc"
 
@@ -191,12 +205,11 @@ fi
 
 ###### Setup NetworkManager ######
 
-# Define variables
-NM_CONF_FILE="/etc/NetworkManager/NetworkManager.conf"
-
 # Console output
 echo "Changing permissions to enable nmcli commands without sudo (necessary for setting wifi via screen)..."
 
+# Define variables
+NM_CONF_FILE="/etc/NetworkManager/NetworkManager.conf"
 
 # Add the user to the netdev group
 echo "Adding the user ${USER_NAME} to the 'netdev' group..."
