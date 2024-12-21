@@ -151,6 +151,23 @@ else
     exit 1
 fi
 
+# Define moonraker.asvc file path
+file="$HOME/printer_data/moonraker.asvc"
+
+# Check if the file exists
+if [ -f "$file" ]; then
+    # Search for the string "FreeDi" in the file
+    if grep -Fxq "FreeDi" "$file"; then
+        echo "\"FreeDi\" is already present in the moonraker.asvc file. No changes made."
+    else
+        # Append "FreeDi" to the end of the file
+        echo "FreeDi" >> "$file"
+        echo "\"FreeDi\" has been added to the moonraker.asvc file."
+    fi
+else
+    echo "moonraker.asvc file not found: $file"
+fi
+
 ###### Setup FreeDi ######
 
 # Stop and disable old X3seriesLCD service
