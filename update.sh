@@ -154,13 +154,12 @@ info_tags:
 	- FreeDiLCD
 	- screen_firmwares
 EOL
-        echo "Update manager configuration for [update_manager freeDi] added successfully."
-    else
-        echo "FreeDi update manager configuration already exists in Moonraker."
-    fi
+
+		echo "The section [update_manager freeDi] has been added to the file."
+	fi
 else
-    echo "Error: Moonraker configuration file not found."
-    exit 1
+	echo "File does not exist: $MOONFILE"
+	exit 1
 fi
 
 # Permit Moonraker to restart FreeDi service
