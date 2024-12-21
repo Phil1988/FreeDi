@@ -166,7 +166,6 @@ channel: stable
 origin: https://github.com/Phil1988/FreeDi
 virtualenv: ~/klippy-env
 requirements: requirements.txt
-install_script: install.sh
 managed_services: FreeDi
 info_tags:
 	desc=FreeDi
