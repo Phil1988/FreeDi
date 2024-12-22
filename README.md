@@ -12,7 +12,7 @@ Current supported printers:
 <br>
 
 Possibly working:
-* * **Plus 4** (Testers needed)
+* * **Plus 4** (Testers needed, please get in touch with me if interessted)
 <br>
 
 Future support:
@@ -31,11 +31,11 @@ This also helps me to justify puting more time to maintain this project for the 
 
 Qidi's X3 series printers are built with hardware that has great potential, but they run on outdated software.  
 **With the right software, these printers can work better, faster, and be more user-friendly for everyone.**  
-I believe that what I offer provides you with a better overall experience and ensures you aren't locked out<br/>
-of the latest features from Klipper, as well as all the great software that integrates with it <br/>
+I believe that what I offer provides you with a better overall experience.<br>
+It ensures you aren't locked out of the latest features from Klipper, as well as all the great software that integrates with it <br/>
 (such as Moonraker, Mainsail/Fluidd, Crowsnest, Shaketune, and thousands of plugins).
 
-Here's a list of software that unlocks the full functionality of the printer through my clean and updated Armbian-Klipper system:
+Here's a list of improvements that unlocks the full functionality of the printer through my clean and updated Armbian-Klipper system:
 
 * **OTA Updates** instead of downloading it, putting it on a USB thumb drive (takes ~4min for a full update instead of ~40min)
 * **Pure Klipper** instead of a modified/hacked klipper and moonraker (not upgradable)
@@ -52,7 +52,7 @@ Yes! It's a mess.<br/>
 It's full of unnecessary sections, not optimized, and the naming is confusing.<br/>
 
 **FreeDi has a clear structure**<br/>
-Everything has a clead naming.
+Everything has a clear naming.
 Macros have been optimized.
 And of course: No garbage any more!<br/>
 You will notice many things are now snappier and just works better/faster eg. adaptive bed meshing is now almost twice as fast.<br/>
