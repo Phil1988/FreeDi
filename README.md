@@ -37,10 +37,11 @@ of the latest features from Klipper, as well as all the great software that inte
 
 Here's a list of software that unlocks the full functionality of the printer through my clean and updated Armbian-Klipper system:
 
+* **OTA Updates** instead of downloading it, putting it on a USB thumb drive (takes ~4min for a full update instead of ~40min)
+* **Pure Klipper** instead of a modified/hacked klipper and moonraker (not upgradable)
 * **Latest Klipper 0.12.0+** instead of 0.10.0
-* **Pure Klipper** instead of a modified/hacked klipper and moonraker 
 * **Armbian Bookworm** instead of Buster  
-* **Python 3.12** instead of 2.7  
+* **Python 3.12** instead of 2.7
 * And all the possibilities that come with the latest software versions (Fluidd, Moonraker, etc.)  
 * More available disk space 
 <br/>
@@ -49,12 +50,12 @@ Here's a list of software that unlocks the full functionality of the printer thr
 Have you ever taken a look at the stock printer config and macros?<br/>
 Yes! It's a mess.<br/>
 It's full of unnecessary sections, not optimized, and the naming is confusing.<br/>
-Have you ever homed only the X or Y axis and ended up running the bed into the nozzle or against the bottom of the printer?<br/>
-Yes! With the stock config, you can do this.<br/><br/>
 
-**FreeDi has a clear structure, macros have been optimized and created from scratch to not hit the bed into anything.**<br/>
+**FreeDi has a clear structure**<br/>
+Everything has a clead naming.
+Macros have been optimized.
 And of course: No garbage any more!<br/>
-You will notice many things are now snappier and just works better/faster eg. like almost 50% reduced bed meshing time.<br/>
+You will notice many things are now snappier and just works better/faster eg. adaptive bed meshing is now almost twice as fast.<br/>
 
 It also fixes the "System starts abnormally"-error
 <p align="center">
@@ -68,7 +69,7 @@ even personally need or use to give you the best control interface the stock pri
 
 ---
 ## The Touchscreen Ecosystem
-The LCD software is called **X3seriesLCD** and created for those who want to use Qidi X3 series printers<br/>
+The LCD software is called **FreeDiLCD** and created for those who want to use Qidi X3 series printers<br/>
 with mainline (vanilla) Klipper and **the stock LCD screen**.<br/>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/378c20ba-1330-44b9-b7c2-e433fe61a699" alt="menue_teaser">
@@ -76,26 +77,11 @@ with mainline (vanilla) Klipper and **the stock LCD screen**.<br/>
 
 If you want to see more, check out the [menue guide](https://github.com/Phil1988/FreeDi/wiki/Menue-guide) for a walk through the most important functions.<br/>
 <br/>
-But it is more then "only" a screen firmware.<br/>
-<br/>
-What began as a straightforward tutorial has blossomed into a complete ecosystem.<br/>
-Its goal is to give you the best printer experience you can have and as lightweight and pure as it can be.<br/>
-
-This includes:
-* Recent armbian bookwork - the base
-* Recent Klipper firmware - the 3d-Printer firmware
-* X3SeriesLCD - my screen firmware
-
-This makes it a perfect symbiosis and I call it **"FreeDi"** ;)
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/12e4dae0-9322-4cac-84e7-235b4980031c" alt="Symbiosis">
-</p>
-<br/>
 
 ## But, why creating this project?
 
 I am incredibly thankful and proud that my [FreeQIDI tutorial](https://github.com/Phil1988/FreeQIDI) has gained so much popularity.<br/>
-I've seen forum posts, GitHub repositories, Reddit threads and more linking to my project in various languages such as English, German, French, Portuguese, Spanish, Russian, ...<br/>
+I've seen forum posts, GitHub repositories, Reddit threads and other sites linking to my project in various languages such as English, German, French, Portuguese, Spanish, Russian, ...<br/>
 And I am very happy that this gave you so much benefit and you like your printers more since.<br/>
 
 But I also noticed while many were interested and wanted to get the benefits of a pure and recent system, my guide had a disadvantage that cannot be dismissed out of hand:<br/>
@@ -111,9 +97,11 @@ While I appreciate the effort of [CChen616](https://github.com/CChen616) to prov
 * Unreliable thumbnails: Thumbnails only work if configured correctly in your slicer software (and at least for me it never really worked on the stock printer)
 * Z-offset risks: Applying the Z-offset to an additional file has reportedly caused "nozzle into bed" accidents for some users.
 * Reduced disk space: The additional included software can decrease available disk space.
+* And is still not optimized at all. Sorry!
 
 So I started this project and its quite versataille.<br/>
-If you own a different printer but the same/similar LCD, you can start a feature request in the "issues" section.
+If you own a different printer with the same/similar LCD, you can start a feature request in the "issues" section.<br>
+Thats how X-Smart 3 support was done :)
 <br/>
 <br/>
 ## You cant wait, right?
