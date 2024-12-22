@@ -8,7 +8,7 @@ A project aiming to use QIDIs X3 series printers with the stock display and main
 Current supported printers:
 * **X-Max 3**
 * **X-Plus 3**
-* **X-Smart 3** (beta)
+* **X-Smart 3**
 <br>
 
 Possibly working:
