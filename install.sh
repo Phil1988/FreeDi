@@ -85,10 +85,10 @@ if [ ! -d "$KENV" ]; then
 	exit 1
 fi
 
-source ~/klippy-env/bin/activate
-pip install --upgrade numpy matplotlib
-deactivate
-echo "Python packages numpy and matplotlib installed and virtual environment deactivated."
+# source ~/klippy-env/bin/activate
+# pip install --upgrade numpy matplotlib
+# deactivate
+# echo "Python packages numpy and matplotlib installed and virtual environment deactivated."
 
 PYTHON_V=$($PYTHON_EXEC -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
 echo "Klipper environment python version: $PYTHON_V"
