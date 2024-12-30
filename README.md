@@ -37,7 +37,7 @@ It ensures you aren't locked out of the latest features from Klipper, as well as
 
 Here's a list of improvements that unlocks the full functionality of the printer through my clean and updated Armbian-Klipper system:
 
-* **OTA Updates** instead of downloading it, putting it on a USB thumb drive (takes ~4min for a full update instead of ~40min)
+* **OTA Updates** instead of updating with an USB thumb drive (takes ~4min for a full update instead of ~40min)
 * **Pure Klipper** instead of a modified/hacked klipper and moonraker (not upgradable)
 * **Latest Klipper 0.12.0+** instead of 0.10.0
 * **Armbian Bookworm** instead of Buster  
