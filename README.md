@@ -81,7 +81,6 @@ If you want to see more, check out the [menue guide](https://github.com/Phil1988
 ## But, why creating this project?
 
 I am incredibly thankful and proud that my [FreeQIDI tutorial](https://github.com/Phil1988/FreeQIDI) has gained so much popularity.<br/>
-I've seen forum posts, GitHub repositories, Reddit threads and other sites linking to my project in various languages such as English, German, French, Portuguese, Spanish, Russian, ...<br/>
 And I am very happy that this gave you so much benefit and you like your printers more since.<br/>
 
 But I also noticed while many were interested and wanted to get the benefits of a pure and recent system, my guide had a disadvantage that cannot be dismissed out of hand:<br/>
