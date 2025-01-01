@@ -119,28 +119,6 @@ fi
 echo "System dependencies installed successfully."
 
 
-###### Stop FreeDi service ######
-
-# Stop FreeDi service
-echo "Stopping FreeDi service..."
-
-# Check if the service exists
-if systemctl list-units --type=service --all | grep "$SERVICE"; then
-	#echo "Service $SERVICE is available."
-	
-	# Stop the service
-	if systemctl stop "$SERVICE"; then
-		echo "Service $SERVICE stopped successfully."
-	else
-		echo "Failed to stop service $SERVICE." >&2
-		exit 1
-	fi
-else
-	echo "Service $SERVICE not found. Please ensure it is installed or the name is correct." >&2
-	exit 1
-fi
-
-
 ###### Setup Moonraker update manager ######
 
 # Adding FreeDi section to moonraker update manager
@@ -298,6 +276,11 @@ fi
 
 # Autostart the program
 echo "Installing the service to starts this program automatically at boot time..."
+
+# Stop running FreeDi service
+echo "Stopping FreeDi service..."
+sudo systemctl stop FreeDi.service
+echo "FreeDi service stopped."
 
 # Move new FreeDi.service to systemd directory
 echo "Moving new FreeDi.service to /etc/systemd/system/"
