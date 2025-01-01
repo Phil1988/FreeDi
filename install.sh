@@ -53,7 +53,7 @@ ln -sf "${REPO_MODULE_DIR}/${MODULE_NAME}" "${KLIPPER_EXTRAS_DIR}/${MODULE_NAME}
 
 if [ $? -eq 0 ]; then
     # Exclude freedi.py from the Klipper repo as we introduce it and thus shouldn't be considered by the repo
-    if ! grep -q "${KLIPPER_EXTRAS_DIR}/${MODULE_NAME}" "${BKDIR}/klipper/.git/info/exclude"; then
+    if ! grep -q "klippy/extras/${MODULE_NAME}" "${BKDIR}/klipper/.git/info/exclude"; then
         echo "klippy/extras/${MODULE_NAME}" >> "${BKDIR}/klipper/.git/info/exclude"
     fi
     echo "Successfully installed $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
