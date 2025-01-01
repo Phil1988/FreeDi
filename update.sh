@@ -35,11 +35,11 @@ git sparse-checkout add klipper_module/
 
 ###### Installing klipper module ######
 
-# Variables for the Klipper module
+# Varialbles for the klipper module
 KLIPPER_EXTRAS_DIR="$HOME/klipper/klippy/extras"
 MODULE_NAME="freedi.py"
 
-# Ensure the Klipper extras directory exists
+# Ensure if the Klipper extras directory exists
 if [ ! -d "$KLIPPER_EXTRAS_DIR" ]; then
     echo "Error: Klipper extras directory not found at $KLIPPER_EXTRAS_DIR."
     echo "Make sure Klipper is installed correctly."
@@ -48,9 +48,13 @@ fi
 
 # Create a symbolic link for freedi.py module to the Klipper extras directory
 echo "Creating a symbolic link for $MODULE_NAME from $REPO_MODULE_DIR to $KLIPPER_EXTRAS_DIR..."
-ln -sf "${REPO_MODULE_DIR}/freedi.py" "${KLIPPER_EXTRAS_DIR}/freedi.py"
+ln -sf "${REPO_MODULE_DIR}/${MODULE_NAME}" "${KLIPPER_EXTRAS_DIR}/${MODULE_NAME}"
 
 if [ $? -eq 0 ]; then
+    # Exclude freedi.py from the Klipper repo as we introduce it and thus shouldn't be considered by the repo
+    if ! grep -q "${KLIPPER_EXTRAS_DIR}/${MODULE_NAME}" "${BKDIR}/klipper/.git/info/exclude"; then
+        echo "klippy/extras/${MODULE_NAME}" >> "${BKDIR}/klipper/.git/info/exclude"
+    fi
     echo "Successfully installed $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
 else
     echo "Error: Failed to create a symbolic link for $MODULE_NAME."
@@ -63,6 +67,7 @@ sudo systemctl restart klipper
 
 if [ $? -eq 0 ]; then
     echo "Klipper service restarted successfully."
+    echo "Installation complete."
 else
     echo "Error: Failed to restart Klipper service."
     exit 1
@@ -206,6 +211,10 @@ echo "Installing the service to starts this program automatically at boot time..
 echo "Moving new FreeDi.service to /etc/systemd/system/"
 sudo cp ${FREEDI_LCD_DIR}/FreeDi.service /etc/systemd/system/FreeDi.service
 echo "FreeDi.service moved to /etc/systemd/system/"
+
+# Setting current user in FreeDi.service
+echo "Setting user to $USER_NAME in FreeDi.service"
+sudo sed -i "s/{{USER}}/$USER_NAME/g" /etc/systemd/system/FreeDi.service
 
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
