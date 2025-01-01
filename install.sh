@@ -75,13 +75,12 @@ else
 fi
 
 
-
 ###### Setup serial port ######
 
 # Console output
 echo "Setup dtbo for serial communication..."
 # Install dtbo file for serial communication
-sudo cp dtbo/rockchip-mkspi-uart1.dtbo /boot/dtb/rockchip/overlay/
+sudo cp $FREEDI_LCD_DIR/dtbo/rockchip-mkspi-uart1.dtbo /boot/dtb/rockchip/overlay/
 echo "dtbo install done!"
 
 # Stating the modification of the armbianEnv.txt
