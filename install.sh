@@ -53,8 +53,8 @@ ln -sf "${REPO_MODULE_DIR}/${MODULE_NAME}" "${KLIPPER_EXTRAS_DIR}/${MODULE_NAME}
 
 if [ $? -eq 0 ]; then
     # Exclude freedi.py from the Klipper repo as we introduce it and thus shouldn't be considered by the repo
-    if ! grep -q "klippy/extras/${MODULE_NAME}" "${BKDIR}/klipper/.git/info/exclude"; then
-        echo "klippy/extras/${MODULE_NAME}" >> "${BKDIR}/klipper/.git/info/exclude"
+    if ! grep -q "klippy/extras/${MODULE_NAME}" "${HOME}/klipper/.git/info/exclude"; then
+        echo "klippy/extras/${MODULE_NAME}" >> "${HOME}/klipper/.git/info/exclude"
     fi
     echo "Successfully installed $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
 else
@@ -75,6 +75,42 @@ else
 fi
 
 
+
+###### Setup serial port ######
+
+# Console output
+echo "Setup dtbo for serial communication..."
+# Install dtbo file for serial communication
+sudo cp dtbo/rockchip-mkspi-uart1.dtbo /boot/dtb/rockchip/overlay/
+echo "dtbo install done!"
+
+# Stating the modification of the armbianEnv.txt
+echo "Customise the armbianEnv.txt file for serial communication..."
+# The file to check
+FILE="/boot/armbianEnv.txt"
+# The entry to search for
+SEARCH_STRING="overlays="
+# The new line to add or replace
+NEW_LINE="overlays=mkspi-uart1"
+
+# Check if the file exists
+if [ ! -f "$FILE" ]; then
+    echo "File $FILE does not exist."
+    exit 1
+fi
+
+# Check if the file contains the search string and perform the corresponding action
+if sudo grep -q "^$SEARCH_STRING" "$FILE"; then
+    echo "Line found. Replacing the line."
+    sudo sed -i "s/^$SEARCH_STRING.*/$NEW_LINE/" "$FILE"
+else
+    echo "Line not found. Adding the line."
+    echo "$NEW_LINE" | sudo tee -a "$FILE" > /dev/null
+fi
+
+echo "armbianEnv.txt customization comlpleted."
+
+
 ###### Setup python environment ######
 
 # Activate the Klipper virtual environment and install required Python packages
@@ -88,11 +124,6 @@ if [ ! -d "$KENV" ]; then
 	echo "Klippy env doesn't exist so I can't continue installation..."
 	exit 1
 fi
-
-# source ~/klippy-env/bin/activate
-# pip install --upgrade numpy matplotlib
-# deactivate
-# echo "Python packages numpy and matplotlib installed and virtual environment deactivated."
 
 PYTHON_V=$($PYTHON_EXEC -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
 echo "Klipper environment python version: $PYTHON_V"
