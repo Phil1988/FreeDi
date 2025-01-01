@@ -49,9 +49,13 @@ fi
 
 # Create a symbolic link for freedi.py module to the Klipper extras directory
 echo "Creating a symbolic link for $MODULE_NAME from $REPO_MODULE_DIR to $KLIPPER_EXTRAS_DIR..."
-ln -sf "${REPO_MODULE_DIR}/freedi.py" "${KLIPPER_EXTRAS_DIR}/freedi.py"
+ln -sf "${REPO_MODULE_DIR}/${MODULE_NAME}" "${KLIPPER_EXTRAS_DIR}/${MODULE_NAME}"
 
 if [ $? -eq 0 ]; then
+    # Exclude freedi.py from the Klipper repo as we introduce it and thus shouldn't be considered by the repo
+    if ! grep -q "klippy/extras/${MODULE_NAME}" "${BKDIR}/klipper/.git/info/exclude"; then
+        echo "klippy/extras/${MODULE_NAME}" >> "${BKDIR}/klipper/.git/info/exclude"
+    fi
     echo "Successfully installed $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
 else
     echo "Error: Failed to create a symbolic link for $MODULE_NAME."
@@ -113,28 +117,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 echo "System dependencies installed successfully."
-
-
-###### Stop FreeDi service ######
-
-# Stop FreeDi service
-echo "Stopping FreeDi service..."
-
-# Check if the service exists
-if systemctl list-units --type=service --all | grep "$SERVICE"; then
-	#echo "Service $SERVICE is available."
-	
-	# Stop the service
-	if systemctl stop "$SERVICE"; then
-		echo "Service $SERVICE stopped successfully."
-	else
-		echo "Failed to stop service $SERVICE." >&2
-		exit 1
-	fi
-else
-	echo "Service $SERVICE not found. Please ensure it is installed or the name is correct." >&2
-	exit 1
-fi
 
 
 ###### Setup Moonraker update manager ######
@@ -265,7 +247,7 @@ if [ -n "$device_info_rtl" ]; then
     sudo usb_modeswitch -v $vendor_id -p $product_id -J
 
     # Copy the firmware file
-    sudo cp wifi/rtl8710bufw_SMIC.bin /lib/firmware/rtlwifi/
+    sudo cp $FREEDI_LCD_DIR/wifi/rtl8710bufw_SMIC.bin /lib/firmware/rtlwifi/
     echo "WiFi installation for RTL8188GU completed!"
 
 elif [ -n "$device_info_aic" ]; then
@@ -283,6 +265,11 @@ elif [ -n "$device_info_aic" ]; then
 
     # Reload udev rules
     sudo udevadm control --reload
+
+    # Install the driver package
+    echo "Installing driver package for AIC8800DC..."
+    sudo dpkg -i $FREEDI_LCD_DIR/wifi/ax300-wifi-adapter-linux-driver.deb
+
     echo "WiFi installation for AIC8800DC completed!"
 
 else
@@ -295,10 +282,19 @@ fi
 # Autostart the program
 echo "Installing the service to starts this program automatically at boot time..."
 
+# Stop running FreeDi service
+echo "Stopping FreeDi service..."
+sudo systemctl stop FreeDi.service
+echo "FreeDi service stopped."
+
 # Move new FreeDi.service to systemd directory
 echo "Moving new FreeDi.service to /etc/systemd/system/"
 sudo cp ${FREEDI_LCD_DIR}/FreeDi.service /etc/systemd/system/FreeDi.service
 echo "FreeDi.service moved to /etc/systemd/system/"
+
+# Setting current user in FreeDi.service
+echo "Setting user to $USER_NAME in FreeDi.service"
+sudo sed -i "s/{{USER}}/$USER_NAME/g" /etc/systemd/system/FreeDi.service
 
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
