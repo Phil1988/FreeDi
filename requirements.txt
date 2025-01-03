@@ -5,3 +5,4 @@ pyserial>=3.5
 Pillow
 numpy
 matplotlib
+psutil
