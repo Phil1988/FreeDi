@@ -11,7 +11,6 @@ class FreeDi:
         self.baudrate = config.get('baudrate', 115200)
         self.serial_port = config.get('serial_port', '/dev/ttyS1')
         self.url = config.get('url', '127.0.0.1')
-        self.moonraker_port = config.get('port', '80')
         self.api_key = config.get('api_key', 'XXXXXX')
         self.klippy_socket = config.get('klippy_socket', '/home/mks/printer_data/comms/klippy.sock')
         self.channel = config.get('channel', 'stable')

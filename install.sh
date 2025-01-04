@@ -110,41 +110,6 @@ fi
 echo "armbianEnv.txt customization comlpleted."
 
 
-###### Setup print head serial port to printer.cfg ######
-
-# Define printer.cfg path
-PRINTER_CONFIG="$HOME/printer_data/config/printer.cfg"
-
-echo "Setup the toolhead serial path in printer.cfg..."
-
-# Check if serial devices exist
-if [ -d "/dev/serial/by-id" ]; then
-    # Find the first available serial devices that contain "usb-Klipper_rp2040" in the name
-    path=$(ls /dev/serial/by-id/* | grep "usb-Klipper_rp2040" | head -n 1)
-    
-    if [ -n "$path" ]; then
-        echo "Found serial device: $path"
-
-        # Check if the printer.cfg file exists
-        if [ -f "$PRINTER_CONFIG" ]; then
-            echo "Modifying printer.cfg"
-
-            # Use sed to replace the serial line in printer.cfg
-            sudo sed -i "s|serial:.*|serial: ${path}|g" "$PRINTER_CONFIG"
-            
-            echo "Updated serial path for the toolhead in $PRINTER_CONFIG"
-        else
-            echo "Error: $PRINTER_CONFIG not found!"
-        fi
-    else
-        echo "No serial device found in /dev/serial/by-id."
-    fi
-else
-    echo "Error: no serial devices found in /dev/serial/by-id"
-fi
-
-
-
 ###### Setup python environment ######
 
 # Activate the Klipper virtual environment and install required Python packages
@@ -360,7 +325,6 @@ echo "FreeDi.service moved to /etc/systemd/system/"
 # Setting current user in FreeDi.service
 echo "Setting user to $USER_NAME in FreeDi.service"
 sudo sed -i "s/{{USER}}/$USER_NAME/g" /etc/systemd/system/FreeDi.service
-
 
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
