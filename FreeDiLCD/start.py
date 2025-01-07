@@ -3,6 +3,9 @@ import sys
 import psutil
 from main import main as main_function  # Import the main function from main.py
 
+# teste
+
+
 def is_instance_running(script_name):
     """Check if another instance of the script is running."""
     current_pid = os.getpid()
