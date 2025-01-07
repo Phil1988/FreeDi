@@ -88,14 +88,6 @@ if [ ! -d "$KENV" ]; then
     exit 1
 fi
 
-#source "$KENV/bin/activate"
-#pip install --upgrade numpy matplotlib
-#if [ $? -ne 0 ]; then
-#    echo "Error: Failed to install Python packages."
-#    deactivate
-#    exit 1
-#fi
-#deactivate
 
 # Verify Python version
 PYTHON_V=$($PYTHON_EXEC -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
