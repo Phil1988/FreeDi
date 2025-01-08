@@ -75,7 +75,7 @@ else
 fi
 
 
-###### Setup serial port ######
+###### Setup serial port for LCD communication ######
 
 # Console output
 echo "Setup dtbo for serial communication..."
@@ -110,7 +110,7 @@ fi
 echo "armbianEnv.txt customization comlpleted."
 
 
-###### Setup print head serial port to printer.cfg ######
+###### Setup printhead serial port to printer.cfg ######
 
 # Define printer.cfg path
 PRINTER_CONFIG="$HOME/printer_data/config/printer.cfg"
