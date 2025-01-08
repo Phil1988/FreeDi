@@ -129,8 +129,8 @@ if [ -d "/dev/serial/by-id" ]; then
         if [ -f "$PRINTER_CONFIG" ]; then
             echo "Modifying printer.cfg"
 
-            # Use sed to replace the serial line in printer.cfg
-            sudo sed -i "s|serial:.*|serial: ${path}|g" "$PRINTER_CONFIG"
+            # Use sed to update the serial line only within the [mcu MKS_THR] section
+            sudo sed -i "/\[mcu MKS_THR\]/,/^\[/ {s|^serial:.*|serial: ${path}|}" "$PRINTER_CONFIG"
             
             echo "Updated serial path for the toolhead in $PRINTER_CONFIG"
         else
@@ -142,7 +142,6 @@ if [ -d "/dev/serial/by-id" ]; then
 else
     echo "Error: no serial devices found in /dev/serial/by-id"
 fi
-
 
 
 ###### Setup python environment ######
