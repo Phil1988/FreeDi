@@ -6,3 +6,4 @@ Pillow
 numpy
 matplotlib
 psutil
+websocket-client
