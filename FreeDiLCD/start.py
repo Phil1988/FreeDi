@@ -1,6 +1,27 @@
 import os
 import sys
+import subprocess
+
+def run_and_delete_bash_script(file_name):
+    if not os.path.exists(file_name):
+        return
+    
+    try:
+        result = subprocess.run(["bash", file_name], capture_output=True, text=True, check=True)
+        print("Script Output:\n", result.stdout)
+        os.remove(file_name)
+        print(f"File '{file_name}' has been deleted.")
+    except subprocess.CalledProcessError as e:
+        print("Error occurred:\n", e.stderr)
+    except FileNotFoundError:
+        print(f"File '{file_name}' not found. Nothing to delete.")
+
+# Run the update script
+file_name = "freedi_update.sh"
+run_and_delete_bash_script(file_name)
+
 import psutil
+
 # Import the main function from main.py
 from main import main as main_function  
 
@@ -24,6 +45,7 @@ def is_instance_running(script_name):
     return len(matching_processes) > 0
 
 if __name__ == "__main__":
+
     # Ensure the script name matches explicitly
     script_name = os.path.abspath(__file__)
     if is_instance_running(script_name):

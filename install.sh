@@ -34,6 +34,20 @@ git sparse-checkout add screen_firmwares/
 git sparse-checkout add klipper_module/
 
 
+###### Establishing freedi_update.sh ######
+
+if [ $? -eq 0 ]; then
+    # Exclude freedi_update.sh from the FreeDi repo
+    if ! grep -q "FreeDiLCD/freedi_update.sh" "${HOME}/FreeDi/.git/info/exclude"; then
+        echo "FreeDiLCD/freedi_update.sh" >> "${HOME}/FreeDi/.git/info/exclude"
+    fi
+    echo "Successfully ignoring freedi_update.sh"
+else
+    echo "Error: Failed to ignore freedi_update.sh"
+    exit 1
+fi
+
+
 ###### Installing klipper module ######
 
 # Varialbles for the klipper module
