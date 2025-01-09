@@ -298,8 +298,11 @@ echo "Detecting WiFi chip..."
 # Find RTL8188GU device
 device_info_rtl=$(lsusb | grep -i "RTL8188GU")
 
-# Find AIC8800DC device
-device_info_aic=$(lsusb | grep -i "a69c:5721")
+# Find AIC8800DC as mass storage device
+device_info_aic_mass_storage=$(lsusb | grep -i "a69c:5721")
+
+# Find AIC8800DC as wifi device
+device_info_aic_wifi=$(lsusb | grep -i "2604:0013")
 
 if [ -n "$device_info_rtl" ]; then
     echo "RTL8188GU detected."
@@ -314,21 +317,33 @@ if [ -n "$device_info_rtl" ]; then
     sudo cp $FREEDI_LCD_DIR/wifi/rtl8710bufw_SMIC.bin /lib/firmware/rtlwifi/
     echo "WiFi installation for RTL8188GU completed!"
 
-elif [ -n "$device_info_aic" ]; then
-    echo "AIC8800DC detected."
-    vendor_id=$(echo $device_info_aic | awk '{print $6}' | cut -d: -f1)
-    product_id=$(echo $device_info_aic | awk '{print $6}' | cut -d: -f2)
+elif [ -n "$device_info_aic_mass_storage" ]; then
+    echo "AIC8800DC detected as mass storage device."
+    vendor_id=$(echo $device_info_aic_mass_storage | awk '{print $6}' | cut -d: -f1)
+    product_id=$(echo $device_info_aic_mass_storage | awk '{print $6}' | cut -d: -f2)
     echo "vendor_id: $vendor_id, product_id: $product_id"
 
     # Configure the USB WLAN dongle for AIC8800DC
     sudo usb_modeswitch -KQ -v $vendor_id -p $product_id
 
-    # Create udev rule to handle future connections automatically
-    echo "Creating udev rule for AIC8800DC..."
-    echo "ACTION==\"add\", ATTR{idVendor}==\"$vendor_id\", ATTR{idProduct}==\"$product_id\", RUN+=\"/usr/sbin/usb_modeswitch -v $vendor_id -p $product_id -KQ\"" | sudo tee /etc/udev/rules.d/99-usb_modeswitch.rules
+    # Use /etc/mod_switch.conf instead of a udev rule
+    echo "Updating /etc/mod_switch.conf..."
+    echo "$vendor_id:$product_id -KQ" | sudo tee -a /etc/mod_switch.conf
 
-    # Reload udev rules
-    sudo udevadm control --reload
+    # Reload usb_modeswitch configuration
+    sudo systemctl restart usb-modeswitch
+
+    # Install the driver package
+    echo "Installing driver package for AIC8800DC..."
+    sudo dpkg -i $FREEDI_LCD_DIR/wifi/ax300-wifi-adapter-linux-driver.deb
+
+    echo "WiFi installation for AIC8800DC completed!"
+
+elif [ -n "$device_info_aic_wifi" ]; then
+    echo "AIC8800DC detected in wifi mode."
+    vendor_id=$(echo $device_info_aic_wifi | awk '{print $6}' | cut -d: -f1)
+    product_id=$(echo $device_info_aic_wifi | awk '{print $6}' | cut -d: -f2)
+    echo "vendor_id: $vendor_id, product_id: $product_id"
 
     # Install the driver package
     echo "Installing driver package for AIC8800DC..."
