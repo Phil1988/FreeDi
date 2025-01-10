@@ -3,6 +3,7 @@ import sys
 import subprocess
 
 def run_and_delete_bash_script(file_name):
+    file_name = os.path.join(os.path.dirname(__file__), file_name)
     if not os.path.exists(file_name):
         return
     
