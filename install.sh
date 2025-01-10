@@ -177,9 +177,9 @@ echo "Klipper environment python version: $PYTHON_V"
 
 # Arrange Python requirements from requirements.txt
 echo "Arranging Python requirements..."
+"${KENV}/bin/pip" install --upgrade pip 
 "${KENV}/bin/pip" install -r "${BKDIR}/requirements.txt" || {
     echo "Failed to install Python requirements."
-    exit 1
 }
 echo "Python requirements installed from requirements.txt."
 
