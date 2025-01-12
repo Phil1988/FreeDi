@@ -12,7 +12,7 @@ Current supported printers:
 <br>
 
 Possibly working:
-* * **Plus 4** (Testers needed, please get in touch with me if interessted)
+* * **Plus 4** (klipper/python experts needed, please get in touch with me if interessted)
 <br>
 
 Future support:
