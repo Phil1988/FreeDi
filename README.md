@@ -59,7 +59,7 @@ You will notice many things are now snappier and just works better/faster eg. ad
 
 It also fixes the "System starts abnormally"-error
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/a98c5b18-c3e9-48b0-a21b-7799c58e283e" alt="animated_menue"><img src="https://github.com/Phil1988/FreeDi/blob/main/animation.gif" alt="animated_menue">
+  <img src="https://github.com/user-attachments/assets/a98c5b18-c3e9-48b0-a21b-7799c58e283e" alt="animated_menue"><img src="https://github.com/Phil1988/FreeDi/blob/master/animation.gif" alt="animated_menue">
 </p>
 
 What started as a hobby project for my personal use has grown significantly. <br/>
