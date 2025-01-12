@@ -11,12 +11,16 @@ Current supported printers:
 * **X-Smart 3**
 <br>
 
-Possibly working:
-* * **Plus 4** (klipper/python experts needed, please get in touch with me if interessted)
-<br>
-
 Future support:
 * * **Q1 Pro** (Estimated firmware release: April 2025)
+  
+<br>
+
+Possibly working:
+* * **Plus 4** (klipper/python experts needed, please get in touch with me if interessted)
+
+
+
 
 <br/>
 If you appreciate my work and it has been beneficial to you,  <br/>
