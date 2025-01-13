@@ -121,7 +121,7 @@ else
     echo "$NEW_LINE" | sudo tee -a "$FILE" > /dev/null
 fi
 
-echo "armbianEnv.txt customization comlpleted."
+echo "armbianEnv.txt customization completed."
 
 
 ###### Setup printhead serial port to printer.cfg ######
