@@ -79,8 +79,8 @@ You can also support FreeDi by sharing it with others, providing feedback or con
 
 ## 🚀 Getting Started
 
-Wenn du starten möchtest, besuche das Wiki und folge der vollständigen [Installationsanleitung](https://github.com/Phil1988/FreeDi/wiki/Installation-guide).  
-Ich lade dich jedoch ein, auch die anderen Teile zu lesen! 😊
+If you want to start, head over to the Wiki and follow the complete [installation guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide).  
+But I invite you to read the other parts as well! 😊
 
 ---
 
