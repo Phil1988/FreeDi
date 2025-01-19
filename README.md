@@ -77,6 +77,13 @@ You can also support FreeDi by sharing it with others, providing feedback or con
 
 ---
 
+## 🚀 Getting Started
+
+Wenn du starten möchtest, besuche das Wiki und folge der vollständigen [Installationsanleitung](https://github.com/Phil1988/FreeDi/wiki/Installation-guide).  
+Ich lade dich jedoch ein, auch die anderen Teile zu lesen! 😊
+
+---
+
 ## 🛠️ Contribute to FreeDi
 
 FreeDi is a project inspired and shaped by the community. Your ideas, feature requests, and suggestions play an essential role in its ongoing development. Help spread the word so that every QIDI user knows about this project and can make an informed decision for themselves.
