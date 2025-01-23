@@ -345,7 +345,7 @@ elif [ -n "$device_info_aic_mass_storage" ]; then
     echo "$vendor_id:$product_id -KQ" | sudo tee -a /etc/mod_switch.conf
 
     # Reload usb_modeswitch configuration
-    sudo systemctl restart usb-modeswitch
+    sudo systemctl restart usb_modeswitch
 
     # Install the driver package
     echo "Installing driver package for AIC8800DC..."
