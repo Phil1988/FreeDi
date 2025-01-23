@@ -27,7 +27,7 @@ If applicable, add screenshots to help explain your problem.
 If applicable, add the debug console output here (here is a [how to](https://github.com/Phil1988/FreeDi/wiki/Bugs!))
 
 **Base (please complete the following information):**
+ - Printer model: [eg. X-Plus 3]
  - X3seriesLCD firmware version: [e.g. v1.00 stable]
- - OS: [e.g. Armbian-unofficial_24.2.0-trunk_Mkspi_bookworm_current_6.6.17]
  - Source: [eg. self configured or FreeDi image]
- - Mainboard: [eg. stock Mainboard X-4/X-6]
+ - Mainboard: [eg. stock Mainboard X-4 / other]
