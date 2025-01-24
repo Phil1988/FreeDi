@@ -73,7 +73,7 @@ You can also support FreeDi by sharing it with others, providing feedback or con
 ### **Perfect for You If...**
 - You want an **open, up-to-date system** with no compromises.
 - You need access to **advanced software features and plugins**:
-  - Additional features
+  - Additional features (Spoolman, Shake&Tune, etc.)
   - Tune and adjust your printer precisely using accurate software measurements (eg. Shake&Tune)
 - You're tired of stock software bugs causing:
   - **Nozzle crashes** into the print bed.
