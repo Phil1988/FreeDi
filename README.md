@@ -8,7 +8,18 @@ A project to enhance QIDI's X3 printers with custom LCD firmware, cutting-edge s
 
 ---
 
-## 🚀 What Is FreeDi?
+## 🚀 Getting Started
+
+If you want to start, head over to the<br>
+📖 Wiki and follow the complete [installation guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide).  <br><br>
+📹 or Watch the full installation video
+<br>[![Watch the full installation video](https://github.com/user-attachments/assets/fc1f052f-41e3-47b8-9be0-ed7ee0514c12)](https://www.youtube.com/watch?v=_ZmSTJBWUus)
+
+But I invite you to read the other parts as well! 😊
+
+---
+
+##  🔎 What Is FreeDi?
 
 **FreeDi** is a comprehensive upgrade package designed to enhance your printing experience. Here's what it offers:
 
@@ -71,16 +82,16 @@ You can also support FreeDi by sharing it with others, providing feedback or con
   - **Missing or poor-quality thumbnails** on-screen.
   - Annoying "**SYSTEM STARTS ABNORMALLY**" errors.
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/a98c5b18-c3e9-48b0-a21b-7799c58e283e" alt="animated_menu"><img src="https://github.com/Phil1988/FreeDi/blob/master/animation.gif" alt="animated_menu">
-</p>
+    <p align="center">
+      <img src="https://github.com/user-attachments/assets/a98c5b18-c3e9-48b0-a21b-7799c58e283e" alt="animated_menu"><img src="https://github.com/Phil1988/FreeDi/blob/master/animation.gif" alt="animated_menu">
+    </p>
+  - You want to have **nice looking thumbnails**
+    <p align="center">
+      <img src="https://github.com/user-attachments/assets/ede5aa17-d846-4368-9d28-f3c54d67b8fa" alt="thumbnails"> <img src="https://github.com/user-attachments/assets/e8a632de-2093-47ba-9bf1-003bb99845d6" alt="thumbnails">
+    </p>
 
----
 
-## 🚀 Getting Started
 
-If you want to start, head over to the Wiki and follow the complete [installation guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide).  
-But I invite you to read the other parts as well! 😊
 
 ---
 
