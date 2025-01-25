@@ -41,7 +41,7 @@ You can also support FreeDi by:<br>
 
 - **Custom Display Firmware**: Built from the ground up for maximum usability.
 - **Seamless Display Software**: Ensures fast and reliable communication between the printer and the stock display.
-- **OTA Updates**: Update your firmware in ~4 minutes—no more USB drives or 40-minute waits!
+- **OTA Updates**: Update your firmware in ~4 minutes -no more USB drives or 40-minute waits!
 - **Optimized Configuration and Macros**: Streamlined for better performance and usability.
 - **Latest Software Stack**:
   - **Armbian OS Bookworm** (replacing Buster)
