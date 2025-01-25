@@ -19,6 +19,17 @@ But I invite you to read the other parts as well! 😊
 
 ---
 
+## ❤️ Support FreeDi
+
+If **FreeDi** has made your printing experience better, consider supporting this project:
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B4V3TJ6)
+
+Your contributions help justify the time spent maintaining and improving this project.<br>
+You can also support FreeDi by sharing it with others, providing feedback or contributing with whatever you have to offer ;)
+
+---
+
 ##  🔎 What Is FreeDi?
 
 **FreeDi** is a comprehensive upgrade package designed to enhance your printing experience. Here's what it offers:
@@ -50,17 +61,6 @@ But I invite you to read the other parts as well! 😊
 
 ### Potential Future Support:
 - **Plus 4** *(Looking for Klipper/Python experts—contact me if interested!)*
-
----
-
-## ❤️ Support FreeDi
-
-If **FreeDi** has made your printing experience better, consider supporting this project:
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B4V3TJ6)
-
-Your contributions help justify the time spent maintaining and improving this project.<br>
-You can also support FreeDi by sharing it with others, providing feedback or contributing with whatever you have to offer ;)
 
 ---
 
