@@ -114,7 +114,7 @@ the best possible experience, but I can't test every possible scenario. If you e
 please report them here on GitHub.
 
 Please do not contact Qidi support if you have any problems. By making these modifications,<br/> 
-you will void your warranty in this regard.<br/>  
+you may void your warranty in this regard.<br/>  
 If you ever want or need to revert to the stock system after flashing my firmware, don't worry – it's possible.<br/>  
 You can use a "recovery" image provided by Qidi and flash the official *.tft firmware back to the LCD.
 
