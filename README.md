@@ -12,6 +12,8 @@ A project to enhance QIDI's X3 printers with custom LCD firmware, cutting-edge s
 
 If you want to start, head over to the<br>
 📖 Wiki and follow the complete [installation guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide).  <br><br>
+📹 or Watch the full installation video
+<br>[![Watch the full installation video](https://github.com/user-attachments/assets/fc1f052f-41e3-47b8-9be0-ed7ee0514c12)](https://www.youtube.com/watch?v=_ZmSTJBWUus)
 
 But I invite you to read the other parts as well! 😊
 
