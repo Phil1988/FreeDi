@@ -25,7 +25,7 @@ If **FreeDi** has made your printing experience better, consider supporting this
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B4V3TJ6)
 
-Your contributions help justify the time spent maintaining and improving this project.<br>
+Your contributions help me justify (to myself) spending even more time on this project to maintain and improve it ;) <br>
 
 You can also support FreeDi by:<br>
 - sharing it with others<br>
