@@ -340,16 +340,16 @@ elif [ -n "$device_info_aic_mass_storage" ]; then
     # Configure the USB WLAN dongle for AIC8800DC
     sudo usb_modeswitch -KQ -v $vendor_id -p $product_id
 
-    # Use /etc/mod_switch.conf instead of a udev rule
-    echo "Updating /etc/mod_switch.conf..."
-    echo "$vendor_id:$product_id -KQ" | sudo tee -a /etc/mod_switch.conf
+    # Create udev rule to handle future connections automatically
+    echo "Creating udev rule for AIC8800DC..."
+    echo "ACTION==\"add\", ATTR{idVendor}==\"$vendor_id\", ATTR{idProduct}==\"$product_id\", RUN+=\"/usr/sbin/usb_modeswitch -v $vendor_id -p $product_id -KQ\"" | sudo tee /etc/udev/rules.d/99-usb_modeswitch.rules
 
-    # Reload usb_modeswitch configuration
-    sudo systemctl restart usb_modeswitch
+    # Reload udev rules
+    sudo udevadm control --reload
 
     # Install the driver package
     echo "Installing driver package for AIC8800DC..."
-    sudo dpkg -i $FREEDI_LCD_DIR/wifi/ax300-wifi-adapter-linux-driver.deb
+    sudo dpkg -i ~/FreeDi/FreeDiLCD/wifi/ax300-wifi-adapter-linux-driver.deb
 
     echo "WiFi installation for AIC8800DC completed!"
 
