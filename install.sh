@@ -47,7 +47,7 @@ fi
 
 echo "Removing freedi_update.sh from git index because it's already tracked..."
 # sparse-checkout FreeDiLCD/freedi_update.sh
-git sparse-checkout --skip-checks add FreeDiLCD/freedi_update.sh
+git sparse-checkout add FreeDiLCD/freedi_update.sh
 # so it can be marked to be ignored
 git rm --cached --sparse FreeDiLCD/freedi_update.sh 
 echo "Local ignore setup completed. The file freedi_update.sh will now be ignored locally by git."
