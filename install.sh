@@ -32,13 +32,12 @@ fi
 ###### Establishing freedi_update.sh ######
 ###### Important! This must be done before sparse checkout to prevent the freedi_update.sh from being tracked ######
 
-echo "Disabling freedi_update.sh git tracking..."
+echo "Disabling freedi_update.sh git tracking for future modifications..."
 
 if [ $? -eq 0 ]; then
     # Exclude freedi_update.sh from the FreeDi repo
     if ! grep -q "FreeDiLCD/freedi_update.sh" "${HOME}/FreeDi/.git/info/exclude"; then
-        #echo "FreeDiLCD/freedi_update.sh" >> "${HOME}/FreeDi/.git/info/exclude"
-        echo "${FREEDI_LCD_DIR}/FreeDiLCD/freedi_update.sh" >> "${HOME}/FreeDi/.git/info/exclude"
+        echo "FreeDiLCD/freedi_update.sh" >> "${HOME}/FreeDi/.git/info/exclude"
         
     fi
     echo "Successfully ignoring freedi_update.sh"
@@ -46,6 +45,10 @@ else
     echo "Error: Failed to ignore freedi_update.sh"
     exit 1
 fi
+
+
+echo "Removing freedi_update.sh from git index because it's already tracked..."
+git rm --cached FreeDiLCD/freedi_update.sh
 
 echo "Local ignore setup completed. The file freedi_update.sh will now be ignored locally by git."
 
