@@ -48,9 +48,9 @@ git config remote.origin.fetch "+refs/tags/*:refs/tags/*"
 
 echo "Removing freedi_update.sh from git index because it's already tracked..."
 # sparse-checkout FreeDiLCD/freedi_update.sh
-git -C ${BKDIR} update-index --assume-unchanged FreeDiLCD/freedi_update.sh
+git update-index --assume-unchanged FreeDiLCD/freedi_update.sh
 # so it can be marked to be ignored
-git rm --cached --sparse FreeDiLCD/freedi_update.sh 
+# git rm --cached --sparse FreeDiLCD/freedi_update.sh 
 
 echo "Disabling freedi_update.sh git tracking for future modifications..."
 if [ $? -eq 0 ]; then
