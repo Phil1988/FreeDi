@@ -28,17 +28,9 @@ if [ ! -d ".git" ]; then
     exit 1
 fi
 
-# Sparse checkout only the required folders
-git sparse-checkout add FreeDiLCD/
-git sparse-checkout add helpers/
-git sparse-checkout add klipper_module/
-git sparse-checkout add mainboard_and_toolhead_firmwares/
-git sparse-checkout add screen_firmwares/
-
-# Configure git to fetch tags automatically, which is not done by default in sparse clones
-git config remote.origin.fetch "+refs/tags/*:refs/tags/*"
 
 ###### Establishing freedi_update.sh ######
+###### Important! This must be done before sparse checkout to prevent the freedi_update.sh from being tracked ######
 
 if [ $? -eq 0 ]; then
     # Exclude freedi_update.sh from the FreeDi repo
@@ -50,6 +42,21 @@ else
     echo "Error: Failed to ignore freedi_update.sh"
     exit 1
 fi
+
+
+###### Sparse checkout required folders ######
+
+# Sparse checkout only the required folders
+echo "Sparse checkout only the required folders..."
+git sparse-checkout add FreeDiLCD/
+git sparse-checkout add helpers/
+git sparse-checkout add klipper_module/
+git sparse-checkout add mainboard_and_toolhead_firmwares/
+git sparse-checkout add screen_firmwares/
+
+# Configure git to fetch tags automatically, which is not done by default in sparse clones
+echo "Configuring git to fetch tags automatically..."
+git config remote.origin.fetch "+refs/tags/*:refs/tags/*"
 
 
 ###### Installing klipper module ######
