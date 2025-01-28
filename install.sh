@@ -37,9 +37,7 @@ echo "Disabling freedi_update.sh git tracking..."
 if [ $? -eq 0 ]; then
     # Exclude freedi_update.sh from the FreeDi repo
     if ! grep -q "FreeDiLCD/freedi_update.sh" "${HOME}/FreeDi/.git/info/exclude"; then
-        #echo "FreeDiLCD/freedi_update.sh" >> "${HOME}/FreeDi/.git/info/exclude"
-        echo "${FREEDI_LCD_DIR}/FreeDiLCD/freedi_update.sh" >> "${HOME}/FreeDi/.git/info/exclude"
-        
+        echo "FreeDiLCD/freedi_update.sh" >> "${HOME}/FreeDi/.git/info/exclude"        
     fi
     echo "Successfully ignoring freedi_update.sh"
 else
