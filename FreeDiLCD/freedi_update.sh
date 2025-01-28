@@ -24,13 +24,16 @@ MODULE_NAME="freedi.py"
 # Cleaning klipper repo for all v1.20 users
 echo "Cleaning klipper repo for all v1.20 users..."
 
-if [ $? -eq 0 ]; then
-    # Exclude freedi.py from the Klipper repo as we introduce it and thus shouldn't be considered by the repo
-    if ! grep -q "klippy/extras/${MODULE_NAME}" "${HOME}/klipper/.git/info/exclude"; then
-        echo "klippy/extras/${MODULE_NAME}" >> "${HOME}/klipper/.git/info/exclude"
-    fi
-    echo "Successfully installed $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
+if [ "$EUID" -eq 0 ]; then
+    echo "Running as sudo or root."
 else
-    echo "Error: Failed to create a symbolic link for $MODULE_NAME."
-    exit 1
+    echo "Not running as sudo or root."
 fi
+
+
+# Exclude freedi.py from the Klipper repo as we introduce it and thus shouldn't be considered by the repo
+if ! grep -q "klippy/extras/${MODULE_NAME}" "${HOME}/klipper/.git/info/exclude"; then
+    echo "klippy/extras/${MODULE_NAME}" >> "${HOME}/klipper/.git/info/exclude"
+fi
+echo "Successfully installed $MODULE_NAME to $KLIPPER_EXTRAS_DIR."
+

@@ -30,9 +30,10 @@ fi
 
 # Sparse checkout only the required folders
 git sparse-checkout add FreeDiLCD/
-git sparse-checkout add screen_firmwares/
+git sparse-checkout add helpers/
 git sparse-checkout add klipper_module/
-
+git sparse-checkout add mainboard_and_toolhead_firmwares/
+git sparse-checkout add screen_firmwares/
 
 ###### Establishing freedi_update.sh ######
 
@@ -98,7 +99,7 @@ sudo cp $FREEDI_LCD_DIR/dtbo/rockchip-mkspi-uart1.dtbo /boot/dtb/rockchip/overla
 echo "dtbo install done!"
 
 # Stating the modification of the armbianEnv.txt
-echo "Customise the armbianEnv.txt file for serial communication..."
+echo "Customize the armbianEnv.txt file for serial communication..."
 # The file to check
 FILE="/boot/armbianEnv.txt"
 # The entry to search for
@@ -121,7 +122,7 @@ else
     echo "$NEW_LINE" | sudo tee -a "$FILE" > /dev/null
 fi
 
-echo "armbianEnv.txt customization completed."
+echo "armbianEnv.txt file modified successfully!"
 
 
 ###### Setup printhead serial port to printer.cfg ######
@@ -331,6 +332,7 @@ if [ -n "$device_info_rtl" ]; then
     sudo cp $FREEDI_LCD_DIR/wifi/rtl8710bufw_SMIC.bin /lib/firmware/rtlwifi/
     echo "WiFi installation for RTL8188GU completed!"
 
+
 elif [ -n "$device_info_aic_mass_storage" ]; then
     echo "AIC8800DC detected as mass storage device."
     vendor_id=$(echo $device_info_aic_mass_storage | awk '{print $6}' | cut -d: -f1)
@@ -340,16 +342,16 @@ elif [ -n "$device_info_aic_mass_storage" ]; then
     # Configure the USB WLAN dongle for AIC8800DC
     sudo usb_modeswitch -KQ -v $vendor_id -p $product_id
 
-    # Use /etc/mod_switch.conf instead of a udev rule
-    echo "Updating /etc/mod_switch.conf..."
-    echo "$vendor_id:$product_id -KQ" | sudo tee -a /etc/mod_switch.conf
+    # Create udev rule to handle future connections automatically
+    echo "Creating udev rule for AIC8800DC..."
+    echo "ACTION==\"add\", ATTR{idVendor}==\"$vendor_id\", ATTR{idProduct}==\"$product_id\", RUN+=\"/usr/sbin/usb_modeswitch -v $vendor_id -p $product_id -KQ\"" | sudo tee /etc/udev/rules.d/99-usb_modeswitch.rules
 
-    # Reload usb_modeswitch configuration
-    sudo systemctl restart usb_modeswitch
+    # Reload udev rules
+    sudo udevadm control --reload
 
     # Install the driver package
     echo "Installing driver package for AIC8800DC..."
-    sudo dpkg -i $FREEDI_LCD_DIR/wifi/ax300-wifi-adapter-linux-driver.deb
+    sudo dpkg -i ~/FreeDi/FreeDiLCD/wifi/ax300-wifi-adapter-linux-driver.deb
 
     echo "WiFi installation for AIC8800DC completed!"
 
@@ -370,35 +372,94 @@ else
 fi
 
 
+###### Setup usbmounter service for swappable usb drives ######
+
+# Creating udev rule
+echo "Creating udev rule..."
+#sudo echo 'ACTION=="add|remove", SUBSYSTEM=="block", KERNEL=="sd[a-z][0-9]*", ENV{DEVTYPE}=="partition", RUN+="/usr/bin/systemctl start usb-mount@%E{ACTION}-%k"' > /etc/udev/rules.d/99-usb-thumb.rules
+echo 'ACTION=="add|remove", SUBSYSTEM=="block", KERNEL=="sd[a-z][0-9]*", ENV{DEVTYPE}=="partition", RUN+="/usr/bin/systemctl start usb-mount@%E{ACTION}-%k"' | sudo tee /etc/udev/rules.d/99-usb-thumb.rules > /dev/null
+
+echo "Udev rule created: /etc/udev/rules.d/99-usb-thumb.rules"
+
+# Creating systemd service file
+echo "Creating systemd service file..."
+sudo bash -c 'cat <<EOL > /etc/systemd/system/usb-mount@.service
+[Unit]
+Description=USB Mount Service (%i)
+
+[Service]
+Type=simple
+ExecStart=/home/'"$USER_NAME"'/FreeDi/helpers/usbmounter.sh '"$USER_NAME"' %i
+
+EOL'
+echo "Systemd service file created: /etc/systemd/system/usb-mount@.service"
+
+# Make the script executable
+echo "Making the usbmounter.sh executable..."
+chmod +x /home/$USER_NAME/FreeDi/helpers/usbmounter.sh
+echo "Script /home/$USER_NAME/FreeDi/helpers/usbmounter.sh is now executable."
+
+# Reload udev and systemd
+sudo udevadm control --reload
+systemctl daemon-reload
+echo "Udev and systemd have been reloaded."
+
+echo "USB mounter service created successfully!"
+
+
 ###### Setup FreeDi ######
 
 # Autostart the program
-echo "Installing the service to starts this program automatically at boot time..."
+echo "Installing FreeDi service..."
 
 # Stop running FreeDi service
 echo "Stopping FreeDi service..."
 sudo systemctl stop FreeDi.service
 echo "FreeDi service stopped."
 
-# Move new FreeDi.service to systemd directory
-echo "Moving new FreeDi.service to /etc/systemd/system/"
-sudo cp ${FREEDI_LCD_DIR}/FreeDi.service /etc/systemd/system/FreeDi.service
+# Move FreeDi.service to systemd directory
+echo "Moving FreeDi.service to /etc/systemd/system/"
+sudo cp /home/$USER_NAME/FreeDi/helpers/FreeDi.service /etc/systemd/system/FreeDi.service
 echo "FreeDi.service moved to /etc/systemd/system/"
 
 # Setting current user in FreeDi.service
 echo "Setting user to $USER_NAME in FreeDi.service"
 sudo sed -i "s/{{USER}}/$USER_NAME/g" /etc/systemd/system/FreeDi.service
 
+# Enable FreeDi.service to start at boot
+echo "Enabling FreeDi.service to start at boot..."
+sudo systemctl enable FreeDi.service
+echo "FreeDi.service enabled to start at boot!"
+
+###### Setup AutoFlasher service ######
+
+# Installing the AutoFlasher.service
+echo "Installing AutoFlasher.service..."
+sudo cp /home/$USER_NAME/FreeDi/helpers/AutoFlasher.service /etc/systemd/system/AutoFlasher.service
+echo "AutoFlasher.service installed!"
+
+# Setting current user in AutoFlasher.service
+echo "Setting user to $USER_NAME in AutoFlasher.service"
+sudo sed -i "s/{{USER}}/$USER_NAME/g" /etc/systemd/system/AutoFlasher.service
+
+# Enable AutoFlasher.service to start at boot
+echo "Enabling AutoFlasher.service to start at boot..."
+sudo systemctl enable AutoFlasher.service
+echo "AutoFlasher.service enabled to start at boot!"
+
+# Make hid-flash executable
+echo "Making hid-flash executable..."
+chmod +x /home/$USER_NAME/FreeDi/mainboard_and_toolhead_firmwares/hid-flash
+
+echo "AutoFlasher.service installed!"
+
+###### Reload systemd manager configuration ######
 
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
 echo "systemd manager configuration reloaded!"
 
-# Enable FreeDi.service to start at boot
-echo "Enabling FreeDi.service to start at boot..."
-sudo systemctl enable FreeDi.service
-echo "FreeDi.service enabled to start at boot!"
 
 # Start FreeDiLCD.service
 echo "Starting FreeDi.service..."

@@ -1,0 +1,15 @@
+[Unit]
+Description=Starting the FreeDi service
+After=moonraker.service
+
+[Service]
+Type=simple
+#User={{USER}}
+WorkingDirectory=/home/{{USER}}/FreeDi/FreeDiLCD
+ExecStartPre=/bin/sleep 10
+ExecStart=/bin/sh -c '/home/{{USER}}/klippy-env/bin/python3 /home/{{USER}}/FreeDi/FreeDiLCD/start.py'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
