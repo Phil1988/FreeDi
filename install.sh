@@ -29,29 +29,6 @@ if [ ! -d ".git" ]; then
 fi
 
 
-###### Establishing freedi_update.sh ######
-
-echo "Disabling freedi_update.sh git tracking for future modifications..."
-
-if [ $? -eq 0 ]; then
-    # Exclude freedi_update.sh from the FreeDi repo
-    if ! grep -q "FreeDiLCD/freedi_update.sh" "${HOME}/FreeDi/.git/info/exclude"; then
-        echo "FreeDiLCD/freedi_update.sh" >> "${HOME}/FreeDi/.git/info/exclude"
-    fi
-    echo "Successfully ignoring freedi_update.sh"
-else
-    echo "Error: Failed to ignore freedi_update.sh"
-    exit 1
-fi
-
-
-echo "Removing freedi_update.sh from git index because it's already tracked..."
-# sparse-checkout FreeDiLCD/freedi_update.sh
-git sparse-checkout add FreeDiLCD/freedi_update.sh
-# so it can be marked to be ignored
-git rm --cached --sparse FreeDiLCD/freedi_update.sh 
-echo "Local ignore setup completed. The file freedi_update.sh will now be ignored locally by git."
-
 ###### Sparse checkout required folders ######
 
 # Sparse checkout only the required folders
@@ -65,6 +42,29 @@ git sparse-checkout add screen_firmwares/
 # Configure git to fetch tags automatically, which is not done by default in sparse clones
 echo "Configuring git to fetch tags automatically..."
 git config remote.origin.fetch "+refs/tags/*:refs/tags/*"
+
+
+###### Establishing freedi_update.sh ######
+
+echo "Removing freedi_update.sh from git index because it's already tracked..."
+# sparse-checkout FreeDiLCD/freedi_update.sh
+git -C ${BKDIR} update-index --assume-unchanged FreeDiLCD/freedi_update.sh
+# so it can be marked to be ignored
+git rm --cached --sparse FreeDiLCD/freedi_update.sh 
+
+echo "Disabling freedi_update.sh git tracking for future modifications..."
+if [ $? -eq 0 ]; then
+    # Exclude freedi_update.sh from the FreeDi repo
+    if ! grep -q "FreeDiLCD/freedi_update.sh" "${HOME}/FreeDi/.git/info/exclude"; then
+        echo "FreeDiLCD/freedi_update.sh" >> "${HOME}/FreeDi/.git/info/exclude"
+    fi
+    echo "Successfully ignoring freedi_update.sh"
+else
+    echo "Error: Failed to ignore freedi_update.sh"
+    exit 1
+fi
+
+echo "Local ignore setup completed. The file freedi_update.sh will now be ignored locally by git."
 
 
 ###### Installing klipper module ######
