@@ -35,6 +35,9 @@ git sparse-checkout add klipper_module/
 git sparse-checkout add mainboard_and_toolhead_firmwares/
 git sparse-checkout add screen_firmwares/
 
+# Configure git to fetch tags automatically, which is not done by default in sparse clones
+git config remote.origin.fetch "+refs/tags/*:refs/tags/*"
+
 ###### Establishing freedi_update.sh ######
 
 if [ $? -eq 0 ]; then
