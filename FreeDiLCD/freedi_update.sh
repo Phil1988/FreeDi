@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # to delete '\r' signs use
-# sed -i 's/\r$//' install.sh
+# sed -i 's/\r$//' freedi_update.sh
 # Set variables
 
 echo "Starting the freedi update process..."
