@@ -46,8 +46,13 @@ git config remote.origin.fetch "+refs/tags/*:refs/tags/*"
 
 ###### Establishing freedi_update.sh ######
 
-echo "Disabling freedi_update.sh git tracking for future modifications..."
+echo "Removing freedi_update.sh from git index because it's already tracked..."
+# sparse-checkout FreeDiLCD/freedi_update.sh
+git update-index --assume-unchanged FreeDiLCD/freedi_update.sh
+# so it can be marked to be ignored
+# git rm --cached --sparse FreeDiLCD/freedi_update.sh 
 
+echo "Disabling freedi_update.sh git tracking for future modifications..."
 if [ $? -eq 0 ]; then
     # Exclude freedi_update.sh from the FreeDi repo
     if ! grep -q "FreeDiLCD/freedi_update.sh" "${HOME}/FreeDi/.git/info/exclude"; then
@@ -59,9 +64,6 @@ else
     exit 1
 fi
 
-
-echo "Removing freedi_update.sh from git index because it's already tracked..."
-git rm --cached --sparse FreeDiLCD/freedi_update.sh
 echo "Local ignore setup completed. The file freedi_update.sh will now be ignored locally by git."
 
 
