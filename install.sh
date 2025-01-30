@@ -460,6 +460,11 @@ echo "AutoFlasher.service installed!"
 echo "Setting user to $USER_NAME in AutoFlasher.service"
 sudo sed -i "s/{{USER}}/$USER_NAME/g" /etc/systemd/system/AutoFlasher.service
 
+# Make the script executable
+echo "Making the klipper_auto_flasher.sh executable..."
+chmod +x /home/$USER_NAME/FreeDi/helpers/klipper_auto_flasher.sh
+echo "Script /home/$USER_NAME/FreeDi/helpers/klipper_auto_flasher.sh is now executable."
+
 # Enable AutoFlasher.service to start at boot
 echo "Enabling AutoFlasher.service to start at boot..."
 sudo systemctl enable AutoFlasher.service
