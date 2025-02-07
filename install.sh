@@ -28,7 +28,6 @@ if [ ! -d ".git" ]; then
     exit 1
 fi
 
-
 ###### Sparse checkout required folders ######
 
 # Sparse checkout only the required folders
