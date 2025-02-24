@@ -207,7 +207,7 @@ echo "Python requirements installed from requirements.txt."
 # Installing required packages for input shaping (if not already installed)
 echo "Installing required packages for input shaping (if not already installed)..."
 
-sudo apt install -y libatlas-base-dev libopenblas-dev
+sudo apt install -y libatlas-base-dev libopenblas-dev ntfs-3g
 if [ $? -ne 0 ]; then
     echo "Error: Failed to install system dependencies."
     exit 1
