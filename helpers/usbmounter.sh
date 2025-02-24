@@ -12,7 +12,23 @@ case "$ACTION" in
             MOUNT_POINT="$TARGET_DIR/usb$i"
             if ! mountpoint -q "$MOUNT_POINT"; then
                 mkdir -p "$MOUNT_POINT"
-                mount -o rw,umask=000 "/dev/$DEVICE" "$MOUNT_POINT"
+                FSTYPE=$(blkid -o value -s TYPE "/dev/$DEVICE")
+                case "$FSTYPE" in
+                    vfat)
+                        mount -t vfat -o rw,umask=000 "/dev/$DEVICE" "$MOUNT_POINT"
+                        ;;
+                    ntfs)
+                        mount -t ntfs-3g -o rw,umask=000 "/dev/$DEVICE" "$MOUNT_POINT"
+                        ;;
+                    ext4)
+                        mount -t ext4 -o rw "/dev/$DEVICE" "$MOUNT_POINT"
+                        ;;
+                    *)
+                        echo "Unsupported filesystem: $FSTYPE"
+                        rmdir "$MOUNT_POINT"
+                        exit 1
+                        ;;
+                esac
                 if [ $? -eq 0 ]; then
                     break
                 else
