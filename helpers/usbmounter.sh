@@ -6,32 +6,54 @@ ARG="$2"
 ACTION=$(echo "$ARG" | cut -d'-' -f1)
 DEVICE=$(echo "$ARG" | cut -d'-' -f2)
 
+echo "Script started: ACTION=$ACTION, DEVICE=$DEVICE"
+
+PART_NUM=$(echo "$DEVICE" | grep -o '[0-9]*$')
+
+# Apply a delay if partition number > 1
+if [ "$ACTION" = "add" ] && [ "$PART_NUM" -gt 1 ]; then
+    DELAY=$(echo "scale=1; ($PART_NUM - 1) * 0.2" | bc)
+    echo "Detected partition number $PART_NUM, sleeping for $DELAY seconds to prevent wrong detection."
+    sleep "$DELAY"
+fi
+
 case "$ACTION" in
     add)
+        echo "Attempting to mount /dev/$DEVICE"
         for i in {1..10}; do
             MOUNT_POINT="$TARGET_DIR/usb$i"
             if ! mountpoint -q "$MOUNT_POINT"; then
+                echo "Using mount point: $MOUNT_POINT"
                 mkdir -p "$MOUNT_POINT"
-                FSTYPE=$(/sbin/blkid -o value -s TYPE "/dev/$DEVICE")
+
+                FSTYPE=$(/sbin/blkid -o value -s TYPE "/dev/$DEVICE" 2>&1)
+                echo "Filesystem detected: $FSTYPE"
+
                 case "$FSTYPE" in
                     vfat)
-                        mount -t vfat -o rw,umask=000 "/dev/$DEVICE" "$MOUNT_POINT"
+                        echo "Mounting FAT32 (vfat)"
+                        mount -t vfat -o rw,umask=000 "/dev/$DEVICE" "$MOUNT_POINT" 2>&1 || echo "ERROR: Mount failed" >&2
                         ;;
                     ntfs)
-                        mount -t ntfs-3g -o rw,umask=000 "/dev/$DEVICE" "$MOUNT_POINT"
+                        echo "Mounting NTFS"
+                        mount -t ntfs-3g -o rw,umask=000 "/dev/$DEVICE" "$MOUNT_POINT" 2>&1 || echo "ERROR: Mount failed" >&2
                         ;;
                     ext4)
-                        mount -t ext4 -o rw "/dev/$DEVICE" "$MOUNT_POINT"
+                        echo "Mounting EXT4"
+                        mount -t ext4 -o rw "/dev/$DEVICE" "$MOUNT_POINT" 2>&1 || echo "ERROR: Mount failed" >&2
                         ;;
                     *)
-                        echo "Unsupported filesystem: $FSTYPE"
+                        echo "ERROR: Unsupported filesystem: $FSTYPE" >&2
                         rmdir "$MOUNT_POINT"
                         exit 1
                         ;;
                 esac
-                if [ $? -eq 0 ]; then
+
+                if mount | grep -q "$MOUNT_POINT"; then
+                    echo "Mount successful: $MOUNT_POINT"
                     break
                 else
+                    echo "ERROR: Mounting failed for /dev/$DEVICE" >&2
                     rmdir "$MOUNT_POINT"
                     exit 1
                 fi
@@ -40,16 +62,22 @@ case "$ACTION" in
         ;;
 
     remove)
+        echo "Attempting to unmount /dev/$DEVICE"
         MOUNT_POINT=$(mount | grep "/dev/$DEVICE" | awk '{print $3}')
         if [ -n "$MOUNT_POINT" ]; then
-            umount "/dev/$DEVICE"
+            echo "Unmounting from $MOUNT_POINT"
+            umount "/dev/$DEVICE" 2>&1 || echo "ERROR: Unmount failed" >&2
             if [ $? -eq 0 ]; then
+                echo "Unmount successful"
                 rmdir "$MOUNT_POINT"
             fi
+        else
+            echo "ERROR: No mount point found for /dev/$DEVICE" >&2
         fi
         ;;
 
     *)
+        echo "ERROR: Unknown action: $ACTION" >&2
         exit 1
         ;;
 esac
