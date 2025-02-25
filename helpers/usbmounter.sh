@@ -12,7 +12,7 @@ case "$ACTION" in
             MOUNT_POINT="$TARGET_DIR/usb$i"
             if ! mountpoint -q "$MOUNT_POINT"; then
                 mkdir -p "$MOUNT_POINT"
-                FSTYPE=$(blkid -o value -s TYPE "/dev/$DEVICE")
+                FSTYPE=$(/sbin/blkid -o value -s TYPE "/dev/$DEVICE")
                 case "$FSTYPE" in
                     vfat)
                         mount -t vfat -o rw,umask=000 "/dev/$DEVICE" "$MOUNT_POINT"
