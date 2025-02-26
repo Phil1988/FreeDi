@@ -32,14 +32,16 @@ for device in /dev/sd*[0-9]; do
             if [ $? -eq 0 ]; then
                 echo "Firmware successfully copied to $device"
 
+                sudo service klipper restart;
+
                 # Wait for Klipper service runtime to stabilize (with timeout)
                 max_attempts=30  # Timeout after 30 seconds
                 attempt=0
 
                 while true; do
                     runtime=$(systemctl show klipper.service --property=ActiveEnterTimestampMonotonic | awk -F'=' '{print $2}')
-                    if [ -n "$runtime" ] && [ "$runtime" -ge 5000000 ]; then
-                        echo "Klipper service has been running for at least 5 seconds."
+                    if [ -n "$runtime" ] && [ "$runtime" -ge 10000000 ]; then
+                        echo "Klipper service has been running for at least 10 seconds."
                         break
                     fi
 
