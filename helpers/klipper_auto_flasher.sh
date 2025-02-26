@@ -56,7 +56,7 @@ for device in /dev/sd*[0-9]; do
                 done
 
 
-                sleep 3
+                sleep 10
                 echo "FIRMWARE_RESTART" | sudo tee /home/mks/printer_data/comms/klippy.serial
                 sudo service klipper stop &
 
