@@ -482,7 +482,6 @@ echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
 echo "systemd manager configuration reloaded!"
 
-
 # Start FreeDiLCD.service
 echo "Starting FreeDi.service..."
 sudo systemctl start FreeDi.service
