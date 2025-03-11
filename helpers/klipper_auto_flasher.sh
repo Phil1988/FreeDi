@@ -59,7 +59,7 @@ for device in /dev/sd*[0-9]; do
 
                 sleep 10
                 echo "FIRMWARE_RESTART" | sudo tee /home/mks/printer_data/comms/klippy.serial
-                sudo service klipper stop &
+                sudo service klipper stop
 
                 # Flash the MCU firmware
                 $hid_flash_path "$mcu_firmware" "$serial_port"
