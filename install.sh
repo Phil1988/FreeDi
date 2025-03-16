@@ -31,16 +31,16 @@ fi
 ###### Sparse checkout required folders ######
 
 # Sparse checkout only the required folders
-echo "Sparse checkout only the required folders..."
-git sparse-checkout add FreeDiLCD/
-git sparse-checkout add helpers/
-git sparse-checkout add klipper_module/
-git sparse-checkout add mainboard_and_toolhead_firmwares/
-git sparse-checkout add screen_firmwares/
+# echo "Sparse checkout only the required folders..."
+# git sparse-checkout add FreeDiLCD/
+# git sparse-checkout add helpers/
+# git sparse-checkout add klipper_module/
+# git sparse-checkout add mainboard_and_toolhead_firmwares/
+# git sparse-checkout add screen_firmwares/
 
 # Configure git to fetch tags automatically, which is not done by default in sparse clones
-echo "Configuring git to fetch tags automatically..."
-git config remote.origin.fetch "+refs/tags/*:refs/tags/*"
+# echo "Configuring git to fetch tags automatically..."
+# git config remote.origin.fetch "+refs/tags/*:refs/tags/*"
 
 
 ###### Establishing freedi_update.sh ######
@@ -481,6 +481,7 @@ echo "AutoFlasher.service installed!"
 echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
 echo "systemd manager configuration reloaded!"
+
 
 # Start FreeDiLCD.service
 echo "Starting FreeDi.service..."
