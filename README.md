@@ -62,10 +62,8 @@ You can also support FreeDi by:<br>
 - **X-Smart 3**
 
 ### Coming Soon:
-- **Q1 Pro** (Estimated Release: April 2025)
-
-### Potential Future Support:
-- **Plus 4** *(Looking for Klipper/Python experts—contact me if interested!)*
+- **Q1 Pro** (Beta is released)
+- **Plus 4** (Beta is released)
 
 ---
 

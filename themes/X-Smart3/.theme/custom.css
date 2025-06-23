@@ -1,0 +1,33 @@
+.theme--dark.v-list-item:not(.v-list-item--active):not(.v-list-item--disabled) {
+    color: #51b0ff;
+}
+
+.v-progress-circular__overlay {
+    stroke: #2b7ef5 !important;
+}
+
+.v-application .orange {
+    background-color: #2b7ef5 !important;
+    border-color: #2d76df !important;
+}
+
+.v-application .orange--text {
+    color: #FFFFFF !important;
+    caret-color: #673bd7 !important;
+}
+
+#nav-header .v-toolbar__title {
+    font-size: 24px;
+    vertical-align: middle;
+    color: white;
+    font-family: monospace;
+}
+
+.v-application .warning {
+    background-color: #0070c0 !important;
+    border-color: #0070c0 !important;
+}
+
+.v-application .primary {
+    background-color: #0070c0 !important;
+}

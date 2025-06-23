@@ -6,10 +6,12 @@ After=moonraker.service
 Type=simple
 #User={{USER}}
 WorkingDirectory=/home/{{USER}}/FreeDi/FreeDiLCD
-ExecStartPre=/bin/sleep 10
+#needed as sometimes freedi starts before moonraker finished its starting:
+ExecStartPre=/bin/sleep 5
 ExecStart=/bin/sh -c '/home/{{USER}}/klippy-env/bin/python3 /home/{{USER}}/FreeDi/FreeDiLCD/start.py'
 Restart=always
 RestartSec=5
+KillSignal=SIGINT
 
 [Install]
 WantedBy=multi-user.target

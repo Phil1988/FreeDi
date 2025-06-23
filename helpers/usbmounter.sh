@@ -6,6 +6,21 @@ ARG="$2"
 ACTION=$(echo "$ARG" | cut -d'-' -f1)
 DEVICE=$(echo "$ARG" | cut -d'-' -f2)
 
+# Define the vendor and product IDs to ignore
+IGNORED_VENDOR_ID="a69c"
+IGNORED_PRODUCT_ID="5721"
+
+# Extract vendor and product ID from the device information
+DEVICE_VENDOR_ID=$(lsusb | grep "$DEVICE" | awk '{print $6}' | cut -d':' -f1)
+DEVICE_PRODUCT_ID=$(lsusb | grep "$DEVICE" | awk '{print $6}' | cut -d':' -f2)
+
+# Check if the device should be ignored
+if [[ "$DEVICE_VENDOR_ID" == "$IGNORED_VENDOR_ID" && "$DEVICE_PRODUCT_ID" == "$IGNORED_PRODUCT_ID" ]]; then
+    echo "Ignoring device $DEVICE with vendor ID $DEVICE_VENDOR_ID and product ID $DEVICE_PRODUCT_ID"
+    echo "It's an AIC8800DC in mass storage mode, switching to wifi mode"
+    exit 0
+fi
+
 echo "Script started: ACTION=$ACTION, DEVICE=$DEVICE"
 
 PART_NUM=$(echo "$DEVICE" | grep -o '[0-9]*$')
@@ -25,6 +40,13 @@ case "$ACTION" in
             if ! mountpoint -q "$MOUNT_POINT"; then
                 echo "Using mount point: $MOUNT_POINT"
                 mkdir -p "$MOUNT_POINT"
+
+                # Check if the label is "RPI-RP2"
+                LABEL=$(/sbin/blkid -o value -s LABEL "/dev/$DEVICE" 2>/dev/null)
+                if [ "$LABEL" = "RPI-RP2" ]; then
+                    echo "Device /dev/$DEVICE has label RPI-RP2, not mounting."
+                    exit 0
+                fi
 
                 FSTYPE=$(/sbin/blkid -o value -s TYPE "/dev/$DEVICE" 2>&1)
                 echo "Filesystem detected: $FSTYPE"
