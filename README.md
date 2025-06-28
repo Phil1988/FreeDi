@@ -1,5 +1,5 @@
 # FreeDi
-A project to enhance QIDI's X3 printers with custom LCD firmware, cutting-edge software, and OTA updates.<br>
+A project to enhance QIDI printers with custom LCD firmware, cutting-edge software, and OTA updates.<br>
 **Together, let's unlock the full potential of your printer!** 🎉
 
 <p align="center">
