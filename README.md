@@ -1,5 +1,5 @@
 # FreeDi
-A project to enhance QIDI's X3 printers with custom LCD firmware, cutting-edge software, and OTA updates.<br>
+A project to enhance QIDI printers with custom LCD firmware, cutting-edge software, and OTA updates.<br>
 **Together, let's unlock the full potential of your printer!** 🎉
 
 <p align="center">
@@ -45,12 +45,11 @@ You can also support FreeDi by:<br>
 - **Optimized Configuration and Macros**: Streamlined for better performance and usability.
 - **Latest Software Stack**:
   - **Armbian OS Bookworm** (replacing Buster)
-  - **Klipper 0.12.0+** (latest, unmodified)
+  - **Klipper 0.13.0+** (latest, unmodified)
   - **Moonraker v0.9.3+** (latest, unmodified)
-  - **Mainsail v2.13+** (latest, unmodified)
-  - **Python 3.12** (upgraded from 2.7)
+  - **Mainsail v2.14+** (latest, unmodified)
   - **KIAUH** integration
-  - **Latest LTS Linux Kernel** (6.6.x)
+  - **Latest LTS Linux Kernel**
 
 ---
 
@@ -60,10 +59,8 @@ You can also support FreeDi by:<br>
 - **X-Max 3**
 - **X-Plus 3**
 - **X-Smart 3**
-
-### Coming Soon:
-- **Q1 Pro** (Beta is released)
-- **Plus 4** (Beta is released)
+- **Q1 Pro**
+- **Plus 4**
 
 ---
 
@@ -75,6 +72,7 @@ You can also support FreeDi by:<br>
 
 ### **Perfect for You If...**
 - You want an **open, up-to-date system** with no compromises.
+- Want to have more space for your gcode files (FreeDi v2.00 has 2.6GB free space, stock had around 500MB for me)
 - You need access to **advanced software features and plugins**:
   - Additional features (Spoolman, Shake&Tune, etc.)
   - Tune and adjust your printer precisely using accurate software measurements (eg. Shake&Tune)
