@@ -11,9 +11,11 @@ A project to enhance QIDI printers with custom LCD firmware, cutting-edge softwa
 ## 🚀 Getting Started
 
 If you want to start, head over to the<br>
-📖 Wiki and follow the complete [installation guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide).  <br><br>
-📹 or Watch the full installation video
-<br>[![Watch the full installation video](https://github.com/user-attachments/assets/fc1f052f-41e3-47b8-9be0-ed7ee0514c12)](https://www.youtube.com/watch?v=_ZmSTJBWUus)
+📖 Wiki and follow the complete [installation guide for v2.xx](https://github.com/Phil1988/FreeDi/wiki/Introduction). <br><br>
+For v1.xx the insall guide can be found [here](https://github.com/Phil1988/FreeDi/wiki/Installation-guide).
+📹 and a full installation video for v1.xx can be found here:<br>
+[![Watch the full installation video](https://github.com/user-attachments/assets/fc1f052f-41e3-47b8-9be0-ed7ee0514c12)](https://www.youtube.com/watch?v=_ZmSTJBWUus) <br>
+Note: At the time, there is no install video for v2.xx out (yet)
 
 But I invite you to read the other parts as well! 😊
 
