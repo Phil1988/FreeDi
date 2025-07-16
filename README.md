@@ -8,6 +8,15 @@ A project to enhance QIDI printers with custom LCD firmware, cutting-edge softwa
 
 ---
 
+## 🔺 Warning
+There are currently a few reports on freezing systems mid print on the X3 series (so far on the Xplus and XMax3).
+So if you need to print something important, please avoid updating or installing FreeDi for the time this is unresolved.
+
+More information see here https://github.com/Phil1988/FreeDi/issues/283 and here https://github.com/Phil1988/FreeDi/issues/290
+I will investigate that as soon as I am back again (see https://github.com/Phil1988/FreeDi/issues/283)
+
+---
+
 ## 🚀 Getting Started
 
 If you want to start, head over to the<br>
