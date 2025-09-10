@@ -10,6 +10,37 @@ DEVICE=$(echo "$ARG" | cut -d'-' -f2)
 IGNORED_VENDOR_ID="a69c"
 IGNORED_PRODUCT_ID="5721"
 
+
+########################################################
+# filter: ignore everything smaller than 16 MiB to prevent wifi dongles from being mounted
+########################################################
+MIN_SIZE_MB=16
+
+if [[ "$ACTION" == "add" ]]; then
+    # smaller devices are likely wifi dongles
+    bytes=$(blockdev --getsize64 "/dev/$DEVICE" 2>/dev/null || echo 0)
+    size_mb=$(( bytes / 1024 / 1024 ))
+    if (( size_mb < MIN_SIZE_MB )); then
+        echo "Ignoring /dev/$DEVICE (${size_mb} MiB < ${MIN_SIZE_MB} MiB ⇒ dongle in mass-storage mode)"
+        exit 0
+    fi
+
+    # ignore ISO-9660 driver images
+    FSTYPE=$(/sbin/blkid -o value -s TYPE "/dev/$DEVICE" 2>/dev/null)
+    if [[ "$FSTYPE" == "iso9660" ]]; then
+        echo "Ignoring /dev/$DEVICE (ISO-9660 driver image)"
+        exit 0
+    fi
+
+    # ignore RPI-RP2
+    label=$(/sbin/blkid -o value -s LABEL "/dev/$DEVICE" 2>/dev/null)
+    if [[ "$label" = "RPI-RP2" ]]; then
+        echo "Device /dev/$DEVICE has label RPI-RP2, not mounting."
+        exit 0
+    fi
+
+fi
+
 # Extract vendor and product ID from the device information
 DEVICE_VENDOR_ID=$(lsusb | grep "$DEVICE" | awk '{print $6}' | cut -d':' -f1)
 DEVICE_PRODUCT_ID=$(lsusb | grep "$DEVICE" | awk '{print $6}' | cut -d':' -f2)
@@ -20,6 +51,8 @@ if [[ "$DEVICE_VENDOR_ID" == "$IGNORED_VENDOR_ID" && "$DEVICE_PRODUCT_ID" == "$I
     echo "It's an AIC8800DC in mass storage mode, switching to wifi mode"
     exit 0
 fi
+
+########################################################
 
 echo "Script started: ACTION=$ACTION, DEVICE=$DEVICE"
 
@@ -40,13 +73,6 @@ case "$ACTION" in
             if ! mountpoint -q "$MOUNT_POINT"; then
                 echo "Using mount point: $MOUNT_POINT"
                 mkdir -p "$MOUNT_POINT"
-
-                # Check if the label is "RPI-RP2"
-                LABEL=$(/sbin/blkid -o value -s LABEL "/dev/$DEVICE" 2>/dev/null)
-                if [ "$LABEL" = "RPI-RP2" ]; then
-                    echo "Device /dev/$DEVICE has label RPI-RP2, not mounting."
-                    exit 0
-                fi
 
                 FSTYPE=$(/sbin/blkid -o value -s TYPE "/dev/$DEVICE" 2>&1)
                 echo "Filesystem detected: $FSTYPE"
