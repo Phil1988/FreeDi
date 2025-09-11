@@ -7,7 +7,7 @@ Type=simple
 #User={{USER}}
 WorkingDirectory=/home/{{USER}}/FreeDi/FreeDiLCD
 # sometimes freedi starts before moonraker is finished (race condition):
-ExecStartPre=/usr/bin/bash -c 'PORT=$(awk -F": " "/moonraker_port/ {print \$2}" /home/mks/printer_data/config/freedi.cfg); PORT=${PORT:-7125}; while ! echo > /dev/tcp/127.0.0.1/$PORT 2>/dev/null; do sleep 1; done'
+ExecStartPre=/usr/bin/bash -c 'PORT=$(awk -F": " "/moonraker_port/ {print \$2; exit}" /home/{{USER}}/printer_data/config/freedi.cfg | tr -d "\r\n"); PORT=${PORT:-7125}; while ! (echo > /dev/tcp/127.0.0.1/$PORT) 2>/dev/null; do sleep 1; done'
 ExecStart=/bin/sh -c '/home/{{USER}}/klippy-env/bin/python3 /home/{{USER}}/FreeDi/FreeDiLCD/start.py'
 Restart=always
 RestartSec=5
