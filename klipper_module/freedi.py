@@ -32,10 +32,26 @@ class FreeDi:
         self.lcd_dim_time = config.get('lcd_dim_time', '10')    
         self.lcd_dim_brightness = config.get('lcd_dim_brightness', '15')
         self.lcd_sleep_time = config.get('lcd_sleep_time', '20')
-        self.install_klipper_module = config.get('install_klipper_module', 'Flase')
+        self.install_klipper_module = config.get('install_klipper_module', 'False')
         self.flash_MCU = config.get('flash_MCU', 'False')
         self.flash_toolhead = config.get('flash_toolhead', 'False')
         self.flash_display = config.get('flash_display', 'False')
+
+        # Default extrusion lengths for the Extruder menu (in millimeters)
+        self.extruder_length_1 = config.get('extruder_length_1', '10.0')
+        self.extruder_length_2 = config.get('extruder_length_2', '20.0')
+        self.extruder_length_3 = config.get('extruder_length_3', '50.0')
+        
+        # Default move and extrude step lengths for Move and Move&Extrude menus (in millimeters)
+        self.move_extrude_length_1 = config.get('move_extrude_length_1', '0.1')
+        self.move_extrude_length_2 = config.get('move_extrude_length_2', '1.0')
+        self.move_extrude_length_3 = config.get('move_extrude_length_3', '10.0')
+        self.move_extrude_length_4 = config.get('move_extrude_length_4', '50.0')
+        self.move_extrude_length_5 = config.get('move_extrude_length_5', '100.0')
+        
+        # Enable visual feedback on touch events
+        self.touch_acoustic_feedback = config.get('touch_acoustic_feedback', 'True')
+
 
         # Log the loaded parameters (for debugging purposes)
         self.log_info(f"FreeDi loaded: printer_model={self.printer_model}, "
