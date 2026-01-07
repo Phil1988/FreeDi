@@ -1,6 +1,6 @@
 # FreeDi
-A project to enhance QIDI printers.
-Build on an open OS, with streamlined configuratuions, custom LCD firmware, cutting-edge software, and OTA updates.<br>
+A project to enhance QIDI printers.<br>
+Build on open armbian OS, latest klipper with streamlined configuratuions, custom LCD firmware, cutting-edge software and OTA updates.<br>
 **Together, let's unlock the full potential of your printer!** 🎉
 
 <p align="center">
