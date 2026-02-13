@@ -15,6 +15,7 @@ class AutoZOffsetCommandHelper(probe.ProbeCommandHelper):
     def __init__(self, config, mcu_probe, query_endstop=None):
         self.printer = config.get_printer()
         self.name = config.get_name()
+        gcode = self.printer.lookup_object('gcode')
         self.mcu_probe = mcu_probe
         self.query_endstop = query_endstop
         self.z_offset = config.getfloat("z_offset", -0.1)
@@ -23,6 +24,7 @@ class AutoZOffsetCommandHelper(probe.ProbeCommandHelper):
         self.calibrated_z_offset = config.getfloat("calibrated_z_offset", 0.0)
         self.last_state = False
         self.last_z_result = 0.0
+        self.last_probe_position = gcode.Coord((0., 0., 0.))
 
         # Register commands
         self.gcode = self.printer.lookup_object("gcode")
