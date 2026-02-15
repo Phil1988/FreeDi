@@ -36,6 +36,23 @@ KLIPPER_VENV_PYTHON_BIN="$KLIPPER_ENV/bin/python"                               
 
 DTBO_TARGET=/boot/dtb/rockchip/overlay                                                  # dtbo target directory for stock mainboard
 
+# Find OS Release codename
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS_CODENAME="$VERSION_CODENAME"
+else
+    echo "Cannot determine OS codename. Exiting."
+    echo "Make sure you are running an Armbian-based distribution and that the /etc/os-release file exists."
+    exit 1
+fi
+
+if python3 -c "import sys; exit(1) if sys.version_info < (3, 13) else exit(0)"; then
+    echo "Python 3.13 or higher is installed."
+    rm -f "${FREEDI_LCD_DIR}*311*.so"  # Remove incompatible Python 3.11 binaries if present
+else
+    echo "Python 3.13 or higher is NOT installed."
+    rm -f "${FREEDI_LCD_DIR}*313*.so"  # Just in case, remove incompatible Python 3.13 binaries if present
+fi   
 
 
 # -------------------------------------------------------------------------
@@ -602,10 +619,20 @@ echo "Python requirements installed from requirements.txt."
 # Installing required packages for input shaping (if not already installed)
 echo "Installing required packages for input shaping (if not already installed)..."
 
-sudo apt install -y libatlas-base-dev libopenblas-dev ntfs-3g
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to install system dependencies."
-    exit 1
+if $OS_CODENAME == "trixie"; then
+    # For Debian 13 (trixie) and later, libatlas3-base is available instead of libatlas-base-dev
+    sudo apt install -y libatlas3-base libopenblas-dev ntfs-3g
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to install system dependencies."
+        exit 1
+    fi
+else
+    # For older versions, use libatlas-base-dev
+    sudo apt install -y libatlas-base-dev libopenblas-dev ntfs-3g
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to install system dependencies."
+        exit 1
+    fi
 fi
 echo "System dependencies installed successfully."
 
@@ -714,6 +741,11 @@ sudo apt-get install -y usb-modeswitch || {
     exit 1
 }
 
+#install eject package for safely ejecting the AIC8800DC after flashing the firmware
+sudo apt-get install -y eject || {
+    echo "Failed to install eject."
+    exit 1
+}
 
 
 # ------------------------------------------------------------------
