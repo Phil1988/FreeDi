@@ -764,7 +764,7 @@ device_info_aic_mass_storage=$(lsusb | grep -i "a69c:5721")
 device_info_aic_wifi=$(lsusb | grep -i "2604:0013")
 
 # Package/-deb file for AIC8800DC
-AIC_PKG="ax300-wifi-adapter-linux-driver"
+AIC_PKG="aic8800-dkms.deb"
 AIC_DEB="${WIFI_DIR}/${AIC_PKG}.deb"
 
 # RTL8188GU  --------------------------------------------------------
