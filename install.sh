@@ -51,9 +51,11 @@ fi
 if python3 -c "import sys; exit(1) if sys.version_info < (3, 13) else exit(0)"; then
     echo "Python 3.13 or higher is installed."
     rm -f "${FREEDI_LCD_DIR}*311*.so"  # Remove incompatible Python 3.11 binaries if present
+    PYTHON_VERSION_313_OR_HIGHER=true
 else
     echo "Python 3.13 or higher is NOT installed."
     rm -f "${FREEDI_LCD_DIR}*313*.so"  # Just in case, remove incompatible Python 3.13 binaries if present
+    PYTHON_VERSION_313_OR_HIGHER=false
 fi   
 
 
@@ -99,7 +101,14 @@ PULLABLE_FILES_FREEDI=(
     "FreeDiLCD/freedi_update.sh"
 )
 
-BLOCKED_FILES_FREEDI=()
+# Block Python version-specific .so files from being updated/overwritten by git
+if [ "$PYTHON_VERSION_313_OR_HIGHER" = true ]; then
+    # Python 3.13+ is installed, block Python 3.11 .so files (incompatible)
+    BLOCKED_FILES_FREEDI=("FreeDiLCD/*311*.so")
+else
+    # Python 3.11 is installed, block Python 3.13 .so files (incompatible)
+    BLOCKED_FILES_FREEDI=("FreeDiLCD/*313*.so")
+fi
 
 # Klipper repository files (not present in upstream)
 PULLABLE_FILES_KLIPPER=(
