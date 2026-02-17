@@ -532,7 +532,7 @@ echo "Python requirements installed from requirements.txt."
 
 echo "Installing required packages for input shaping..."
 
-if $OS_CODENAME == "trixie"; then
+if [[ "$OS_CODENAME" == "trixie" ]]; then
     # For Debian 13 (trixie) and later, libatlas3-base is available instead of libatlas-base-dev
     sudo apt install -y libatlas3-base libopenblas-dev ntfs-3g
     if [ $? -ne 0 ]; then
@@ -683,7 +683,7 @@ device_info_aic_mass_storage=$(lsusb | grep -i "a69c:5721")
 device_info_aic_wifi=$(lsusb | grep -i "2604:0013")
 
 # Package/-deb file for AIC8800DC
-AIC_PKG="aic8800-dkms.deb"
+AIC_PKG="aic8800-dkms"
 AIC_DEB="${WIFI_DIR}/${AIC_PKG}.deb"
 
 # RTL8188GU  --------------------------------------------------------
