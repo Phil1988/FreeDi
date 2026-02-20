@@ -48,16 +48,38 @@ else
     exit 1
 fi
 
-if python3 -c "import sys; exit(1) if sys.version_info < (3, 13) else exit(0)"; then
-    echo "Python 3.13 or higher is installed."
-    rm -f "${FREEDI_LCD_DIR}*311*.so"  # Remove incompatible Python 3.11 binaries if present
-    PYTHON_VERSION_313_OR_HIGHER=true
-else
-    echo "Python 3.13 or higher is NOT installed."
-    rm -f "${FREEDI_LCD_DIR}*313*.so"  # Just in case, remove incompatible Python 3.13 binaries if present
-    PYTHON_VERSION_313_OR_HIGHER=false
-fi   
+# ensure python3 exists and check exact supported versions
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "Error: python3 is not installed. FreeDi requires Python 3.11 or 3.13."
+    exit 1
+fi
 
+PY_VER=$(python3 -c 'import sys; printf = "%d.%d"; print(printf % (sys.version_info.major, sys.version_info.minor))')
+echo "Detected Python version: $PY_VER"
+
+case "$PY_VER" in
+    3.11)
+        echo "Using supported Python 3.11"
+        rm -f "${FREEDI_LCD_DIR}*313*.so"  # remove incompatible Python 3.13 binaries
+        HAS_PYTHON_313=false
+        ;;
+    3.13)
+        echo "Using supported Python 3.13"
+        rm -f "${FREEDI_LCD_DIR}*311*.so"  # remove incompatible Python 3.11 binaries
+        HAS_PYTHON_313=true
+        ;;
+    *)
+        echo "Error: Unsupported Python version $PY_VER. FreeDi only supports 3.11 or 3.13."
+        exit 1
+        ;;
+esac
+
+# check for freedi image marker file
+if [ -f /etc/freedi_image ]; then
+    IS_FREEDI_IMAGE=true
+else
+    IS_FREEDI_IMAGE=false
+fi
 
 # -------------------------------------------------------------------------
 # Git index flags – quick reference
@@ -102,8 +124,8 @@ PULLABLE_FILES_FREEDI=(
 )
 
 # Block Python version-specific .so files from being updated/overwritten by git
-if [ "$PYTHON_VERSION_313_OR_HIGHER" = true ]; then
-    # Python 3.13+ is installed, block Python 3.11 .so files (incompatible)
+if [ "$HAS_PYTHON_313" = true ]; then
+    # Python 3.13 is installed, block Python 3.11 .so files (incompatible)
     BLOCKED_FILES_FREEDI=("FreeDiLCD/*311*.so")
 else
     # Python 3.11 is installed, block Python 3.13 .so files (incompatible)
@@ -530,24 +552,29 @@ echo "Python requirements installed from requirements.txt."
 # INSTALL INPUT SHAPING DEPENDENCIES
 ################################################################################
 
-echo "Installing required packages for input shaping..."
-
-if [[ "$OS_CODENAME" == "trixie" ]]; then
-    # For Debian 13 (trixie) and later, libatlas3-base is available instead of libatlas-base-dev
-    sudo apt install -y libatlas3-base libopenblas-dev ntfs-3g
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to install system dependencies."
-        exit 1
-    fi
+# skip installation when running from a FreeDi image (dependencies already included)
+if [ "$IS_FREEDI_IMAGE" = true ]; then
+    echo "FreeDi image detected; Input shaping dependencies already included."
 else
-    # For older versions, use libatlas-base-dev
-    sudo apt install -y libatlas-base-dev libopenblas-dev ntfs-3g
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to install system dependencies."
-        exit 1
+    echo "Installing required packages for input shaping..."
+
+    if [[ "$OS_CODENAME" == "trixie" ]]; then
+        # For Debian 13 (trixie) and later, libatlas3-base is available instead of libatlas-base-dev
+        sudo apt install -y libatlas3-base libopenblas-dev ntfs-3g
+        if [ $? -ne 0 ]; then
+            echo "Error: Failed to install system dependencies."
+            exit 1
+        fi
+    else
+        # For older versions, use libatlas-base-dev
+        sudo apt install -y libatlas-base-dev libopenblas-dev ntfs-3g
+        if [ $? -ne 0 ]; then
+            echo "Error: Failed to install system dependencies."
+            exit 1
+        fi
     fi
+    echo "System dependencies installed successfully."
 fi
-echo "System dependencies installed successfully."
 
 
 ################################################################################
@@ -727,9 +754,13 @@ elif [ -n "$device_info_aic_mass_storage" ]; then
     # Reload udev rules immediately
     sudo udevadm control --reload-rules
 
-    # Install driver only if it is NOT already present
-    if dpkg -s "$AIC_PKG" >/dev/null 2>&1; then
-        echo "$AIC_PKG is already installed – skipping."
+    # Install driver only if it is NOT already present (skip on FreeDi image)
+    if [ "$IS_FREEDI_IMAGE" = true ] || dpkg -s "$AIC_PKG" >/dev/null 2>&1; then
+        if [ "$IS_FREEDI_IMAGE" = true ]; then
+            echo "Running on FreeDi image; driver installation skipped."
+        else
+            echo "$AIC_PKG is already installed – skipping."
+        fi
     else
         echo "Installing package $AIC_PKG..."
         if [ ! -f "$AIC_DEB" ]; then
@@ -747,9 +778,13 @@ elif [ -n "$device_info_aic_wifi" ]; then
     product_id=$(echo "$device_info_aic_wifi" | awk '{print $6}' | cut -d: -f2)
     echo "vendor_id: $vendor_id, product_id: $product_id"
 
-    # Install driver only if it is NOT already present
-    if dpkg -s "$AIC_PKG" >/dev/null 2>&1; then
-        echo "$AIC_PKG is already installed – skipping."
+    # Install driver only if it is NOT already present (skip on FreeDi image as drivers are already included there)
+    if [ "$IS_FREEDI_IMAGE" = true ] || dpkg -s "$AIC_PKG" >/dev/null 2>&1; then
+        if [ "$IS_FREEDI_IMAGE" = true ]; then
+            echo "Running on FreeDi image; driver installation skipped."
+        else
+            echo "$AIC_PKG is already installed – skipping."
+        fi
     else
         echo "Installing package $AIC_PKG..."
         if [ ! -f "$AIC_DEB" ]; then
