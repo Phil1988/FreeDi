@@ -1,0 +1,11 @@
+[Unit]
+Description=Toolhead & MCU Flash Service
+After=klipper.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/{{USER}}/FreeDi/helpers/klipper_auto_flasher.sh
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
