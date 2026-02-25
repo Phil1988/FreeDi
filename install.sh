@@ -60,12 +60,10 @@ echo "Detected Python version: $PY_VER"
 case "$PY_VER" in
     3.11)
         echo "Using supported Python 3.11"
-        rm -f "${FREEDI_LCD_DIR}*313*.so"  # remove incompatible Python 3.13 binaries
         HAS_PYTHON_313=false
         ;;
     3.13)
         echo "Using supported Python 3.13"
-        rm -f "${FREEDI_LCD_DIR}*311*.so"  # remove incompatible Python 3.11 binaries
         HAS_PYTHON_313=true
         ;;
     *)
