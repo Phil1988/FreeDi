@@ -1,13 +1,15 @@
 #!/bin/bash
+#
+# FreeDi Installation Script
+# Installs FreeDi modules, configures services, and sets up hardware dependencies
+#
+# Usage: ./install.sh
+# Note: Do NOT run with sudo or as root - execute as a regular user
+#
 
-# to delete '\r' signs use
-# sed -i 's/\r$//' install.sh
-
-
-
-
-
-# Set variables
+################################################################################
+# CONFIGURATION & VARIABLES
+################################################################################
 
 FREEDI_DIR="$( cd -- "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd -P )"    # Absolute path to the FreeDi directory (/home/<user>/FreeDi)
 FREEDI_LCD_DIR="${FREEDI_DIR}/FreeDiLCD"                                                # FreeDiLCD directory
@@ -36,7 +38,46 @@ KLIPPER_VENV_PYTHON_BIN="$KLIPPER_ENV/bin/python"                               
 
 DTBO_TARGET=/boot/dtb/rockchip/overlay                                                  # dtbo target directory for stock mainboard
 
+# Find OS Release codename
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS_CODENAME="$VERSION_CODENAME"
+else
+    echo "Cannot determine OS codename. Exiting."
+    echo "Make sure you are running an Armbian-based distribution and that the /etc/os-release file exists."
+    exit 1
+fi
 
+# ensure python3 exists and check exact supported versions
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "Error: python3 is not installed. FreeDi requires Python 3.11 or 3.13."
+    exit 1
+fi
+
+PY_VER=$(python3 -c 'import sys; printf = "%d.%d"; print(printf % (sys.version_info.major, sys.version_info.minor))')
+echo "Detected Python version: $PY_VER"
+
+case "$PY_VER" in
+    3.11)
+        echo "Using supported Python 3.11"
+        HAS_PYTHON_313=false
+        ;;
+    3.13)
+        echo "Using supported Python 3.13"
+        HAS_PYTHON_313=true
+        ;;
+    *)
+        echo "Error: Unsupported Python version $PY_VER. FreeDi only supports 3.11 or 3.13."
+        exit 1
+        ;;
+esac
+
+# check for freedi image marker file
+if [ -f /etc/freedi_image ]; then
+    IS_FREEDI_IMAGE=true
+else
+    IS_FREEDI_IMAGE=false
+fi
 
 # -------------------------------------------------------------------------
 # Git index flags – quick reference
@@ -67,74 +108,38 @@ DTBO_TARGET=/boot/dtb/rockchip/overlay                                          
 #     the file to live only on the local printer.
 # -------------------------------------------------------------------------
 
-##############################################################################
-# KEEP-WORKING-TREE-CLEAN SECTION
-# ---------------------------------------------------------------------------
-# • PULLABLE_FILES
-#     The upstream version is welcome. We only silence local edits.
-#     Tracked ->  git update-index --assume-unchanged
-#     Untracked -> entry in .git/info/exclude
-#
-# • BLOCKED_FILES
-#     We provide our own version and NEVER want upstream to overwrite it.
-#     Tracked ->  git update-index --skip-worktree
-#     Untracked -> entry in .git/info/exclude
-#
-# Define the lists per repository below.
-##############################################################################
+################################################################################
+# GIT WHITELIST DEFINITIONS
+################################################################################
+# PULLABLE_FILES: Accept upstream updates (assume-unchanged)
+# BLOCKED_FILES: Keep local version (skip-worktree)
 
-# -------- FreeDi repository ( $FREEDI_DIR ) ---------------------------
+# FreeDi repository files
 PULLABLE_FILES_FREEDI=(
-    # example: "FreeDiLCD/always_pull_from_remote.py"
     "klippy/extras/freedi.py"
     "klippy/extras/auto_z_offset.py"
     "FreeDiLCD/freedi_update.sh"
 )
 
-BLOCKED_FILES_FREEDI=(
-    # example: "FreeDiLCD/never_pull_from_remote.py"
-)
+# Block Python version-specific .so files from being updated/overwritten by git
+if [ "$HAS_PYTHON_313" = true ]; then
+    # Python 3.13 is installed, block Python 3.11 .so files (incompatible)
+    BLOCKED_FILES_FREEDI=("FreeDiLCD/*311*.so")
+else
+    # Python 3.11 is installed, block Python 3.13 .so files (incompatible)
+    BLOCKED_FILES_FREEDI=("FreeDiLCD/*313*.so")
+fi
 
-# -------- Klipper repository ( $KLIPPER_DIR ) ------------------------------
+# Klipper repository files (not present in upstream)
 PULLABLE_FILES_KLIPPER=(
-    # example: "klippy/extras/freedi_custom_modified_file.py"
-    "klippy/extras/freedi_hall_filament_width_sensor.py"
-)
-
-# -------- Klipper repository ( $KLIPPER_DIR ) ------------------------------
-# Basically files that doesnt exist in upstream klipper (thus not in $KLIPPER_EXTRAS_DIR)
-PULLABLE_FILES_KLIPPER=(
-    # example: "klippy/extras/freedi_custom_modified_file.py"
     "klippy/extras/freedi.py"
     "klippy/extras/auto_z_offset.py"
     "klippy/extras/freedi_hall_filament_width_sensor.py"
 )
 
-BLOCKED_FILES_KLIPPER=(
-    # example: "klippy/extras/freedi_custom_modified_file.py"
-    #"klippy/extras/hall_filament_width_sensor.py"
-
-    # test showed this error/issue when trying to update klipper:
-    # Updating 08a1c9f12..61c0c8d2e
-    # From https://github.com/Klipper3d/klipper
-    # * branch 61c0c8d2ef40340781835dd53fb04cc7a454e37a -> FETCH_HEAD
-    # error: Your local changes to the following files would be overwritten by merge:
-    # klippy/extras/hall_filament_width_sensor.py
-    # Please commit your changes or stash them before you merge.
-)
+BLOCKED_FILES_KLIPPER=()
 
 
-
-# ----- colour definitions -----
-YLW='\033[1;33m'   # bold yellow
-RED='\033[1;31m'   # bold red
-RST='\033[0m'      # reset
-
-
-
-# -------------------------------------------------------------------------
-# Pre-flight checks
-# -------------------------------------------------------------------------
 
 # Abort if the script is executed with sudo/root
 if [ "$EUID" -eq 0 ] || [ -n "$SUDO_USER" ]; then
@@ -176,8 +181,9 @@ esac
 
 
 
-
-###### Installing klipper modules ######
+################################################################################
+# PRE-FLIGHT CHECKS
+################################################################################
 
 # Create a symbolic links for needed modules to the Klipper extras directory
 FREEDI_MODULES=(
@@ -215,13 +221,13 @@ done
 # git sparse-checkout add mainboard_and_toolhead_firmwares/
 # git sparse-checkout add screen_firmwares/
 
-# Configure git to fetch tags automatically, which is not done by default in sparse clones
-# echo "Configuring git to fetch tags automatically..."
-# git config remote.origin.fetch "+refs/tags/*:refs/tags/*"
 
 
+###### Installing klipper modules ######
 
-###### Git housekeeping to prevent dirty repos and setting the correct logic (updateable or not) ######
+################################################################################
+# GIT REPOSITORY VALIDATION & CONFIGURATION
+################################################################################
 
 # Check if the script is run inside a Git repository
 if [ ! -d "${FREEDI_DIR}/.git" ]; then
@@ -229,75 +235,12 @@ if [ ! -d "${FREEDI_DIR}/.git" ]; then
     exit 1
 fi
 
-# Ensure if the Klipper extras directory exists
+# Ensure the Klipper extras directory exists
 if [ ! -d "$KLIPPER_EXTRAS_DIR" ]; then
     echo "Error: Klipper extras directory not found at $KLIPPER_EXTRAS_DIR."
     echo "Make sure Klipper is installed correctly."
     exit 1
 fi
-
-
-# # Helper: make a repo clean for a given list of files
-# clean_repo() {
-#     local repo="$1"        # absolute path to the repo
-#     local mode="$2"        # "pullable" or "blocked"
-#     shift 2
-#     local files=("$@")     # remaining args = file list (relative paths)
-
-#     # Ensure local exclude file exists
-#     local exclude_file
-#     # Dynamically get the path to the .git/info/exclude file
-#     exclude_file="$(git -C "$repo" rev-parse --git-path info)/exclude"
-#     # Create exclulde file if not existing
-#     mkdir -p "$(dirname "$exclude_file")"
-#     touch  "$exclude_file"
-
-#     for f in "${files[@]}"; do
-
-#         local full_path="${repo}/${f}"
-
-#         # Warn if file/symlink is missing in working tree
-#         if [ ! -e "$full_path" ]; then
-#             echo -e "${YLW}Notice: ${f} does not exist in working tree – index/ignore rules are still applied.${RST}"
-#         fi
-
-
-#         # ------------------------------------------------------------------
-#         # CASE 1 : tracked file
-#         # ------------------------------------------------------------------
-#         if git -C "$repo" ls-files --error-unmatch "$f" >/dev/null 2>&1; then
-#             if [[ "$mode" == "pullable" ]]; then
-#                 # pullable
-#                 if git -C "$repo" update-index --assume-unchanged "$f"; then
-#                     echo -e "Git will now ignore local changes to ${f} (assume-unchanged)."
-#                 else
-#                     echo -e "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"
-#                 fi
-#             else 
-#                 # blocked
-#                 if git -C "$repo" update-index --skip-worktree "$f"; then
-#                     echo -e "Git will keep your local version of ${f} (skip-worktree)."
-#                 else
-#                     echo -e "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"
-#                 fi
-#             fi
-#         # ------------------------------------------------------------------
-#         # CASE 2 : untracked file
-#         # ------------------------------------------------------------------
-#         else
-#             # -F fixed string  -x whole line  -q quiet
-#             if ! grep -Fxq "$f" "$exclude_file"; then
-#                 if echo "$f" >> "$exclude_file"; then
-#                     echo -e "Added ${f} to $(basename "$exclude_file") (untracked→exclude)."
-#                 else
-#                     echo -e "${RED}Warning: failed to write ${f} to $(basename "$exclude_file").${RST}"
-#                 fi
-#             else
-#                 echo -e "${f} already listed in $(basename "$exclude_file") – skipping."
-#             fi
-#         fi
-#     done
-# }
 
 # Wrapper to execute commands as the target user when running as root
 # Especially useful for Git operations
@@ -399,12 +342,12 @@ clean_repo() {
 
 
 
-# Run git cleaning - Apply the definitions above
+# Apply git whitelist configuration
+echo "Configuring git repositories for clean working tree..."
 clean_repo "$FREEDI_DIR" pullable "${PULLABLE_FILES_FREEDI[@]}"
 clean_repo "$FREEDI_DIR" blocked  "${BLOCKED_FILES_FREEDI[@]}"
-
-clean_repo "$KLIPPER_DIR"     pullable "${PULLABLE_FILES_KLIPPER[@]}"
-clean_repo "$KLIPPER_DIR"     blocked  "${BLOCKED_FILES_KLIPPER[@]}"
+clean_repo "$KLIPPER_DIR" pullable "${PULLABLE_FILES_KLIPPER[@]}"
+clean_repo "$KLIPPER_DIR" blocked  "${BLOCKED_FILES_KLIPPER[@]}"
 
 
 
@@ -421,7 +364,9 @@ else
 fi
 
 
-###### Check and install python3-serial package ######
+################################################################################
+# INSTALL SYSTEM DEPENDENCIES
+################################################################################
 # for flashing the toolhead katapult firmware using flashtool.py
 
 echo "Checking if python3-serial package is already installed..."
@@ -440,7 +385,7 @@ else
 fi
 
 
-###### Check and install stlink-tools package ######
+# Install stlink-tools (for Plus4 toolhead flashing)
 # for flashing the Plus4 toolhead klipper firmware
 
 echo "Checking if stlink-tools package is already installed..."
@@ -459,7 +404,9 @@ else
 fi
 
 
-###### Stock Mainboard specific ######
+################################################################################
+# STOCK MAINBOARD CONFIGURATION
+################################################################################
 if [ "$STOCK_MAINBOARD" = true ]; then
 
     ### Setup serial port for LCD communication ####
@@ -539,10 +486,11 @@ if [ "$STOCK_MAINBOARD" = true ]; then
     sudo udevadm trigger
     echo "udev events triggered."
 
-fi   # end of stock-specific section
+fi   # end of stock mainboard section
 
-
-###### Setup printhead serial port to printer.cfg ######
+################################################################################
+# CONFIGURE TOOLHEAD SERIAL PORT
+################################################################################
 
 echo "Setup the toolhead serial path in printer.cfg..."
 
@@ -573,7 +521,9 @@ else
 fi
 
 
-###### Setup python environment ######
+################################################################################
+# CONFIGURE PYTHON ENVIRONMENT
+################################################################################
 
 # Activate the Klipper virtual environment and install required Python packages
 echo "Activating Klipper virtual environment and installing Python packages..."
@@ -596,21 +546,38 @@ if [ $? -ne 0 ]; then
 fi
 echo "Python requirements installed from requirements.txt."
 
+################################################################################
+# INSTALL INPUT SHAPING DEPENDENCIES
+################################################################################
 
-###### Setup necessary dependencies for FreeDi and input shaping ######
+# skip installation when running from a FreeDi image (dependencies already included)
+if [ "$IS_FREEDI_IMAGE" = true ]; then
+    echo "FreeDi image detected; Input shaping dependencies already included."
+else
+    echo "Installing required packages for input shaping..."
 
-# Installing required packages for input shaping (if not already installed)
-echo "Installing required packages for input shaping (if not already installed)..."
-
-sudo apt install -y libatlas-base-dev libopenblas-dev ntfs-3g
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to install system dependencies."
-    exit 1
+    if [[ "$OS_CODENAME" == "trixie" ]]; then
+        # For Debian 13 (trixie) and later, libatlas3-base is available instead of libatlas-base-dev
+        sudo apt install -y libatlas3-base libopenblas-dev ntfs-3g
+        if [ $? -ne 0 ]; then
+            echo "Error: Failed to install system dependencies."
+            exit 1
+        fi
+    else
+        # For older versions, use libatlas-base-dev
+        sudo apt install -y libatlas-base-dev libopenblas-dev ntfs-3g
+        if [ $? -ne 0 ]; then
+            echo "Error: Failed to install system dependencies."
+            exit 1
+        fi
+    fi
+    echo "System dependencies installed successfully."
 fi
-echo "System dependencies installed successfully."
 
 
-###### Setup Moonraker update manager ######
+################################################################################
+# CONFIGURE MOONRAKER
+################################################################################
 
 # Adding FreeDi section to moonraker update manager
 echo "Adding FreeDi section to moonraker update manager..."
@@ -670,7 +637,9 @@ else
 fi
 
 
-###### Setup NetworkManager ######
+################################################################################
+# CONFIGURE NETWORK MANAGER
+################################################################################
 
 # Console output
 echo "Changing permissions to enable nmcli commands without sudo (necessary for setting wifi via screen)..."
@@ -699,7 +668,9 @@ fi
 echo "User ${USER_NAME} has been successfully configured to run nmcli commands without sudo."
 
 
-###### Setup Wifi ######
+################################################################################
+# CONFIGURE WIFI
+################################################################################
 
 # Console output
 echo "Installing WiFi..."
@@ -714,6 +685,11 @@ sudo apt-get install -y usb-modeswitch || {
     exit 1
 }
 
+#install eject package for safely ejecting the AIC8800DC after flashing the firmware
+sudo apt-get install -y eject || {
+    echo "Failed to install eject."
+    exit 1
+}
 
 
 # ------------------------------------------------------------------
@@ -732,7 +708,7 @@ device_info_aic_mass_storage=$(lsusb | grep -i "a69c:5721")
 device_info_aic_wifi=$(lsusb | grep -i "2604:0013")
 
 # Package/-deb file for AIC8800DC
-AIC_PKG="ax300-wifi-adapter-linux-driver"
+AIC_PKG="aic8800-dkms"
 AIC_DEB="${WIFI_DIR}/${AIC_PKG}.deb"
 
 # RTL8188GU  --------------------------------------------------------
@@ -776,9 +752,13 @@ elif [ -n "$device_info_aic_mass_storage" ]; then
     # Reload udev rules immediately
     sudo udevadm control --reload-rules
 
-    # Install driver only if it is NOT already present
-    if dpkg -s "$AIC_PKG" >/dev/null 2>&1; then
-        echo "$AIC_PKG is already installed – skipping."
+    # Install driver only if it is NOT already present (skip on FreeDi image)
+    if [ "$IS_FREEDI_IMAGE" = true ] || dpkg -s "$AIC_PKG" >/dev/null 2>&1; then
+        if [ "$IS_FREEDI_IMAGE" = true ]; then
+            echo "Running on FreeDi image; driver installation skipped."
+        else
+            echo "$AIC_PKG is already installed – skipping."
+        fi
     else
         echo "Installing package $AIC_PKG..."
         if [ ! -f "$AIC_DEB" ]; then
@@ -796,9 +776,13 @@ elif [ -n "$device_info_aic_wifi" ]; then
     product_id=$(echo "$device_info_aic_wifi" | awk '{print $6}' | cut -d: -f2)
     echo "vendor_id: $vendor_id, product_id: $product_id"
 
-    # Install driver only if it is NOT already present
-    if dpkg -s "$AIC_PKG" >/dev/null 2>&1; then
-        echo "$AIC_PKG is already installed – skipping."
+    # Install driver only if it is NOT already present (skip on FreeDi image as drivers are already included there)
+    if [ "$IS_FREEDI_IMAGE" = true ] || dpkg -s "$AIC_PKG" >/dev/null 2>&1; then
+        if [ "$IS_FREEDI_IMAGE" = true ]; then
+            echo "Running on FreeDi image; driver installation skipped."
+        else
+            echo "$AIC_PKG is already installed – skipping."
+        fi
     else
         echo "Installing package $AIC_PKG..."
         if [ ! -f "$AIC_DEB" ]; then
@@ -815,7 +799,9 @@ else
 fi
 
 
-###### Setup usbmounter service for swappable usb drives ######
+################################################################################
+# CONFIGURE USB MOUNTER SERVICE
+################################################################################
 
 # Creating udev rule
 echo "Creating udev rule..."
@@ -857,7 +843,9 @@ echo "Udev and systemd have been reloaded."
 echo "USB mounter service created successfully!"
 
 
-###### Setup FreeDi ######
+################################################################################
+# CONFIGURE FREEDI SERVICE
+################################################################################
 
 # Autostart the program
 echo "Installing FreeDi service..."
@@ -897,9 +885,10 @@ echo "Enabling FreeDi.service to start at boot..."
 sudo systemctl enable FreeDi.service
 echo "FreeDi.service enabled to start at boot!"
 
-###### Setup AutoFlasher service ######
+################################################################################
+# CONFIGURE AUTOFLASHER SERVICE
+################################################################################
 
-# Installing the AutoFlasher.service
 echo "Installing AutoFlasher.service..."
 if [ ! -f "${FREEDI_DIR}/helpers/AutoFlasher.service" ]; then
     echo "Error: Source file ${FREEDI_DIR}/helpers/AutoFlasher.service does not exist. Aborting."
@@ -955,24 +944,20 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "AutoFlasher.service installed!"
+################################################################################
+# FINALIZE INSTALLATION
+################################################################################
 
-###### Reload systemd manager configuration ######
-
-# Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
-echo "systemd manager configuration reloaded!"
+echo "systemd manager configuration reloaded."
 
-
-# Start FreeDiLCD.service
-echo "Starting FreeDi.service..."
+echo "Starting FreeDi service..."
 sudo systemctl start FreeDi.service
-echo "FreeDi.service started!"
+echo "FreeDi service started!"
 
-# Dont -Update package lists- Takes much time
-# echo "Updating package lists..."
-# sudo apt update -y
-
-# Console output
+echo ""
+echo "=================================================================================="
 echo "Setup complete!"
 echo "Please restart your system for the changes to take effect."
+echo "=================================================================================="
