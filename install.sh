@@ -8,6 +8,14 @@
 #
 
 ################################################################################
+# COLOR DEFINITIONS
+################################################################################
+YLW='\033[1;33m'   # bold yellow
+RED='\033[1;31m'   # bold red
+GRN='\033[1;32m'   # bold green
+RST='\033[0m'      # reset
+
+################################################################################
 # CONFIGURATION & VARIABLES
 ################################################################################
 
@@ -43,19 +51,19 @@ if [ -f /etc/os-release ]; then
     . /etc/os-release
     OS_CODENAME="$VERSION_CODENAME"
 else
-    echo "Cannot determine OS codename. Exiting."
+    echo "${RED}Cannot determine OS codename. Exiting.${RST}"
     echo "Make sure you are running an Armbian-based distribution and that the /etc/os-release file exists."
     exit 1
 fi
 
 # ensure python3 exists and check exact supported versions
 if ! command -v python3 >/dev/null 2>&1; then
-    echo "Error: python3 is not installed. FreeDi requires Python 3.11 or 3.13."
+    echo "${RED}Error: python3 is not installed. FreeDi requires Python 3.11 or 3.13.${RST}"
     exit 1
 fi
 
 PY_VER=$(python3 -c 'import sys; printf = "%d.%d"; print(printf % (sys.version_info.major, sys.version_info.minor))')
-echo "Detected Python version: $PY_VER"
+echo "${GRN}Detected Python version: $PY_VER${RST}"
 
 case "$PY_VER" in
     3.11)
@@ -67,7 +75,7 @@ case "$PY_VER" in
         HAS_PYTHON_313=true
         ;;
     *)
-        echo "Error: Unsupported Python version $PY_VER. FreeDi only supports 3.11 or 3.13."
+        echo "${RED}Error: Unsupported Python version $PY_VER. FreeDi only supports 3.11 or 3.13.${RST}"
         exit 1
         ;;
 esac
@@ -150,17 +158,15 @@ fi
 
 
 # Ask for mainboard type
-echo -e "${RED}Do you use the stock mainboard? (y/n)${RST}"
-read -r RESPONSE
-
-case "$RESPONSE" in
-    y|Y)
+if dialog --stdout --title "Mainboard type" --backtitle "FreeDi installation" --yesno "Do you use the stock mainboard?" 7 60;>
         STOCK_MAINBOARD=true
+        clear
+        sleep 1
         echo "Starting the installation for stock mainboard..."
         ;;
-
-    n|N)
+else
         STOCK_MAINBOARD=false
+        clear
         echo -e "${YLW}Notice: You are using a NON-stock mainboard.${RST}"
         echo -e "${YLW}The script will try to complete the installation,${RST}"
         echo -e "${YLW}but because of the large variety of hardware${RST}"
@@ -171,14 +177,7 @@ case "$RESPONSE" in
         read -n1 -s -r -p $'\033[1;31mPress any key to acknowledge and continue...\033[0m'
         echo
         ;;
-
-    *)
-        echo -e "${RED}Error: Invalid answer. Please run the script again and choose 'y' or 'n'.${RST}"
-        exit 1
-        ;;
-esac
-
-
+fi
 
 
 ################################################################################
@@ -359,7 +358,7 @@ if [ $? -eq 0 ]; then
     echo "Klipper service restarted successfully."
     echo "Installation complete."
 else
-    echo "Error: Failed to restart Klipper service."
+    echo "${RED}Error: Failed to restart Klipper service.${RST}"
     exit 1
 fi
 
@@ -414,13 +413,13 @@ if [ "$STOCK_MAINBOARD" = true ]; then
     echo "Setup dtbo for serial communication..."
     # Install dtbo file for serial communication
     if [ ! -f "${DTBO_DIR}/rockchip-mkspi-uart1.dtbo" ]; then
-        echo "Error: Source file ${DTBO_DIR}/rockchip-mkspi-uart1.dtbo does not exist. Aborting."
+        echo "${RED}Error: Source file ${DTBO_DIR}/rockchip-mkspi-uart1.dtbo does not exist. Aborting.${RST}"
         exit 1
     fi
     sudo mkdir -p "$DTBO_TARGET"                                        # make sure directory exists
     sudo cp "${DTBO_DIR}/rockchip-mkspi-uart1.dtbo" "${DTBO_TARGET}/"
     if [ $? -ne 0 ]; then
-        echo "Error: Failed to copy rockchip-mkspi-uart1.dtbo. Aborting."
+        echo "${RED}Error: Failed to copy rockchip-mkspi-uart1.dtbo. Aborting.${RST}"
         exit 1
     fi
     echo "dtbo install done!"
@@ -511,13 +510,13 @@ if [ -d "/dev/serial/by-id" ]; then
             
             echo "Updated serial path for the toolhead in $PRINTER_CONFIG"
         else
-            echo "Error: $PRINTER_CONFIG not found!"
+            echo "${RED}Error: $PRINTER_CONFIG not found!${RST}"
         fi
     else
         echo "No serial device found in /dev/serial/by-id."
     fi
 else
-    echo "Error: no serial devices found in /dev/serial/by-id"
+    echo "${RED}Error: no serial devices found in /dev/serial/by-id${RST}"
 fi
 
 
@@ -529,19 +528,19 @@ fi
 echo "Activating Klipper virtual environment and installing Python packages..."
 
 if [ ! -d "$KLIPPER_ENV" ]; then
-	echo "Klippy env doesn't exist so I can't continue installation..."
+	echo "${RED}reKlippy env doesn't exist so I can't continue installation...${RST}"
 	exit 1
 fi
 
 PYTHON_V=$($KLIPPER_VENV_PYTHON_BIN -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
-echo "Klipper environment python version: $PYTHON_V"
+echo "${GRN}gKlipper environment python version: $PYTHON_V${RST}"
 
 # Arrange Python requirements from requirements.txt
 echo "Arranging Python requirements..."
 "${KLIPPER_ENV}/bin/pip" install --upgrade pip 
 "${KLIPPER_ENV}/bin/pip" install -r "${FREEDI_DIR}/requirements.txt"
 if [ $? -ne 0 ]; then
-    echo "Failed to install Python requirements."
+    echo "${RED}Failed to install Python requirements.${RST}"
     exit 1
 fi
 echo "Python requirements installed from requirements.txt."
@@ -552,7 +551,7 @@ echo "Python requirements installed from requirements.txt."
 
 # skip installation when running from a FreeDi image (dependencies already included)
 if [ "$IS_FREEDI_IMAGE" = true ]; then
-    echo "FreeDi image detected; Input shaping dependencies already included."
+    echo "${GRN}FreeDi image detected; Input shaping dependencies already included.${RST}"
 else
     echo "Installing required packages for input shaping..."
 
@@ -560,14 +559,14 @@ else
         # For Debian 13 (trixie) and later, libatlas3-base is available instead of libatlas-base-dev
         sudo apt install -y libatlas3-base libopenblas-dev ntfs-3g
         if [ $? -ne 0 ]; then
-            echo "Error: Failed to install system dependencies."
+            echo "${RED}Error: Failed to install system dependencies.${RST}"
             exit 1
         fi
     else
         # For older versions, use libatlas-base-dev
         sudo apt install -y libatlas-base-dev libopenblas-dev ntfs-3g
         if [ $? -ne 0 ]; then
-            echo "Error: Failed to install system dependencies."
+            echo "${RED}Error: Failed to install system dependencies.${RST}"
             exit 1
         fi
     fi
@@ -681,13 +680,13 @@ echo "Installing WiFi..."
 
 # Install usb-modeswitch
 sudo apt-get install -y usb-modeswitch || {
-    echo "Failed to install usb-modeswitch."
+    echo "${RED}Failed to install usb-modeswitch.${RST}"
     exit 1
 }
 
 #install eject package for safely ejecting the AIC8800DC after flashing the firmware
 sudo apt-get install -y eject || {
-    echo "Failed to install eject."
+    echo "${RED}Failed to install eject.${RST}"
     exit 1
 }
 
@@ -726,11 +725,11 @@ if [ -n "$device_info_rtl" ]; then
         echo "Firmware already present – skipping copy."
     else
         if [ ! -f "${WIFI_DIR}/rtl8710bufw_SMIC.bin" ]; then
-            echo "Error: firmware file ${WIFI_DIR}/rtl8710bufw_SMIC.bin not found."
+            echo "${RED}Error: firmware file ${WIFI_DIR}/rtl8710bufw_SMIC.bin not found.${RST}"
             exit 1
         fi
         sudo cp "${WIFI_DIR}/rtl8710bufw_SMIC.bin" "$TARGET_FW" || {
-            echo "Error: failed to copy firmware."; exit 1; }
+            echo "${RED}Error: failed to copy firmware.${RST}"; exit 1; }
     fi
     echo "WiFi setup for RTL8188GU finished."
 
@@ -762,10 +761,10 @@ elif [ -n "$device_info_aic_mass_storage" ]; then
     else
         echo "Installing package $AIC_PKG..."
         if [ ! -f "$AIC_DEB" ]; then
-            echo "Error: driver package $AIC_DEB not found."
+            echo "${RED}Error: driver package $AIC_DEB not found.${RST}"
             exit 1
         fi
-        sudo dpkg -i "$AIC_DEB" || { echo "Error: dpkg failed."; exit 1; }
+        sudo dpkg -i "$AIC_DEB" || { echo "${RED}Error: dpkg failed.${RST}"; exit 1; }
     fi
     echo "WiFi setup for AIC8800DC finished."
 
@@ -786,10 +785,10 @@ elif [ -n "$device_info_aic_wifi" ]; then
     else
         echo "Installing package $AIC_PKG..."
         if [ ! -f "$AIC_DEB" ]; then
-            echo "Error: driver package $AIC_DEB not found."
+            echo "${RED}Error: driver package $AIC_DEB not found.${RST}"
             exit 1
         fi
-        sudo dpkg -i "$AIC_DEB" || { echo "Error: dpkg failed."; exit 1; }
+        sudo dpkg -i "$AIC_DEB" || { echo "${RED}Error: dpkg failed.${RST}"; exit 1; }
     fi
     echo "WiFi setup for AIC8800DC finished."
 
@@ -826,12 +825,12 @@ echo "Systemd service file created: /etc/systemd/system/usb-mount@.service"
 # Make the script executable
 echo "Making the usbmounter.sh executable..."
 if [ ! -f "${FREEDI_DIR}/helpers/usbmounter.sh" ]; then
-    echo "Error: File ${FREEDI_DIR}/helpers/usbmounter.sh does not exist. Aborting."
+    echo "${RED}Error: File ${FREEDI_DIR}/helpers/usbmounter.sh does not exist. Aborting.${RST}"
     exit 1
 fi
 chmod +x "${FREEDI_DIR}/helpers/usbmounter.sh"
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to set executable permission for usbmounter.sh. Aborting."
+    echo "${RED}Error: Failed to set executable permission for usbmounter.sh. Aborting.${RST}"
     exit 1
 fi
 
@@ -858,12 +857,12 @@ echo "FreeDi service stopped."
 # Move FreeDi.service to systemd directory
 echo "Moving FreeDi.service to /etc/systemd/system/"
 if [ ! -f "${FREEDI_DIR}/helpers/FreeDi.service" ]; then
-    echo "Error: Source file ${FREEDI_DIR}/helpers/FreeDi.service does not exist. Aborting."
+    echo "${RED}Error: Source file ${FREEDI_DIR}/helpers/FreeDi.service does not exist. Aborting.${RST}"
     exit 1
 fi
 sudo cp "${FREEDI_DIR}/helpers/FreeDi.service" /etc/systemd/system/FreeDi.service
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to copy FreeDi.service to /etc/systemd/system/. Aborting."
+    echo "${RED}Error: Failed to copy FreeDi.service to /etc/systemd/system/. Aborting.${RST}"
     exit 1
 fi
 echo "FreeDi.service moved to /etc/systemd/system/"
@@ -871,12 +870,12 @@ echo "FreeDi.service moved to /etc/systemd/system/"
 # Setting current user in FreeDi.service
 echo "Setting user to $USER_NAME in FreeDi.service"
 if [ ! -f /etc/systemd/system/FreeDi.service ]; then
-    echo "Error: File /etc/systemd/system/FreeDi.service does not exist. Aborting."
+    echo "${RED}Error: File /etc/systemd/system/FreeDi.service does not exist. Aborting.${RST}"
     exit 1
 fi
 sudo sed -i "s/{{USER}}/${USER_NAME}/g" /etc/systemd/system/FreeDi.service
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to replace user in /etc/systemd/system/FreeDi.service. Aborting."
+    echo "${RED}Error: Failed to replace user in /etc/systemd/system/FreeDi.service. Aborting.${RST}"
     exit 1
 fi
 
@@ -891,12 +890,12 @@ echo "FreeDi.service enabled to start at boot!"
 
 echo "Installing AutoFlasher.service..."
 if [ ! -f "${FREEDI_DIR}/helpers/AutoFlasher.service" ]; then
-    echo "Error: Source file ${FREEDI_DIR}/helpers/AutoFlasher.service does not exist. Aborting."
+    echo "${RED}Error: Source file ${FREEDI_DIR}/helpers/AutoFlasher.service does not exist. Aborting.${RST}"
     exit 1
 fi
 sudo cp "${FREEDI_DIR}/helpers/AutoFlasher.service" /etc/systemd/system/AutoFlasher.service
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to copy AutoFlasher.service to /etc/systemd/system/. Aborting."
+    echo "${RED}Error: Failed to copy AutoFlasher.service to /etc/systemd/system/. Aborting.${RST}"
     exit 1
 fi
 echo "AutoFlasher.service installed!"
@@ -905,24 +904,24 @@ echo "AutoFlasher.service installed!"
 echo "Setting user to $USER_NAME in AutoFlasher.service"
 
 if [ ! -f "/etc/systemd/system/AutoFlasher.service" ]; then
-    echo "Error: File /etc/systemd/system/AutoFlasher.service does not exist. Aborting."
+    echo "${RED}Error: File /etc/systemd/system/AutoFlasher.service does not exist. Aborting.${RST}"
     exit 1
 fi
 sudo sed -i "s/{{USER}}/${USER_NAME}/g" /etc/systemd/system/AutoFlasher.service
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to replace user in /etc/systemd/system/AutoFlasher.service. Aborting."
+    echo "${RED}Error: Failed to replace user in /etc/systemd/system/AutoFlasher.service. Aborting.${RST}"
     exit 1
 fi
 
 
 # Make the script executable
 if [ ! -f "${FREEDI_DIR}/helpers/klipper_auto_flasher.sh" ]; then
-    echo "Error: File ${FREEDI_DIR}/helpers/klipper_auto_flasher.sh does not exist. Aborting."
+    echo "${RED}Error: File ${FREEDI_DIR}/helpers/klipper_auto_flasher.sh does not exist. Aborting.${RST}"
     exit 1
 fi
 chmod +x "${FREEDI_DIR}/helpers/klipper_auto_flasher.sh"
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to set executable permission for klipper_auto_flasher.sh. Aborting."
+    echo "${RED}Error: Failed to set executable permission for klipper_auto_flasher.sh. Aborting.${RST}"
     exit 1
 fi
 
@@ -934,12 +933,12 @@ echo "AutoFlasher.service enabled to start at boot!"
 # Make hid-flash executable
 echo "Making hid-flash executable..."
 if [ ! -f "${FREEDI_DIR}/helpers/hid-flash" ]; then
-    echo "Error: File ${FREEDI_DIR}/helpers/hid-flash does not exist. Aborting."
+    echo "${RED}Error: File ${FREEDI_DIR}/helpers/hid-flash does not exist. Aborting.${RST}"
     exit 1
 fi
 chmod +x "${FREEDI_DIR}/helpers/hid-flash"
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to set executable permission for hid-flash. Aborting."
+    echo "${RED}Error: Failed to set executable permission for hid-flash. Aborting.${RST}"
     exit 1
 fi
 
@@ -958,6 +957,6 @@ echo "FreeDi service started!"
 
 echo ""
 echo "=================================================================================="
-echo "Setup complete!"
-echo "Please restart your system for the changes to take effect."
+echo "${GREEN}Setup complete!${RST}"
+echo "${YLW}Please restart your system for the changes to take effect.${RST}"
 echo "=================================================================================="
