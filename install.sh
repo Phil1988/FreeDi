@@ -158,17 +158,15 @@ fi
 
 
 # Ask for mainboard type
-echo -e "${YLW}Do you use the stock mainboard? (y/n)${RST}"
-read -r RESPONSE
-
-case "$RESPONSE" in
-    y|Y)
+if dialog --stdout --title "Mainboard type" --backtitle "FreeDi installation" --yesno "Do you use the stock mainboard?" 7 60;>
         STOCK_MAINBOARD=true
+        clear
+        sleep 1
         echo "Starting the installation for stock mainboard..."
         ;;
-
-    n|N)
+else
         STOCK_MAINBOARD=false
+        clear
         echo -e "${YLW}Notice: You are using a NON-stock mainboard.${RST}"
         echo -e "${YLW}The script will try to complete the installation,${RST}"
         echo -e "${YLW}but because of the large variety of hardware${RST}"
@@ -179,14 +177,7 @@ case "$RESPONSE" in
         read -n1 -s -r -p $'\033[1;31mPress any key to acknowledge and continue...\033[0m'
         echo
         ;;
-
-    *)
-        echo -e "${RED}Error: Invalid answer. Please run the script again and choose 'y' or 'n'.${RST}"
-        exit 1
-        ;;
-esac
-
-
+fi
 
 
 ################################################################################
