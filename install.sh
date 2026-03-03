@@ -158,12 +158,11 @@ fi
 
 
 # Ask for mainboard type
-if dialog --stdout --title "Mainboard type" --backtitle "FreeDi installation" --yesno "Do you use the stock mainboard?" 7 60;>
+if dialog --stdout --title "Mainboard type" --backtitle "FreeDi installation" --yesno "Do you use the stock mainboard?" 7 60; then
         STOCK_MAINBOARD=true
         clear
         sleep 1
         echo "Starting the installation for stock mainboard..."
-        ;;
 else
         STOCK_MAINBOARD=false
         clear
@@ -176,7 +175,6 @@ else
         # red prompt — waits for a single key
         read -n1 -s -r -p $'\033[1;31mPress any key to acknowledge and continue...\033[0m'
         echo
-        ;;
 fi
 
 
