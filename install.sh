@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 #
 # FreeDi Installation Script
 # Installs FreeDi modules, configures services, and sets up hardware dependencies
@@ -19,32 +19,10 @@ RST='\033[0m'      # reset
 # CONFIGURATION & VARIABLES
 ################################################################################
 
-FREEDI_DIR="$( cd -- "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd -P )"    # Absolute path to the FreeDi directory (/home/<user>/FreeDi)
-FREEDI_LCD_DIR="${FREEDI_DIR}/FreeDiLCD"                                                # FreeDiLCD directory
-REPO_MODULE_DIR="${FREEDI_DIR}/klipper_module"                                          # klipper_module directory
-LCD_FIRMWARE_DIR="${FREEDI_DIR}/screen_firmwares"                                       # screen_firmwares directory
-WIFI_DIR="${FREEDI_DIR}/helpers/wifi"                                                   # wifi driver directory
-DTBO_DIR="${FREEDI_DIR}/helpers/dtbo"                                                   # dtbo directory
+FREEDI_DIR="$( cd -- "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd -P )"
 
-USER_HOME_DIR="$( dirname "${FREEDI_DIR}" )"                                            # One level up gives the user’s home directory -> /home/<user>
-USER_NAME="$( basename "${USER_HOME_DIR}" )"                                            # The last path component is the user name -> <user>
-USER_GROUP="$( id -gn "${USER_NAME}" )"                                                 # The group name of the user
-SERVICE="FreeDi.service"                                                                # FreeDi systemd service
-
-# External paths
-KLIPPER_DIR="${USER_HOME_DIR}/klipper"                                                  # klipper directory
-KLIPPER_EXTRAS_DIR="${KLIPPER_DIR}/klippy/extras"                                       # klipper module directory
-PRINTER_DATA_DIR="${USER_HOME_DIR}/printer_data"                                        # printer data directory
-PRINTER_CONFIG_DIR="${PRINTER_DATA_DIR}/config"                                         # printer config file
-PRINTER_CONFIG="${PRINTER_CONFIG_DIR}/printer.cfg"                                      # printer config file
-MOONRAKER_CONF="${PRINTER_CONFIG_DIR}/moonraker.conf"                                   # moonraker config file
-MOONRAKER_ASVC="${PRINTER_DATA_DIR}/moonraker.asvc"                                     # Define moonraker.asvc file path
-
-# Set python path to klipper env
-KLIPPER_ENV="${USER_HOME_DIR}/klippy-env"                                               # klipper virtual environment
-KLIPPER_VENV_PYTHON_BIN="$KLIPPER_ENV/bin/python"                                       # klipper python binary
-
-DTBO_TARGET=/boot/dtb/rockchip/overlay                                                  # dtbo target directory for stock mainboard
+# Source configuration from separate config file
+source "${FREEDI_DIR}/install/freedi_install.conf"
 
 # Find OS Release codename
 if [ -f /etc/os-release ]; then
@@ -57,28 +35,31 @@ else
 fi
 
 # ensure python3 exists and check exact supported versions
-if ! command -v python3 >/dev/null 2>&1; then
-    echo "${RED}Error: python3 is not installed. FreeDi requires Python 3.11 or 3.13.${RST}"
+PY_VER=$(python3 -c 'import sys; printf = "%d.%d"; print(printf % (sys.version_info.major, sys.version_info.minor))' 2>/dev/null)
+if [ $? -ne 0 ] || [ -z "$PY_VER" ]; then
+    echo "${RED}Error: python3 is not installed or not working. FreeDi requires Python ${SUPPORTED_VERSIONS_JOINED}.${RST}"
     exit 1
 fi
-
-PY_VER=$(python3 -c 'import sys; printf = "%d.%d"; print(printf % (sys.version_info.major, sys.version_info.minor))')
 echo "${GRN}Detected Python version: $PY_VER${RST}"
 
-case "$PY_VER" in
-    3.11)
-        echo "Using supported Python 3.11"
-        HAS_PYTHON_313=false
-        ;;
-    3.13)
-        echo "Using supported Python 3.13"
-        HAS_PYTHON_313=true
-        ;;
-    *)
-        echo "${RED}Error: Unsupported Python version $PY_VER. FreeDi only supports 3.11 or 3.13.${RST}"
-        exit 1
-        ;;
-esac
+# Check if detected version is supported
+HAS_PYTHON_313=false
+SUPPORTED=false
+for version in "${SUPPORTED_PYTHON_VERSIONS[@]}"; do
+    if [ "$PY_VER" = "$version" ]; then
+        SUPPORTED=true
+        if [ "$version" = "3.13" ]; then
+            HAS_PYTHON_313=true
+        fi
+        echo "Using supported Python $version"
+        break
+    fi
+done
+
+if [ "$SUPPORTED" = false ]; then
+    echo "${RED}Error: Unsupported Python version $PY_VER. FreeDi only supports ${SUPPORTED_VERSIONS_JOINED}.${RST}"
+    exit 1
+fi
 
 # check for freedi image marker file
 if [ -f /etc/freedi_image ]; then
@@ -129,14 +110,7 @@ PULLABLE_FILES_FREEDI=(
     "FreeDiLCD/freedi_update.sh"
 )
 
-# Block Python version-specific .so files from being updated/overwritten by git
-if [ "$HAS_PYTHON_313" = true ]; then
-    # Python 3.13 is installed, block Python 3.11 .so files (incompatible)
-    BLOCKED_FILES_FREEDI=("FreeDiLCD/*311*.so")
-else
-    # Python 3.11 is installed, block Python 3.13 .so files (incompatible)
-    BLOCKED_FILES_FREEDI=("FreeDiLCD/*313*.so")
-fi
+BLOCKED_FILES_FREEDI=()
 
 # Klipper repository files (not present in upstream)
 PULLABLE_FILES_KLIPPER=(
@@ -167,6 +141,7 @@ if [ $dialog_exit -eq 0 ]; then
     clear
     sleep 1
     echo "Starting the installation for stock mainboard..."
+    dpkg -i "${FREEDI_DIR}/helpers/freedi-prerequisites-1.0-all.deb"
 elif [ $dialog_exit -eq 1 ]; then
     # User selected "No"
     STOCK_MAINBOARD=false
@@ -178,6 +153,7 @@ elif [ $dialog_exit -eq 1 ]; then
            --yesno "Notice: You are using a NON-stock mainboard.\n\nThe script will try to complete the installation, but because of the large variety of hardware a flawless run cannot be guaranteed.\n\nIf problems occur, please open a ticket:\nhttps://github.com/Phil1988/FreeDi" 12 70
     if [ $? -ne 0 ]; then
         # User selected Abort
+        clear
         echo -e "${RED}Installation cancelled by user.${RST}"
         exit 1
     fi
@@ -196,8 +172,6 @@ fi
 FREEDI_MODULES=(
     "freedi.py"
     "qidi_auto_z_offset/auto_z_offset.py"
-    #"reverse_homing.py"
-    #"hall_filament_width_sensor.py"
     "freedi_hall_filament_width_sensor.py"
 )
 
@@ -214,21 +188,6 @@ for MODULE_PATH in "${FREEDI_MODULES[@]}"; do
         exit 1
     fi
 done
-
-
-
-
-###### Sparse checkout required folders ######
-
-# Sparse checkout only the required folders
-# echo "Sparse checkout only the required folders..."
-# git sparse-checkout add FreeDiLCD/
-# git sparse-checkout add helpers/
-# git sparse-checkout add klipper_module/
-# git sparse-checkout add mainboard_and_toolhead_firmwares/
-# git sparse-checkout add screen_firmwares/
-
-
 
 ###### Installing klipper modules ######
 
@@ -541,7 +500,7 @@ if [ ! -d "$KLIPPER_ENV" ]; then
 fi
 
 PYTHON_V=$($KLIPPER_VENV_PYTHON_BIN -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
-echo "${GRN}gKlipper environment python version: $PYTHON_V${RST}"
+echo "${GRN}Klipper environment python version: $PYTHON_V${RST}"
 
 # Arrange Python requirements from requirements.txt
 echo "Arranging Python requirements..."
