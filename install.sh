@@ -413,12 +413,14 @@ if [ "$STOCK_MAINBOARD" = true ]; then
     fi
 
     # Check if the file contains the search string and perform the corresponding action
-    if sudo grep -q "^$SEARCH_STRING_OVERLAYS" "$ARMBIAN_ENV_FILE"; then
-        echo "Overlays line found. Replacing the line."
-        sudo sed -i "s/^$SEARCH_STRING_OVERLAYS.*/$NEW_LINE_OVERLAYS/" "$ARMBIAN_ENV_FILE"
-    else
-        echo "Overlays line not found. Adding the line."
-        echo "$NEW_LINE_OVERLAYS" | sudo tee -a "$ARMBIAN_ENV_FILE" > /dev/null
+    if [ "$IS_FREEDI_IMAGE" = false ]; then
+        if sudo grep -q "^$SEARCH_STRING_OVERLAYS" "$ARMBIAN_ENV_FILE"; then
+            echo "Overlays line found. Replacing the line."
+            sudo sed -i "s/^$SEARCH_STRING_OVERLAYS.*/$NEW_LINE_OVERLAYS/" "$ARMBIAN_ENV_FILE"
+        else
+            echo "Overlays line not found. Adding the line."
+            echo "$NEW_LINE_OVERLAYS" | sudo tee -a "$ARMBIAN_ENV_FILE" > /dev/null
+        fi
     fi
 
     # Check if the file contains the search string and perform the corresponding action
