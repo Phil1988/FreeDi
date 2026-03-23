@@ -287,7 +287,7 @@ clean_repo() {
     git_dir="$(run_as_user git -C "$repo" rev-parse --git-dir)"
     # <-- changed: use absolute path for exclude file
     local exclude_file="${repo}/${git_dir}/info/exclude"
-echo "Exclude file resolved to: $exclude_file"
+    echo "Exclude file resolved to: $exclude_file"
 
     # Ensure the exclude file exists
     run_as_user mkdir -p "$(dirname "$exclude_file")"
@@ -300,7 +300,8 @@ echo "Exclude file resolved to: $exclude_file"
 
         # Warn if file/symlink is missing in working tree
         if [ ! -e "$full_path" ]; then
-            printf "%b\n" "${YLW}Notice: ${f} does not exist in working tree – index/ignore rules are still applied.${RST}"        fi
+            printf "%b\n" "${YLW}Notice: ${f} does not exist in working tree – index/ignore rules are still applied.${RST}"
+        fi
 
         # ------------------------------------------------------------------
         # CASE 1 : tracked file or type-change
@@ -311,7 +312,8 @@ echo "Exclude file resolved to: $exclude_file"
             # Check if this file has changes already
             local dirty_pre=false
             if [ -n "$st" ]; then
-                printf "%b\n" "${YLW}Detected changes for ${f} in index / working tree (causes dirty repo).${RST}"                dirty_pre=true
+                printf "%b\n" "${YLW}Detected changes for ${f} in index / working tree (causes dirty repo).${RST}"
+                dirty_pre=true
             fi
 
             if [[ "$mode" == "pullable" ]]; then
@@ -330,7 +332,8 @@ echo "Exclude file resolved to: $exclude_file"
 
             # If it was dirty, refresh index to clear existing change
             if [ "$dirty_pre" = true ]; then
-                printf "%b\n" "${YLW}Cleaning index / working tree for ${f}...${RST}"                run_as_user git -C "$repo" update-index --really-refresh -q -- "$f"
+                printf "%b\n" "${YLW}Cleaning index / working tree for ${f}...${RST}"
+                run_as_user git -C "$repo" update-index --really-refresh -q -- "$f"
                 if run_as_user git -C "$repo" status --porcelain -- "$f" | grep -q .; then
                     printf "%b\n" "${RED}Index still reports changes for ${f}!${RST}"
                 else
