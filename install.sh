@@ -145,7 +145,7 @@ if [ $dialog_exit -eq 0 ]; then
     clear
     sleep 1
     echo "Starting the installation for stock mainboard..."
-    dpkg -i "${FREEDI_DIR}/helpers/freedi-prerequisites-1.0-all.deb"
+    sudo dpkg -i "${FREEDI_DIR}/helpers/freedi-prerequisites-1.0-all.deb"
 elif [ $dialog_exit -eq 1 ]; then
     # User selected "No"
     STOCK_MAINBOARD=false
@@ -171,6 +171,12 @@ fi
 ################################################################################
 # PRE-FLIGHT CHECKS
 ################################################################################
+
+# Klipper installation check
+if [ ! -d "$KLIPPER_DIR" ]; then
+    echo "${RED}Error: Klipper directory not found at $KLIPPER_DIR. Please install Klipper first.${RST}"
+    exit 1
+fi
 
 # Create a symbolic links for needed modules to the Klipper extras directory
 FREEDI_MODULES=(
@@ -203,14 +209,6 @@ if [ -f "${FREEDI_DIR}/install/packages.sh" ]; then
     . "${FREEDI_DIR}/install/packages.sh"
 else
     echo "${RED}Error: Package installation script not found at ${FREEDI_DIR}/install/packages.sh${RST}"
-    exit 1
-fi
-
-################################################################################
-# Klipper installation check
-################################################################################
-if [ ! -d "$KLIPPER_DIR" ]; then
-    echo "${RED}Error: Klipper directory not found at $KLIPPER_DIR. Please install Klipper first.${RST}"
     exit 1
 fi
 
