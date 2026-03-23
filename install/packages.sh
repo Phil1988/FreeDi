@@ -40,19 +40,15 @@ else
 fi
 
 # Input shaping dependencies (skip on FreeDi image — already included)
-if [ "$IS_FREEDI_IMAGE" = true ]; then
-    echo "${GRN}FreeDi image detected; Input shaping dependencies already included.${RST}"
+echo "Installing required packages for input shaping..."
+if [[ "$OS_CODENAME" == "trixie" ]]; then
+    # Debian 13+: libatlas3-base replaces libatlas-base-dev
+    sudo apt-get install -y libatlas3-base libopenblas-dev ntfs-3g
 else
-    echo "Installing required packages for input shaping..."
-    if [[ "$OS_CODENAME" == "trixie" ]]; then
-        # Debian 13+: libatlas3-base replaces libatlas-base-dev
-        sudo apt-get install -y libatlas3-base libopenblas-dev ntfs-3g
-    else
-        sudo apt-get install -y libatlas-base-dev libopenblas-dev ntfs-3g
-    fi
-    if [ $? -ne 0 ]; then
-        echo "${RED}Error: Failed to install input shaping dependencies.${RST}"
-        exit 1
-    fi
-    echo "Input shaping dependencies installed successfully."
+    sudo apt-get install -y libatlas-base-dev libopenblas-dev ntfs-3g
 fi
+if [ $? -ne 0 ]; then
+    echo "${RED}Error: Failed to install input shaping dependencies.${RST}"
+    exit 1
+fi
+echo "Input shaping dependencies installed successfully."

@@ -201,10 +201,10 @@ if [ ! -d "$KLIPPER_DIR" ]; then
             if [ $? -ne 0 ]; then
                 printf "%b\n" "${RED}Error: Failed to clone KIAUH repository.${RST}"; exit 1
             fi
-            clear
-            # Run KIAUH installer
-            bash "$KIAUH_DIR/kiauh.sh"
         fi
+        clear
+        # Run KIAUH installer
+        bash "$KIAUH_DIR/kiauh.sh"
     else
         clear
         printf "%b\n" "${RED}Error: Klipper directory not found at $KLIPPER_DIR. Please install Klipper first.${RST}"; exit 1
@@ -749,6 +749,15 @@ echo "AutoFlasher.service installed!"
 ################################################################################
 # FINALIZE INSTALLATION
 ################################################################################
+
+#remove kiauh directory if it was created during this installation
+if [ -d "$KIAUH_DIR" ]; then
+    echo "Removing KIAUH directory at $KIAUH_DIR..."
+    rm -rf "$KIAUH_DIR"
+    if [ $? -ne 0 ]; then
+        printf "%b\n" "${RED}Error: Failed to remove KIAUH directory at $KIAUH_DIR. Please remove it manually.${RST}"; exit 1
+    fi
+fi
 
 echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
