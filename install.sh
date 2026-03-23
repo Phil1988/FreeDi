@@ -536,11 +536,11 @@ virtualenv: ~/klippy-env
 requirements: requirements.txt
 managed_services: FreeDi
 info_tags:
-	desc=FreeDi
-	sparse_dirs:
-	- FreeDiLCD
-	- screen_firmwares
-
+    desc=FreeDi
+    sparse_dirs:
+    - FreeDiLCD
+    - screen_firmwares
+    
 EOL
         echo "The section [update_manager FreeDi] has been added to the file."
     fi
