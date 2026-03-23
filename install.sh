@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # FreeDi Installation Script
 # Installs FreeDi modules, configures services, and sets up hardware dependencies
