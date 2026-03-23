@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 #
 # FreeDi Installation Script
 # Installs FreeDi modules, configures services, and sets up hardware dependencies
@@ -19,6 +19,9 @@ RST='\033[0m'      # reset
 # CONFIGURATION & VARIABLES
 ################################################################################
 
+USER_NAME=$(id -un)
+USER_GROUP=$(id -gn)
+USER_HOME_DIR=$(eval echo "~$USER_NAME")
 FREEDI_DIR="$( cd -- "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd -P )"
 
 # Source configuration from separate config file
@@ -61,8 +64,9 @@ if [ "$SUPPORTED" = false ]; then
     exit 1
 fi
 
-# check for freedi image marker file
-if [ -f /etc/freedi_image ]; then
+# check for Qidi X-6 hardware (strip NULs) and match by pattern
+DEVICE_MODEL="$(tr -d '\000' </proc/device-tree/model 2>/dev/null)"
+if [[ "$DEVICE_MODEL" == *"Qidi X-6"* ]]; then
     IS_FREEDI_IMAGE=true
 else
     IS_FREEDI_IMAGE=false
@@ -189,7 +193,26 @@ for MODULE_PATH in "${FREEDI_MODULES[@]}"; do
     fi
 done
 
-###### Installing klipper modules ######
+################################################################################
+# INSTALL APT PACKAGES (externalized to install/packages.sh)
+################################################################################
+
+echo "Installing apt packages from ${FREEDI_DIR}/install/packages.sh..."
+if [ -f "${FREEDI_DIR}/install/packages.sh" ]; then
+    # shellcheck source=/dev/null
+    . "${FREEDI_DIR}/install/packages.sh"
+else
+    echo "${RED}Error: Package installation script not found at ${FREEDI_DIR}/install/packages.sh${RST}"
+    exit 1
+fi
+
+################################################################################
+# Klipper installation check
+################################################################################
+if [ ! -d "$KLIPPER_DIR" ]; then
+    echo "${RED}Error: Klipper directory not found at $KLIPPER_DIR. Please install Klipper first.${RST}"
+    exit 1
+fi
 
 ################################################################################
 # GIT REPOSITORY VALIDATION & CONFIGURATION
@@ -327,46 +350,6 @@ if [ $? -eq 0 ]; then
 else
     echo "${RED}Error: Failed to restart Klipper service.${RST}"
     exit 1
-fi
-
-
-################################################################################
-# INSTALL SYSTEM DEPENDENCIES
-################################################################################
-# for flashing the toolhead katapult firmware using flashtool.py
-
-echo "Checking if python3-serial package is already installed..."
-if dpkg -l | grep -q python3-serial; then
-    echo "python3-serial package is already installed. Skipping installation."
-else
-    echo "python3-serial package is not installed. Installing now..."
-    sudo apt update && sudo apt install -y python3-serial
-    
-    if [ $? -eq 0 ]; then
-        echo "python3-serial package installed successfully!"
-    else
-        echo "Failed to install python3-serial package."
-        exit 1
-    fi
-fi
-
-
-# Install stlink-tools (for Plus4 toolhead flashing)
-# for flashing the Plus4 toolhead klipper firmware
-
-echo "Checking if stlink-tools package is already installed..."
-if dpkg -l | grep -q stlink-tools; then
-    echo "stlink-tools package is already installed. Skipping installation."
-else
-    echo "stlink-tools package is not installed. Installing now..."
-    sudo apt update && sudo apt install -y stlink-tools
-    
-    if [ $? -eq 0 ]; then
-        echo "stlink-tools package installed successfully!"
-    else
-        echo "Failed to install stlink-tools package."
-        exit 1
-    fi
 fi
 
 
@@ -515,35 +498,6 @@ fi
 echo "Python requirements installed from requirements.txt."
 
 ################################################################################
-# INSTALL INPUT SHAPING DEPENDENCIES
-################################################################################
-
-# skip installation when running from a FreeDi image (dependencies already included)
-if [ "$IS_FREEDI_IMAGE" = true ]; then
-    echo "${GRN}FreeDi image detected; Input shaping dependencies already included.${RST}"
-else
-    echo "Installing required packages for input shaping..."
-
-    if [[ "$OS_CODENAME" == "trixie" ]]; then
-        # For Debian 13 (trixie) and later, libatlas3-base is available instead of libatlas-base-dev
-        sudo apt install -y libatlas3-base libopenblas-dev ntfs-3g
-        if [ $? -ne 0 ]; then
-            echo "${RED}Error: Failed to install system dependencies.${RST}"
-            exit 1
-        fi
-    else
-        # For older versions, use libatlas-base-dev
-        sudo apt install -y libatlas-base-dev libopenblas-dev ntfs-3g
-        if [ $? -ne 0 ]; then
-            echo "${RED}Error: Failed to install system dependencies.${RST}"
-            exit 1
-        fi
-    fi
-    echo "System dependencies installed successfully."
-fi
-
-
-################################################################################
 # CONFIGURE MOONRAKER
 ################################################################################
 
@@ -637,133 +591,19 @@ echo "User ${USER_NAME} has been successfully configured to run nmcli commands w
 
 
 ################################################################################
-# CONFIGURE WIFI
+# CONFIGURE WIFI (externalized to install/wifi.sh)
 ################################################################################
 
-# Console output
-echo "Installing WiFi..."
-
-# Update package lists
-# Dont. Takes much time.
-#sudo apt-get update
-
-# Install usb-modeswitch
-sudo apt-get install -y usb-modeswitch || {
-    echo "${RED}Failed to install usb-modeswitch.${RST}"
-    exit 1
-}
-
-#install eject package for safely ejecting the AIC8800DC after flashing the firmware
-sudo apt-get install -y eject || {
-    echo "${RED}Failed to install eject.${RST}"
-    exit 1
-}
-
-
-# ------------------------------------------------------------------
-# Detect which USB Wi-Fi dongle is attached
-# ------------------------------------------------------------------
-echo "Detecting WiFi chip..."
-
-# 1) Realtek RTL8188GU (needs firmware only)
-device_info_rtl=$(lsusb | grep -i "RTL8188GU")
-TARGET_FW="/lib/firmware/rtlwifi/rtl8710bufw_SMIC.bin"
-
-# 2) AIC8800DC appears first as mass-storage (id 0x5721)
-device_info_aic_mass_storage=$(lsusb | grep -i "a69c:5721")
-
-# 3) AIC8800DC already switched to Wi-Fi mode (id 0x0013)
-device_info_aic_wifi=$(lsusb | grep -i "2604:0013")
-
-# Package/-deb file for AIC8800DC
-AIC_PKG="aic8800-dkms"
-AIC_DEB="${WIFI_DIR}/${AIC_PKG}.deb"
-
-# RTL8188GU  --------------------------------------------------------
-if [ -n "$device_info_rtl" ]; then
-    echo "RTL8188GU detected."
-    vendor_id=$(echo "$device_info_rtl" | awk '{print $6}' | cut -d: -f1)
-    product_id=$(echo "$device_info_rtl" | awk '{print $6}' | cut -d: -f2)
-    echo "vendor_id: $vendor_id, product_id: $product_id"
-
-    # Switch device into WLAN mode
-    sudo usb_modeswitch -v "$vendor_id" -p "$product_id" -J
-
-    # Copy firmware only if it is not already present
-    if [ -f "$TARGET_FW" ]; then
-        echo "Firmware already present – skipping copy."
+echo "Running WiFi setup from ${FREEDI_DIR}/install/wifi.sh..."
+if [ "$IS_FREEDI_IMAGE" != true ]; then
+    if [ -f "${FREEDI_DIR}/install/wifi.sh" ]; then
+        . "${FREEDI_DIR}/install/wifi.sh"
     else
-        if [ ! -f "${WIFI_DIR}/rtl8710bufw_SMIC.bin" ]; then
-            echo "${RED}Error: firmware file ${WIFI_DIR}/rtl8710bufw_SMIC.bin not found.${RST}"
-            exit 1
-        fi
-        sudo cp "${WIFI_DIR}/rtl8710bufw_SMIC.bin" "$TARGET_FW" || {
-            echo "${RED}Error: failed to copy firmware.${RST}"; exit 1; }
+        echo "${RED}Error: WiFi setup script not found at ${FREEDI_DIR}/install/wifi.sh${RST}"
+        exit 1
     fi
-    echo "WiFi setup for RTL8188GU finished."
-
-# AIC8800DC shows up as mass-storage  -------------------------------
-elif [ -n "$device_info_aic_mass_storage" ]; then
-    echo "AIC8800DC detected as mass-storage device."
-    vendor_id=$(echo "$device_info_aic_mass_storage" | awk '{print $6}' | cut -d: -f1)
-    product_id=$(echo "$device_info_aic_mass_storage" | awk '{print $6}' | cut -d: -f2)
-    echo "vendor_id: $vendor_id, product_id: $product_id"
-
-    # Switch device from storage to Wi-Fi mode
-    sudo usb_modeswitch -KQ -v "$vendor_id" -p "$product_id"
-
-    # Create udev rule so that future plug-ins are switched automatically
-    echo "Creating udev rule for automatic mode-switch..."
-    echo "ACTION==\"add\", ATTR{idVendor}==\"${vendor_id}\", ATTR{idProduct}==\"${product_id}\", RUN+=\"/usr/sbin/usb_modeswitch -v ${vendor_id} -p ${product_id} -KQ\"" \
-        | sudo tee /etc/udev/rules.d/99-usb_modeswitch.rules >/dev/null
-
-    # Reload udev rules immediately
-    sudo udevadm control --reload-rules
-
-    # Install driver only if it is NOT already present (skip on FreeDi image)
-    if [ "$IS_FREEDI_IMAGE" = true ] || dpkg -s "$AIC_PKG" >/dev/null 2>&1; then
-        if [ "$IS_FREEDI_IMAGE" = true ]; then
-            echo "Running on FreeDi image; driver installation skipped."
-        else
-            echo "$AIC_PKG is already installed – skipping."
-        fi
-    else
-        echo "Installing package $AIC_PKG..."
-        if [ ! -f "$AIC_DEB" ]; then
-            echo "${RED}Error: driver package $AIC_DEB not found.${RST}"
-            exit 1
-        fi
-        sudo dpkg -i "$AIC_DEB" || { echo "${RED}Error: dpkg failed.${RST}"; exit 1; }
-    fi
-    echo "WiFi setup for AIC8800DC finished."
-
-# AIC8800DC already in Wi-Fi mode  ---------------------------------
-elif [ -n "$device_info_aic_wifi" ]; then
-    echo "AIC8800DC detected in Wi-Fi mode."
-    vendor_id=$(echo "$device_info_aic_wifi" | awk '{print $6}' | cut -d: -f1)
-    product_id=$(echo "$device_info_aic_wifi" | awk '{print $6}' | cut -d: -f2)
-    echo "vendor_id: $vendor_id, product_id: $product_id"
-
-    # Install driver only if it is NOT already present (skip on FreeDi image as drivers are already included there)
-    if [ "$IS_FREEDI_IMAGE" = true ] || dpkg -s "$AIC_PKG" >/dev/null 2>&1; then
-        if [ "$IS_FREEDI_IMAGE" = true ]; then
-            echo "Running on FreeDi image; driver installation skipped."
-        else
-            echo "$AIC_PKG is already installed – skipping."
-        fi
-    else
-        echo "Installing package $AIC_PKG..."
-        if [ ! -f "$AIC_DEB" ]; then
-            echo "${RED}Error: driver package $AIC_DEB not found.${RST}"
-            exit 1
-        fi
-        sudo dpkg -i "$AIC_DEB" || { echo "${RED}Error: dpkg failed.${RST}"; exit 1; }
-    fi
-    echo "WiFi setup for AIC8800DC finished."
-
-# No supported device found  ---------------------------------------
 else
-    echo "No supported WiFi chip detected. Please make sure the dongle is connected."
+    echo "WiFi setup skipped, OS image already supports WiFi devices."
 fi
 
 
