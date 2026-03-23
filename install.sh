@@ -185,8 +185,9 @@ fi
 ################################################################################
 
 # Klipper installation check
-if [ ! -d "$KLIPPER_DIR" ]; then
-    dialog --stdout --title "Klipper not found" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "Klipper directory not found at:\n$KLIPPER_DIR\n\nShould Klipper installation via KIAUH be started?" 10 70
+# Check for klipper, moonraker and mainsail directories to determine if Klipper is installed correctly
+if [ -d "$KLIPPER_DIR" ] && [ -d "$MOONRAKER_DIR" ] && [ -d "$MAINSAIL_DIR" ]; then
+    dialog --stdout --title "Klipper installation missing" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "Klipper, Moonraker, and Mainsail directories not found.\n\nShould Klipper installation via KIAUH be started?" 10 70
     klipper_dialog_exit=$?
 
     if [ $klipper_dialog_exit -eq 0 ]; then
@@ -778,19 +779,15 @@ fi
 
 #check if crowsnest directory exists and ask if timlapse should be installed
 CROWSNEST_DIR="$USER_HOME_DIR/crowsnest"
-if [ -d "$CROWSNEST_DIR" ]; then
+TIMELAPSE_DIR="$USER_HOME_DIR/timelapse"
+if [ -d "$CROWSNEST_DIR" ] && [ ! -d "$TIMELAPSE_DIR" ]; then
     dialog --stdout --title "Crowsnest detected" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "Crowsnest directory detected at $CROWSNEST_DIR. Do you want to install the FreeDi timelapse module?" 10 70
     if [ $? -eq 0 ]; then
         echo "Installing timelapse module from git..."
         # Clone the timelapse into home directory
-        TIMELAPSE_DIR="$USER_HOME_DIR/timelapse"
-        if [ -d "$TIMELAPSE_DIR" ]; then
-            echo "Timelapse directory already exists at $TIMELAPSE_DIR. Skipping clone."
-        else
-            git clone https://github.com/mainsail-crew/moonraker-timelapse.git "$TIMELAPSE_DIR"
-            if [ $? -ne 0 ]; then
-                printf "%b\n" "${RED}Error: Failed to clone timelapse repository.${RST}"; exit 1
-            fi
+        git clone https://github.com/mainsail-crew/moonraker-timelapse.git "$TIMELAPSE_DIR"
+        if [ $? -ne 0 ]; then
+            printf "%b\n" "${RED}Error: Failed to clone timelapse repository.${RST}"; exit 1
         fi
         echo "Timelapse module installed at $TIMELAPSE_DIR."
         # execute make install for timelapse module
@@ -807,10 +804,9 @@ if [ -d "$CROWSNEST_DIR" ]; then
     else
         echo "Timelapse module installation skipped."
     fi
-else
-    echo "No Crowsnest directory detected. Skipping timelapse module installation."
+elif [ -d "$TIMELAPSE_DIR" ]; then
+    echo "Timelapse directory already exists at $TIMELAPSE_DIR. Skipping timelapse module installation."
 fi
-    
 
 echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
