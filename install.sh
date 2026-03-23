@@ -747,6 +747,16 @@ echo "AutoFlasher.service installed!"
 # FINALIZE INSTALLATION
 ################################################################################
 
+# copy files from config_section/generic to printer_data/config overwriting existing files
+if [ -d "${FREEDI_DIR}/config_section/generic" ]; then
+    echo "Copying generic config section files to printer_data/config..."
+    sudo cp -r "${FREEDI_DIR}/config_section/generic/." "$PRINTER_DATA_DIR/config/"
+    sudo chown -R "${USER_NAME}:${USER_GROUP}" "$PRINTER_DATA_DIR/config/"
+    echo "Generic config section files copied to printer_data/config."
+else
+    printf "%b\n" "${RED}Error: Source directory ${FREEDI_DIR}/config_section/generic does not exist. Aborting.${RST}"; exit 1
+fi
+
 # Check if crowsnest directory exists and ask if timelapse should be installed
 if [ -d "$CROWSNEST_DIR" ] && [ ! -d "$TIMELAPSE_DIR" ]; then
     dialog --stdout --title "Crowsnest detected" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "Crowsnest directory detected at $CROWSNEST_DIR. Do you want to install the moonraker timelapse module?" 10 70
@@ -764,6 +774,30 @@ if [ -d "$CROWSNEST_DIR" ] && [ ! -d "$TIMELAPSE_DIR" ]; then
             make -C "${TIMELAPSE_DIR}" install
             if [ $? -ne 0 ]; then
                 printf "%b\n" "${RED}Error: Failed to execute make install for timelapse module.${RST}"; exit 1
+            fi
+            # add timlapse update to moonraker update manager
+            echo "Adding timelapse update to moonraker update manager..."
+            if [ -f "${MOONRAKER_CONF}" ]; then
+                if grep -q "^\[update_manager timelapse\]" "${MOONRAKER_CONF}"; then
+                    echo "The section [update_manager timelapse] already exists in the file."
+                else
+                    echo "The section [update_manager timelapse] does not exist. Adding it to the end of the file."
+
+                    # Append the block to the end of the file
+                    cat <<EOL >> "${MOONRAKER_CONF}"
+# Timelapse module update_manager entry
+[update_manager timelapse]
+type: git_repo
+primary_branch: main
+path: ~/moonraker-timelapse
+origin: https://github.com/mainsail-crew/moonraker-timelapse.git
+managed_services: klipper moonraker
+EOL
+                    echo "The section [update_manager timelapse] has been added to the file."
+                fi
+            else
+                echo "File does not exist: ${MOONRAKER_CONF}"
+                exit 1
             fi
             echo "Timelapse module installed successfully!"
         else
@@ -800,16 +834,6 @@ if [ ! -f "$PRINTER_DATA_DIR/config/macros.cfg" ]; then
     sudo touch "$PRINTER_DATA_DIR/config/macros.cfg"
     sudo chown "${USER_NAME}:${USER_GROUP}" "$PRINTER_DATA_DIR/config/macros.cfg"
     echo "empty macros.cfg created at $PRINTER_DATA_DIR/config/macros.cfg."
-fi
-
-# copy files from config_section/generic to printer_data/config overwriting existing files
-if [ -d "${FREEDI_DIR}/config_section/generic" ]; then
-    echo "Copying generic config section files to printer_data/config..."
-    sudo cp -r "${FREEDI_DIR}/config_section/generic/." "$PRINTER_DATA_DIR/config/"
-    sudo chown -R "${USER_NAME}:${USER_GROUP}" "$PRINTER_DATA_DIR/config/"
-    echo "Generic config section files copied to printer_data/config."
-else
-    printf "%b\n" "${RED}Error: Source directory ${FREEDI_DIR}/config_section/generic does not exist. Aborting.${RST}"; exit 1
 fi
 
 echo "Reloading systemd manager configuration..."
