@@ -61,7 +61,7 @@ if [ "$SUPPORTED" = false ]; then
     printf "%b\n" "${RED}Error: Unsupported Python version $PY_VER. FreeDi only supports ${SUPPORTED_VERSIONS_JOINED}.${RST}"; exit 1
 fi
 
-# check for Qidi X-6 hardware (strip NULs) and match by pattern
+# check for proc to determine if we are running on a Qidi X-6 Armbian image
 DEVICE_MODEL="$(tr -d '\000' </proc/device-tree/model 2>/dev/null)"
 if [[ "$DEVICE_MODEL" == *"Qidi X-6"* ]]; then
     IS_FREEDI_IMAGE=true
@@ -75,15 +75,15 @@ fi
 # --assume-unchanged <file>
 #   • File no longer appears as “modified” → working tree stays clean.
 #   • Git MAY overwrite the file when the upstream branch changes it.
-#   • Good for: 
-#     local files that you have made temporary tweaks 
-#     **or** 
+#   • Good for:
+#     local files that you have made temporary tweaks
+#     **or**
 #     files that do not exist in the remote repository (e.g. a new local symlink).
 #
 # --skip-worktree <file>
 #   • File no longer appears as “modified” → working tree stays clean.
 #   • Git will NOT touch the file on pull/merge; local version is kept.
-#   • Good for: 
+#   • Good for:
 #     permanently replacing a tracked file with your own copy/symlink and ensuring upstream updates never overwrite it.
 #
 # .git/info/exclude   (local ignore file)
@@ -226,7 +226,7 @@ for MODULE_PATH in "${FREEDI_MODULES[@]}"; do
     if ln -sf "${REPO_MODULE_DIR}/${MODULE_PATH}" "${KLIPPER_EXTRAS_DIR}/${MODULE_NAME}"; then
         # Ensure the symlink belongs to the regular user, not root
         chown -h "${USER_NAME}:${USER_GROUP}" "${KLIPPER_EXTRAS_DIR}/${MODULE_NAME}"
-echo "Successfully installed ${MODULE_NAME} to ${KLIPPER_EXTRAS_DIR}."
+        echo "Successfully installed ${MODULE_NAME} to ${KLIPPER_EXTRAS_DIR}."
     else
         echo "Error: failed to create a symbolic link for ${MODULE_NAME}." >&2
         exit 1
@@ -258,7 +258,7 @@ fi
 # Ensure the Klipper extras directory exists
 if [ ! -d "$KLIPPER_EXTRAS_DIR" ]; then
     echo "Error: Klipper extras directory not found at $KLIPPER_EXTRAS_DIR."
-echo "Make sure Klipper is installed correctly."
+    echo "Make sure Klipper is installed correctly."
     exit 1
 fi
 
@@ -286,7 +286,6 @@ clean_repo() {
     # Determine the .git directory and build absolute path to info/exclude
     local git_dir
     git_dir="$(run_as_user git -C "$repo" rev-parse --git-dir)"
-    # <-- changed: use absolute path for exclude file
     local exclude_file="${repo}/${git_dir}/info/exclude"
     echo "Exclude file resolved to: $exclude_file"
 
@@ -321,13 +320,13 @@ clean_repo() {
                 if run_as_user git -C "$repo" update-index --assume-unchanged -- "$f"; then
                     echo -e "Git will now ignore local changes to ${f} (assume-unchanged)."
                 else
-                    printf "%b\n" "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"                
+                    printf "%b\n" "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"
                 fi
             else
                 if run_as_user git -C "$repo" update-index --skip-worktree -- "$f"; then
                     echo -e "Git will keep your local version of ${f} (skip-worktree)."
                 else
-                    printf "%b\n" "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"                
+                    printf "%b\n" "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"
                 fi
             fi
 
@@ -350,7 +349,7 @@ clean_repo() {
                 if printf '%s\n' "$f" | run_as_user tee -a "$exclude_file" >/dev/null; then
                     echo -e "Added ${f} to $(basename "$exclude_file") (untracked→exclude)."
                 else
-                    printf "%b\n" "${RED}Warning: failed to write ${f} to $(basename "$exclude_file").${RST}"                
+                    printf "%b\n" "${RED}Warning: failed to write ${f} to $(basename "$exclude_file").${RST}"
                 fi
             else
                 echo -e "${f} already listed in $(basename "$exclude_file") – skipping."
@@ -359,9 +358,6 @@ clean_repo() {
     done
 }
 
-
-
-
 # Apply git whitelist configuration
 echo "Configuring git repositories for clean working tree..."
 clean_repo "$FREEDI_DIR" pullable "${PULLABLE_FILES_FREEDI[@]}"
@@ -369,19 +365,16 @@ clean_repo "$FREEDI_DIR" blocked  "${BLOCKED_FILES_FREEDI[@]}"
 clean_repo "$KLIPPER_DIR" pullable "${PULLABLE_FILES_KLIPPER[@]}"
 clean_repo "$KLIPPER_DIR" blocked  "${BLOCKED_FILES_KLIPPER[@]}"
 
-
-
 # Restart Klipper to load the new module
 echo "Restarting Klipper service..."
 sudo systemctl restart klipper
 
 if [ $? -eq 0 ]; then
     echo "Klipper service restarted successfully."
-echo "Installation complete."
+    echo "Installation complete."
 else
     printf "%b\n" "${RED}Error: Failed to restart Klipper service.${RST}"; exit 1
 fi
-
 
 ################################################################################
 # STOCK MAINBOARD CONFIGURATION
@@ -473,7 +466,7 @@ echo "Setup the toolhead serial path in printer.cfg..."
 if [ -d "/dev/serial/by-id" ]; then
     # Find the first available serial devices that contain "usb-Klipper_rp2040" in the name
     path=$(ls /dev/serial/by-id/* | grep "usb-Klipper_rp2040" | head -n 1)
-    
+
     if [ -n "$path" ]; then
         echo "Found serial device: $path"
 
@@ -503,14 +496,14 @@ fi
 echo "Activating Klipper virtual environment and installing Python packages..."
 
 if [ ! -d "$KLIPPER_ENV" ]; then
-	printf "%b\n" "${RED}reKlippy env doesn't exist so I can't continue installation...${RST}"; exit 1
+    printf "%b\n" "${RED}reKlippy env doesn't exist so I can't continue installation...${RST}"; exit 1
 fi
 
 PYTHON_V=$($KLIPPER_VENV_PYTHON_BIN -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
 printf "%b\n" "${GRN}Klipper environment python version: $PYTHON_V${RST}"
 # Arrange Python requirements from requirements.txt
 echo "Arranging Python requirements..."
-"${KLIPPER_ENV}/bin/pip" install --upgrade pip 
+"${KLIPPER_ENV}/bin/pip" install --upgrade pip
 "${KLIPPER_ENV}/bin/pip" install -r "${FREEDI_DIR}/requirements.txt"
 if [ $? -ne 0 ]; then
     printf "%b\n" "${RED}Failed to install Python requirements.${RST}"; exit 1
@@ -526,16 +519,16 @@ echo "Adding FreeDi section to moonraker update manager..."
 
 # Check if the file exists
 if [ -f "${MOONRAKER_CONF}" ]; then
-	echo "Moonraker configuration file ${MOONRAKER_CONF} found"
-	
-	# Check if the section [update_manager FreeDi] exists
-	if grep -q "^\[update_manager FreeDi\]" "${MOONRAKER_CONF}"; then
-		echo "The section [update_manager FreeDi] already exists in the file."
-	else
-		echo "The section [update_manager FreeDi] does not exist. Adding it to the end of the file."
-		
-		# Append the block to the end of the file
-		cat <<EOL >> "${MOONRAKER_CONF}"
+    echo "Moonraker configuration file ${MOONRAKER_CONF} found"
+
+    # Check if the section [update_manager FreeDi] exists
+    if grep -q "^\[update_manager FreeDi\]" "${MOONRAKER_CONF}"; then
+        echo "The section [update_manager FreeDi] already exists in the file."
+    else
+        echo "The section [update_manager FreeDi] does not exist. Adding it to the end of the file."
+
+        # Append the block to the end of the file
+        cat <<EOL >> "${MOONRAKER_CONF}"
 # FreeDi update_manager entry
 [update_manager FreeDi]
 type: git_repo
@@ -552,11 +545,11 @@ info_tags:
 	- screen_firmwares
 EOL
 
-		echo "The section [update_manager FreeDi] has been added to the file."
-	fi
+        echo "The section [update_manager FreeDi] has been added to the file."
+    fi
 else
-	echo "File does not exist: ${MOONRAKER_CONF}"
-	exit 1
+    echo "File does not exist: ${MOONRAKER_CONF}"
+    exit 1
 fi
 
 # Permit Moonraker to restart FreeDi service
@@ -570,7 +563,7 @@ if [ -f "${MOONRAKER_ASVC}" ]; then
     else
         # Append "FreeDi" to the end of the file
         echo "FreeDi" >> "${MOONRAKER_ASVC}"
-echo "\"FreeDi\" has been added to the moonraker.asvc file."
+        echo "\"FreeDi\" has been added to the moonraker.asvc file."
     fi
 else
     echo "moonraker.asvc file not found: ${MOONRAKER_ASVC}"
@@ -594,14 +587,14 @@ sudo usermod -aG netdev "${USER_NAME}"
 # Check if the auth-polkit line already exists in the config file
 # Add the auth-polkit=false line after plugins=ifupdown,keyfile in the [main] section
 if grep -q '^\[main\]' "$NETWORK_MANAGER_CONF_FILE"; then
-	if ! grep -q '^auth-polkit=false' "$NETWORK_MANAGER_CONF_FILE"; then
-		echo "Adding 'auth-polkit=false' to ${NETWORK_MANAGER_CONF_FILE}..."
-		sudo sed -i '/^plugins=ifupdown,keyfile/a auth-polkit=false' "$NETWORK_MANAGER_CONF_FILE"
-	else
-		echo "'auth-polkit=false' is already present in ${NETWORK_MANAGER_CONF_FILE}."
-	fi
+    if ! grep -q '^auth-polkit=false' "$NETWORK_MANAGER_CONF_FILE"; then
+        echo "Adding 'auth-polkit=false' to ${NETWORK_MANAGER_CONF_FILE}..."
+        sudo sed -i '/^plugins=ifupdown,keyfile/a auth-polkit=false' "$NETWORK_MANAGER_CONF_FILE"
+    else
+        echo "'auth-polkit=false' is already present in ${NETWORK_MANAGER_CONF_FILE}."
+    fi
 else
-	echo "The [main] section was not found in ${NETWORK_MANAGER_CONF_FILE}."
+    echo "The [main] section was not found in ${NETWORK_MANAGER_CONF_FILE}."
 fi
 
 # Display information
@@ -777,7 +770,7 @@ if [ -d "$KIAUH_BACKUP_DIR" ]; then
     fi
 fi
 
-#check if crowsnest directory exists and ask if timlapse should be installed
+# Check if crowsnest directory exists and ask if timelapse should be installed
 CROWSNEST_DIR="$USER_HOME_DIR/crowsnest"
 TIMELAPSE_DIR="$USER_HOME_DIR/timelapse"
 if [ -d "$CROWSNEST_DIR" ] && [ ! -d "$TIMELAPSE_DIR" ]; then
