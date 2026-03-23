@@ -801,6 +801,31 @@ elif [ -d "$TIMELAPSE_DIR" ]; then
     echo "Timelapse directory already exists at $TIMELAPSE_DIR. Skipping timelapse module installation."
 fi
 
+# touch printer_data/config/macros.cfg to prevent potential permission issues
+if [ ! -f "$PRINTER_DATA_DIR/config/macros.cfg" ]; then
+    sudo touch "$PRINTER_DATA_DIR/config/macros.cfg"
+    sudo chown "${USER_NAME}:${USER_GROUP}" "$PRINTER_DATA_DIR/config/macros.cfg"
+    echo "empty macros.cfg created at $PRINTER_DATA_DIR/config/macros.cfg."
+fi
+
+# copy files from config_section/generic to printer_data/config if they don't exist
+GENERIC_CONFIG_DIR="${FREEDI_DIR}/config_section/generic"
+if [ -d "$GENERIC_CONFIG_DIR" ]; then
+    for file in "$GENERIC_CONFIG_DIR"/*; do
+        filename=$(basename "$file")
+        target_file="$PRINTER_DATA_DIR/config/$filename"
+        if [ ! -f "$target_file" ]; then
+            sudo cp "$file" "$target_file"
+            sudo chown "${USER_NAME}:${USER_GROUP}" "$target_file"
+            echo "Copied $filename to printer config directory."
+        else
+            echo "File $filename already exists in printer config directory. Skipping copy."
+        fi
+    done
+else
+    printf "%b\n" "${RED}Error: Generic config directory not found at $GENERIC_CONFIG_DIR. Skipping generic config file setup.${RST}"
+fi
+
 echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
 echo "systemd manager configuration reloaded."
