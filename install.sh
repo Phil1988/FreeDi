@@ -186,8 +186,8 @@ fi
 
 # Klipper installation check
 # Check for klipper, moonraker and mainsail directories to determine if Klipper is installed correctly
-if [ -d "$KLIPPER_DIR" ] && [ -d "$MOONRAKER_DIR" ] && [ -d "$MAINSAIL_DIR" ]; then
-    dialog --stdout --title "Klipper installation missing" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "Klipper, Moonraker, and Mainsail directories not found.\n\nShould Klipper installation via KIAUH be started?" 10 70
+if [ ! -d "$KLIPPER_DIR" ] || [ ! -d "$MOONRAKER_DIR" ] || [ ! -d "$MAINSAIL_DIR" ]; then
+    dialog --stdout --title "Klipper installation missing" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "One or more required modules are missing (Klipper, Moonraker, Mainsail).\n\nShould Klipper installation via KIAUH be started?" 10 70
     klipper_dialog_exit=$?
 
     if [ $klipper_dialog_exit -eq 0 ]; then
