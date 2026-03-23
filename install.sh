@@ -818,8 +818,16 @@ echo "systemd manager configuration reloaded."
 echo "Starting FreeDi service..."
 sudo systemctl start FreeDi.service
 echo "FreeDi service started!"
-echo ""
-echo "=================================================================================="
-printf "%b\n" "${GRN}Setup complete!${RST}"
-printf "%b\n" "${YLW}Please restart your system for the changes to take effect.${RST}"
-echo "=================================================================================="
+delay 3
+dialog --stdout --title "Reboot required" --backtitle "FreeDi installation" \
+       --yes-label "Reboot now" --no-label "Reboot later" \
+       --yesno "Installation complete!\n\nA reboot is required for all changes to take effect.\n\nReboot now?" 9 60
+if [ $? -eq 0 ]; then
+    echo "Rebooting system..."
+    sudo reboot
+else
+    echo "=================================================================================="
+    printf "%b\n" "${GRN}Setup complete!${RST}"
+    printf "%b\n" "${YLW}Please reboot your system manually for the changes to take effect.${RST}"
+    echo "=================================================================================="
+fi
