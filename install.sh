@@ -122,14 +122,10 @@ PULLABLE_FILES_KLIPPER=(
 
 BLOCKED_FILES_KLIPPER=()
 
-
-
 # Abort if the script is executed with sudo/root
 if [ "$EUID" -eq 0 ] || [ -n "$SUDO_USER" ]; then
     printf "%b\n" "${RED}Error: Do NOT run this script with sudo or as root. Execute it as a regular user.${RST}"; exit 1
 fi
-
-
 
 # Ask for mainboard type
 dialog --stdout --title "Mainboard type" --backtitle "FreeDi installation" --yesno "Do you use the stock mainboard?" 7 60
@@ -187,7 +183,7 @@ fi
 # Klipper installation check
 # Check for klipper, moonraker and mainsail directories to determine if Klipper is installed correctly
 if [ ! -d "$KLIPPER_DIR" ] || [ ! -d "$MOONRAKER_DIR" ] || [ ! -d "$MAINSAIL_DIR" ]; then
-    dialog --stdout --title "Klipper installation missing" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "One or more required modules are missing (Klipper, Moonraker, Mainsail).\n\nShould Klipper installation via KIAUH be started?" 10 70
+    dialog --stdout --title "Klipper installation missing" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "One or more required modules are missing (Klipper, Moonraker, Mainsail).\n\nShould Klipper installation via KIAUH be started?\n\nPlease install Klipper, Moonraker, Mainsail and Crowsnest." 10 70
     klipper_dialog_exit=$?
 
     if [ $klipper_dialog_exit -eq 0 ]; then
@@ -751,28 +747,7 @@ echo "AutoFlasher.service installed!"
 # FINALIZE INSTALLATION
 ################################################################################
 
-#remove kiauh directory if it was created during this installation
-if [ -d "$KIAUH_DIR" ]; then
-    echo "Removing KIAUH directory at $KIAUH_DIR..."
-    rm -rf "$KIAUH_DIR"
-    if [ $? -ne 0 ]; then
-        printf "%b\n" "${RED}Error: Failed to remove KIAUH directory at $KIAUH_DIR. Please remove it manually.${RST}"; exit 1
-    fi
-fi
-
-#remove kiauh_backups directory if it was created during this installation
-KIAUH_BACKUP_DIR="$USER_HOME_DIR/kiauh_backups"
-if [ -d "$KIAUH_BACKUP_DIR" ]; then
-    echo "Removing KIAUH backup directory at $KIAUH_BACKUP_DIR..."
-    rm -rf "$KIAUH_BACKUP_DIR"
-    if [ $? -ne 0 ]; then
-        printf "%b\n" "${RED}Error: Failed to remove KIAUH backup directory at $KIAUH_BACKUP_DIR. Please remove it manually.${RST}"; exit 1
-    fi
-fi
-
 # Check if crowsnest directory exists and ask if timelapse should be installed
-CROWSNEST_DIR="$USER_HOME_DIR/crowsnest"
-TIMELAPSE_DIR="$USER_HOME_DIR/timelapse"
 if [ -d "$CROWSNEST_DIR" ] && [ ! -d "$TIMELAPSE_DIR" ]; then
     dialog --stdout --title "Crowsnest detected" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "Crowsnest directory detected at $CROWSNEST_DIR. Do you want to install the FreeDi timelapse module?" 10 70
     if [ $? -eq 0 ]; then
@@ -801,6 +776,25 @@ elif [ -d "$TIMELAPSE_DIR" ]; then
     echo "Timelapse directory already exists at $TIMELAPSE_DIR. Skipping timelapse module installation."
 fi
 
+#remove kiauh directory if it was created during this installation
+if [ -d "$KIAUH_DIR" ]; then
+    echo "Removing KIAUH directory at $KIAUH_DIR..."
+    rm -rf "$KIAUH_DIR"
+    if [ $? -ne 0 ]; then
+        printf "%b\n" "${RED}Error: Failed to remove KIAUH directory at $KIAUH_DIR. Please remove it manually.${RST}"; exit 1
+    fi
+fi
+
+#remove kiauh_backups directory if it was created during this installation
+KIAUH_BACKUP_DIR="$USER_HOME_DIR/kiauh_backups"
+if [ -d "$KIAUH_BACKUP_DIR" ]; then
+    echo "Removing KIAUH backup directory at $KIAUH_BACKUP_DIR..."
+    rm -rf "$KIAUH_BACKUP_DIR"
+    if [ $? -ne 0 ]; then
+        printf "%b\n" "${RED}Error: Failed to remove KIAUH backup directory at $KIAUH_BACKUP_DIR. Please remove it manually.${RST}"; exit 1
+    fi
+fi
+
 # touch printer_data/config/macros.cfg to prevent potential permission issues
 if [ ! -f "$PRINTER_DATA_DIR/config/macros.cfg" ]; then
     sudo touch "$PRINTER_DATA_DIR/config/macros.cfg"
@@ -817,7 +811,6 @@ if [ -d "${FREEDI_DIR}/config_section/generic" ]; then
 else
     printf "%b\n" "${RED}Error: Source directory ${FREEDI_DIR}/config_section/generic does not exist. Aborting.${RST}"; exit 1
 fi
-
 
 echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
