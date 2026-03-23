@@ -3,7 +3,7 @@
 # FreeDi Installation Script
 # Installs FreeDi modules, configures services, and sets up hardware dependencies
 #
-# Usage: ./install.sh
+# Usage: ./install.sh [--image-build]
 # Note: Do NOT run with sudo or as root - execute as a regular user
 #
 
@@ -23,6 +23,21 @@ USER_NAME=$(id -un)
 USER_GROUP=$(id -gn)
 USER_HOME_DIR=$(eval echo "~$USER_NAME")
 FREEDI_DIR="$( cd -- "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd -P )"
+
+# Command-line options
+IMAGE_BUILD=false
+for arg in "$@"; do
+    case "$arg" in
+        --image-build)
+            IMAGE_BUILD=true
+            ;;
+        *)
+            printf "%b\n" "${RED}Error: Unknown argument '$arg'.${RST}"
+            echo "Usage: ./install.sh [--image-build]"
+            exit 1
+            ;;
+    esac
+done
 
 # Source configuration from separate config file
 source "${FREEDI_DIR}/install/freedi_install.conf"
@@ -540,7 +555,7 @@ info_tags:
     sparse_dirs:
     - FreeDiLCD
     - screen_firmwares
-    
+
 EOL
         echo "The section [update_manager FreeDi] has been added to the file."
     fi
@@ -839,23 +854,55 @@ if [ ! -f "$PRINTER_DATA_DIR/config/macros.cfg" ]; then
     echo "empty macros.cfg created at $PRINTER_DATA_DIR/config/macros.cfg."
 fi
 
+#remove moonraker.conf.backup if it was created during this installation
+MOONRAKER_CONF_BACKUP="${MOONRAKER_CONF}.backup"
+if [ -f "$MOONRAKER_CONF_BACKUP" ]; then
+    echo "Removing Moonraker configuration backup file at $MOONRAKER_CONF_BACKUP..."
+    rm -f "$MOONRAKER_CONF_BACKUP"
+    if [ $? -ne 0 ]; then
+        printf "%b\n" "${RED}Error: Failed to remove Moonraker configuration backup file at $MOONRAKER_CONF_BACKUP. Please remove it manually.${RST}"; exit 1
+    fi
+fi
+
 echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
 echo "systemd manager configuration reloaded."
 echo "Starting FreeDi service..."
 sudo systemctl start FreeDi.service
 echo "FreeDi service started!"
-delay 3
-dialog --stdout --title "Reboot required" --backtitle "FreeDi installation" \
-       --yes-label "Reboot now" --no-label "Reboot later" \
-       --yesno "Installation complete!\n\nA reboot is required for all changes to take effect.\n\nReboot now?" 9 60
-if [ $? -eq 0 ]; then
-    echo "Rebooting system..."
-    sudo reboot
+if [ "$IMAGE_BUILD" = true ]; then
+    echo "Image build mode enabled:"
+    # clear machine-id to prevent conflicts when flashing the image to multiple devices
+    echo "Clearing /etc/machine-id..."
+    : | sudo tee /etc/machine-id >/dev/null
+    if [ $? -ne 0 ]; then
+        printf "%b\n" "${RED}Error: Failed to clear /etc/machine-id.${RST}"; exit 1
+    fi
+    # change sshd config to prevent root login via ssh and show last login info
+    echo "Configuring sshd for image build..."
+    SSHD_CONFIG="/etc/ssh/sshd_config"
+    if [ -f "$SSHD_CONFIG" ]; then
+        sudo sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin no/' "$SSHD_CONFIG"
+        sudo sed -i 's/^#\?PrintLastLog.*/PrintLastLog yes/' "$SSHD_CONFIG"
+        echo "sshd configuration updated for image build."
+    else
+        printf "%b\n" "${RED}Error: sshd_config file not found at $SSHD_CONFIG. Aborting.${RST}"; exit 1
+    fi
+
+    echo "Halting system for image build finalization..."
+    sudo halt
 else
-    clear
-    echo "=================================================================================="
-    printf "%b\n" "${GRN}Setup complete!${RST}"
-    printf "%b\n" "${YLW}Please reboot your system manually for the changes to take effect.${RST}"
-    echo "=================================================================================="
+    dialog --stdout --title "Reboot required" --backtitle "FreeDi installation" \
+           --yes-label "Reboot now" --no-label "Reboot later" \
+           --yesno "Installation complete!\n\nA reboot is required for all changes to take effect.\n\nReboot now?" 9 60
+    if [ $? -eq 0 ]; then
+        echo "Rebooting system..."
+        sudo reboot
+    else
+        clear
+        echo "=================================================================================="
+        printf "%b\n" "${GRN}Setup complete!${RST}"
+        printf "%b\n" "${YLW}Please reboot your system manually for the changes to take effect.${RST}"
+        echo "=================================================================================="
+    fi
 fi
