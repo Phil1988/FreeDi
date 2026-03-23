@@ -33,7 +33,7 @@ if [ -f /etc/os-release ]; then
     OS_CODENAME="$VERSION_CODENAME"
 else
     printf "%b\n" "${RED}Cannot determine OS codename. Exiting.${RST}"
-echo "Make sure you are running an Armbian-based distribution and that the /etc/os-release file exists."
+    echo "Make sure you are running an Armbian-based distribution and that the /etc/os-release file exists."
     exit 1
 fi
 
@@ -332,8 +332,10 @@ echo "Exclude file resolved to: $exclude_file"
             if [ "$dirty_pre" = true ]; then
                 printf "%b\n" "${YLW}Cleaning index / working tree for ${f}...${RST}"                run_as_user git -C "$repo" update-index --really-refresh -q -- "$f"
                 if run_as_user git -C "$repo" status --porcelain -- "$f" | grep -q .; then
-                    printf "%b\n" "${RED}Index still reports changes for ${f}!${RST}"                else
-                    printf "%b\n" "${YLW}Index cleaned for ${f}.${RST}"                fi
+                    printf "%b\n" "${RED}Index still reports changes for ${f}!${RST}"
+                else
+                    printf "%b\n" "${YLW}Index cleaned for ${f}.${RST}"
+                fi
             fi
 
         # ------------------------------------------------------------------
@@ -344,7 +346,8 @@ echo "Exclude file resolved to: $exclude_file"
                 if printf '%s\n' "$f" | run_as_user tee -a "$exclude_file" >/dev/null; then
                     echo -e "Added ${f} to $(basename "$exclude_file") (untracked→exclude)."
                 else
-                    printf "%b\n" "${RED}Warning: failed to write ${f} to $(basename "$exclude_file").${RST}"                fi
+                    printf "%b\n" "${RED}Warning: failed to write ${f} to $(basename "$exclude_file").${RST}"                
+                fi
             else
                 echo -e "${f} already listed in $(basename "$exclude_file") – skipping."
             fi
@@ -423,7 +426,7 @@ if [ "$STOCK_MAINBOARD" = true ]; then
             sudo sed -i "s/^$SEARCH_STRING_OVERLAYS.*/$NEW_LINE_OVERLAYS/" "$ARMBIAN_ENV_FILE"
         else
             echo "Overlays line not found. Adding the line."
-echo "$NEW_LINE_OVERLAYS" | sudo tee -a "$ARMBIAN_ENV_FILE" > /dev/null
+            echo "$NEW_LINE_OVERLAYS" | sudo tee -a "$ARMBIAN_ENV_FILE" > /dev/null
         fi
     fi
 
@@ -433,7 +436,7 @@ echo "$NEW_LINE_OVERLAYS" | sudo tee -a "$ARMBIAN_ENV_FILE" > /dev/null
         sudo sed -i "s/^$SEARCH_STRING_CONSOLE.*/$NEW_LINE_CONSOLE/" "$ARMBIAN_ENV_FILE"
     else
         echo "Console line not found. Adding the line."
-echo "$NEW_LINE_CONSOLE" | sudo tee -a "$ARMBIAN_ENV_FILE" > /dev/null
+        echo "$NEW_LINE_CONSOLE" | sudo tee -a "$ARMBIAN_ENV_FILE" > /dev/null
     fi
 
 
@@ -445,16 +448,15 @@ echo "$NEW_LINE_CONSOLE" | sudo tee -a "$ARMBIAN_ENV_FILE" > /dev/null
     echo "Creating udev rules for ttyS2..."
     echo 'KERNEL=="ttyS2",MODE="0660"' | sudo tee /etc/udev/rules.d/99-ttyS2.rules > /dev/null
     echo "udev rule for ttyS2 created."
-echo "Masking serial-getty service for ttyS2..."
+    echo "Masking serial-getty service for ttyS2..."
     sudo systemctl mask serial-getty@ttyS2.service
     echo "serial-getty service for ttyS2 masked."
-echo "Reloading udev rules..."
+    echo "Reloading udev rules..."
     sudo udevadm control --reload-rules
     echo "udev rules reloaded."
-echo "Triggering udev events..."
+    echo "Triggering udev events..."
     sudo udevadm trigger
     echo "udev events triggered."
-
 fi   # end of stock mainboard section
 
 ################################################################################
@@ -477,14 +479,16 @@ if [ -d "/dev/serial/by-id" ]; then
 
             # Use sed to update the serial line only within the [mcu Toolhead] section
             sudo sed -i "/\[mcu Toolhead\]/,/^\[/ {s|^serial:.*|serial: ${path}|}" "$PRINTER_CONFIG"
-echo "Updated serial path for the toolhead in $PRINTER_CONFIG"
+            echo "Updated serial path for the toolhead in $PRINTER_CONFIG"
         else
-            printf "%b\n" "${RED}Error: $PRINTER_CONFIG not found!${RST}"        fi
+            printf "%b\n" "${RED}Error: $PRINTER_CONFIG not found!${RST}"
+        fi
     else
         echo "No serial device found in /dev/serial/by-id."
     fi
 else
-    printf "%b\n" "${RED}Error: no serial devices found in /dev/serial/by-id${RST}"fi
+    printf "%b\n" "${RED}Error: no serial devices found in /dev/serial/by-id${RST}"
+fi
 
 
 ################################################################################
@@ -528,8 +532,6 @@ if [ -f "${MOONRAKER_CONF}" ]; then
 		
 		# Append the block to the end of the file
 		cat <<EOL >> "${MOONRAKER_CONF}"
-
-
 # FreeDi update_manager entry
 [update_manager FreeDi]
 type: git_repo
