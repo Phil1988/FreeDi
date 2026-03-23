@@ -826,6 +826,7 @@ if [ $? -eq 0 ]; then
     echo "Rebooting system..."
     sudo reboot
 else
+    clear
     echo "=================================================================================="
     printf "%b\n" "${GRN}Setup complete!${RST}"
     printf "%b\n" "${YLW}Please reboot your system manually for the changes to take effect.${RST}"
