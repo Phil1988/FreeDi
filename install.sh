@@ -526,6 +526,7 @@ if [ -f "${MOONRAKER_CONF}" ]; then
         # Append the block to the end of the file
         cat <<EOL >> "${MOONRAKER_CONF}"
 # FreeDi update_manager entry
+
 [update_manager FreeDi]
 type: git_repo
 path: ~/FreeDi
@@ -539,8 +540,8 @@ info_tags:
 	sparse_dirs:
 	- FreeDiLCD
 	- screen_firmwares
-EOL
 
+EOL
         echo "The section [update_manager FreeDi] has been added to the file."
     fi
 else
@@ -785,7 +786,9 @@ if [ -d "$CROWSNEST_DIR" ] && [ ! -d "$TIMELAPSE_DIR" ]; then
 
                     # Append the block to the end of the file
                     cat <<EOL >> "${MOONRAKER_CONF}"
+
 # Timelapse module update_manager entry
+
 [update_manager timelapse]
 type: git_repo
 primary_branch: main
