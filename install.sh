@@ -141,7 +141,25 @@ if [ $dialog_exit -eq 0 ]; then
     clear
     sleep 1
     echo "Starting the installation for stock mainboard..."
-    sudo dpkg -i "${FREEDI_DIR}/helpers/freedi-prerequisites-1.0-all.deb"
+    PREREQ_DEB="${FREEDI_DIR}/helpers/freedi-prerequisites-1.0-all.deb"
+
+    if [ ! -f "$PREREQ_DEB" ]; then
+        printf "%b\n" "${RED}Error: Required package file not found at $PREREQ_DEB.${RST}"; exit 1
+    fi
+
+    PREREQ_PKG="$(dpkg-deb -f "$PREREQ_DEB" Package 2>/dev/null)"
+    if [ -z "$PREREQ_PKG" ]; then
+        printf "%b\n" "${RED}Error: Could not determine package name from $PREREQ_DEB.${RST}"; exit 1
+    fi
+
+    if dpkg-query -W -f='${Status}' "$PREREQ_PKG" 2>/dev/null | grep -q "install ok installed"; then
+        echo "Package $PREREQ_PKG is already installed. Skipping installation."
+    else
+        sudo dpkg -i "$PREREQ_DEB"
+        if [ $? -ne 0 ]; then
+            printf "%b\n" "${RED}Error: Failed to install package $PREREQ_PKG.${RST}"; exit 1
+        fi
+    fi
 elif [ $dialog_exit -eq 1 ]; then
     # User selected "No"
     STOCK_MAINBOARD=false
@@ -172,9 +190,23 @@ if [ ! -d "$KLIPPER_DIR" ]; then
     klipper_dialog_exit=$?
 
     if [ $klipper_dialog_exit -eq 0 ]; then
-        echo "[DUMMY] Starting Klipper installation via KIAUH..."
-        exit 0
+        clear
+        echo "Starting Klipper installation via KIAUH..."
+        # Clone KIAUH installer
+        KIAUH_DIR="$(USER_HOME_DIR)/kiauh"
+        if [ -d "$KIAUH_DIR" ]; then
+            echo "KIAUH directory already exists at $KIAUH_DIR. Skipping clone."
+        else
+            git clone https://github.com/dw-0/kiauh.git "$KIAUH_DIR"
+            if [ $? -ne 0 ]; then
+                printf "%b\n" "${RED}Error: Failed to clone KIAUH repository.${RST}"; exit 1
+            fi
+            clear
+            # Run KIAUH installer
+            bash "$KIAUH_DIR/kiauh.sh"
+        fi
     else
+        clear
         printf "%b\n" "${RED}Error: Klipper directory not found at $KLIPPER_DIR. Please install Klipper first.${RST}"; exit 1
     fi
 fi
