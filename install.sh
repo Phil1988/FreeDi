@@ -32,19 +32,17 @@ if [ -f /etc/os-release ]; then
     . /etc/os-release
     OS_CODENAME="$VERSION_CODENAME"
 else
-    echo "${RED}Cannot determine OS codename. Exiting.${RST}"
-    echo "Make sure you are running an Armbian-based distribution and that the /etc/os-release file exists."
+    printf "%b\n" "${RED}Cannot determine OS codename. Exiting.${RST}"
+echo "Make sure you are running an Armbian-based distribution and that the /etc/os-release file exists."
     exit 1
 fi
 
 # ensure python3 exists and check exact supported versions
 PY_VER=$(python3 -c 'import sys; printf = "%d.%d"; print(printf % (sys.version_info.major, sys.version_info.minor))' 2>/dev/null)
 if [ $? -ne 0 ] || [ -z "$PY_VER" ]; then
-    echo "${RED}Error: python3 is not installed or not working. FreeDi requires Python ${SUPPORTED_VERSIONS_JOINED}.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: python3 is not installed or not working. FreeDi requires Python ${SUPPORTED_VERSIONS_JOINED}.${RST}"; exit 1
 fi
-echo "${GRN}Detected Python version: $PY_VER${RST}"
-
+printf "%b\n" "${GRN}Detected Python version: $PY_VER${RST}"
 # Check if detected version is supported
 HAS_PYTHON_313=false
 SUPPORTED=false
@@ -60,8 +58,7 @@ for version in "${SUPPORTED_PYTHON_VERSIONS[@]}"; do
 done
 
 if [ "$SUPPORTED" = false ]; then
-    echo "${RED}Error: Unsupported Python version $PY_VER. FreeDi only supports ${SUPPORTED_VERSIONS_JOINED}.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Unsupported Python version $PY_VER. FreeDi only supports ${SUPPORTED_VERSIONS_JOINED}.${RST}"; exit 1
 fi
 
 # check for Qidi X-6 hardware (strip NULs) and match by pattern
@@ -129,8 +126,7 @@ BLOCKED_FILES_KLIPPER=()
 
 # Abort if the script is executed with sudo/root
 if [ "$EUID" -eq 0 ] || [ -n "$SUDO_USER" ]; then
-    echo -e "${RED}Error: Do NOT run this script with sudo or as root. Execute it as a regular user.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Do NOT run this script with sudo or as root. Execute it as a regular user.${RST}"; exit 1
 fi
 
 
@@ -158,13 +154,11 @@ elif [ $dialog_exit -eq 1 ]; then
     if [ $? -ne 0 ]; then
         # User selected Abort
         clear
-        echo -e "${RED}Installation cancelled by user.${RST}"
-        exit 1
+        printf "%b\n" "${RED}Installation cancelled by user.${RST}"; exit 1
     fi
 else
     # User cancelled or closed the dialog (typically CTRL+C or ESC)
-    echo -e "${RED}Installation cancelled by user.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Installation cancelled by user.${RST}"; exit 1
 fi
 
 
@@ -174,8 +168,7 @@ fi
 
 # Klipper installation check
 if [ ! -d "$KLIPPER_DIR" ]; then
-    echo "${RED}Error: Klipper directory not found at $KLIPPER_DIR. Please install Klipper first.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Klipper directory not found at $KLIPPER_DIR. Please install Klipper first.${RST}"; exit 1
 fi
 
 # Create a symbolic links for needed modules to the Klipper extras directory
@@ -192,7 +185,7 @@ for MODULE_PATH in "${FREEDI_MODULES[@]}"; do
     if ln -sf "${REPO_MODULE_DIR}/${MODULE_PATH}" "${KLIPPER_EXTRAS_DIR}/${MODULE_NAME}"; then
         # Ensure the symlink belongs to the regular user, not root
         chown -h "${USER_NAME}:${USER_GROUP}" "${KLIPPER_EXTRAS_DIR}/${MODULE_NAME}"
-        echo "Successfully installed ${MODULE_NAME} to ${KLIPPER_EXTRAS_DIR}."
+echo "Successfully installed ${MODULE_NAME} to ${KLIPPER_EXTRAS_DIR}."
     else
         echo "Error: failed to create a symbolic link for ${MODULE_NAME}." >&2
         exit 1
@@ -208,8 +201,7 @@ if [ -f "${FREEDI_DIR}/install/packages.sh" ]; then
     # shellcheck source=/dev/null
     . "${FREEDI_DIR}/install/packages.sh"
 else
-    echo "${RED}Error: Package installation script not found at ${FREEDI_DIR}/install/packages.sh${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Package installation script not found at ${FREEDI_DIR}/install/packages.sh${RST}"; exit 1
 fi
 
 ################################################################################
@@ -225,7 +217,7 @@ fi
 # Ensure the Klipper extras directory exists
 if [ ! -d "$KLIPPER_EXTRAS_DIR" ]; then
     echo "Error: Klipper extras directory not found at $KLIPPER_EXTRAS_DIR."
-    echo "Make sure Klipper is installed correctly."
+echo "Make sure Klipper is installed correctly."
     exit 1
 fi
 
@@ -255,7 +247,7 @@ clean_repo() {
     git_dir="$(run_as_user git -C "$repo" rev-parse --git-dir)"
     # <-- changed: use absolute path for exclude file
     local exclude_file="${repo}/${git_dir}/info/exclude"
-    echo "Exclude file resolved to: $exclude_file"
+echo "Exclude file resolved to: $exclude_file"
 
     # Ensure the exclude file exists
     run_as_user mkdir -p "$(dirname "$exclude_file")"
@@ -268,8 +260,7 @@ clean_repo() {
 
         # Warn if file/symlink is missing in working tree
         if [ ! -e "$full_path" ]; then
-            echo -e "${YLW}Notice: ${f} does not exist in working tree – index/ignore rules are still applied.${RST}"
-        fi
+            printf "%b\n" "${YLW}Notice: ${f} does not exist in working tree – index/ignore rules are still applied.${RST}"        fi
 
         # ------------------------------------------------------------------
         # CASE 1 : tracked file or type-change
@@ -280,33 +271,27 @@ clean_repo() {
             # Check if this file has changes already
             local dirty_pre=false
             if [ -n "$st" ]; then
-                echo -e "${YLW}Detected changes for ${f} in index / working tree (causes dirty repo).${RST}"
-                dirty_pre=true
+                printf "%b\n" "${YLW}Detected changes for ${f} in index / working tree (causes dirty repo).${RST}"                dirty_pre=true
             fi
 
             if [[ "$mode" == "pullable" ]]; then
                 if run_as_user git -C "$repo" update-index --assume-unchanged -- "$f"; then
                     echo -e "Git will now ignore local changes to ${f} (assume-unchanged)."
                 else
-                    echo -e "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"
-                fi
+                    printf "%b\n" "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"                fi
             else
                 if run_as_user git -C "$repo" update-index --skip-worktree -- "$f"; then
                     echo -e "Git will keep your local version of ${f} (skip-worktree)."
                 else
-                    echo -e "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"
-                fi
+                    printf "%b\n" "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"                fi
             fi
 
             # If it was dirty, refresh index to clear existing change
             if [ "$dirty_pre" = true ]; then
-                echo -e "${YLW}Cleaning index / working tree for ${f}...${RST}"
-                run_as_user git -C "$repo" update-index --really-refresh -q -- "$f"
+                printf "%b\n" "${YLW}Cleaning index / working tree for ${f}...${RST}"                run_as_user git -C "$repo" update-index --really-refresh -q -- "$f"
                 if run_as_user git -C "$repo" status --porcelain -- "$f" | grep -q .; then
-                    echo -e "${RED}Index still reports changes for ${f}!${RST}"
-                else
-                    echo -e "${YLW}Index cleaned for ${f}.${RST}"
-                fi
+                    printf "%b\n" "${RED}Index still reports changes for ${f}!${RST}"                else
+                    printf "%b\n" "${YLW}Index cleaned for ${f}.${RST}"                fi
             fi
 
         # ------------------------------------------------------------------
@@ -317,8 +302,7 @@ clean_repo() {
                 if printf '%s\n' "$f" | run_as_user tee -a "$exclude_file" >/dev/null; then
                     echo -e "Added ${f} to $(basename "$exclude_file") (untracked→exclude)."
                 else
-                    echo -e "${RED}Warning: failed to write ${f} to $(basename "$exclude_file").${RST}"
-                fi
+                    printf "%b\n" "${RED}Warning: failed to write ${f} to $(basename "$exclude_file").${RST}"                fi
             else
                 echo -e "${f} already listed in $(basename "$exclude_file") – skipping."
             fi
@@ -344,10 +328,9 @@ sudo systemctl restart klipper
 
 if [ $? -eq 0 ]; then
     echo "Klipper service restarted successfully."
-    echo "Installation complete."
+echo "Installation complete."
 else
-    echo "${RED}Error: Failed to restart Klipper service.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Failed to restart Klipper service.${RST}"; exit 1
 fi
 
 
@@ -361,14 +344,12 @@ if [ "$STOCK_MAINBOARD" = true ]; then
     echo "Setup dtbo for serial communication..."
     # Install dtbo file for serial communication
     if [ ! -f "${DTBO_DIR}/rockchip-mkspi-uart1.dtbo" ]; then
-        echo "${RED}Error: Source file ${DTBO_DIR}/rockchip-mkspi-uart1.dtbo does not exist. Aborting.${RST}"
-        exit 1
+        printf "%b\n" "${RED}Error: Source file ${DTBO_DIR}/rockchip-mkspi-uart1.dtbo does not exist. Aborting.${RST}"; exit 1
     fi
     sudo mkdir -p "$DTBO_TARGET"                                        # make sure directory exists
     sudo cp "${DTBO_DIR}/rockchip-mkspi-uart1.dtbo" "${DTBO_TARGET}/"
     if [ $? -ne 0 ]; then
-        echo "${RED}Error: Failed to copy rockchip-mkspi-uart1.dtbo. Aborting.${RST}"
-        exit 1
+        printf "%b\n" "${RED}Error: Failed to copy rockchip-mkspi-uart1.dtbo. Aborting.${RST}"; exit 1
     fi
     echo "dtbo install done!"
 
@@ -400,7 +381,7 @@ if [ "$STOCK_MAINBOARD" = true ]; then
             sudo sed -i "s/^$SEARCH_STRING_OVERLAYS.*/$NEW_LINE_OVERLAYS/" "$ARMBIAN_ENV_FILE"
         else
             echo "Overlays line not found. Adding the line."
-            echo "$NEW_LINE_OVERLAYS" | sudo tee -a "$ARMBIAN_ENV_FILE" > /dev/null
+echo "$NEW_LINE_OVERLAYS" | sudo tee -a "$ARMBIAN_ENV_FILE" > /dev/null
         fi
     fi
 
@@ -410,7 +391,7 @@ if [ "$STOCK_MAINBOARD" = true ]; then
         sudo sed -i "s/^$SEARCH_STRING_CONSOLE.*/$NEW_LINE_CONSOLE/" "$ARMBIAN_ENV_FILE"
     else
         echo "Console line not found. Adding the line."
-        echo "$NEW_LINE_CONSOLE" | sudo tee -a "$ARMBIAN_ENV_FILE" > /dev/null
+echo "$NEW_LINE_CONSOLE" | sudo tee -a "$ARMBIAN_ENV_FILE" > /dev/null
     fi
 
 
@@ -422,16 +403,13 @@ if [ "$STOCK_MAINBOARD" = true ]; then
     echo "Creating udev rules for ttyS2..."
     echo 'KERNEL=="ttyS2",MODE="0660"' | sudo tee /etc/udev/rules.d/99-ttyS2.rules > /dev/null
     echo "udev rule for ttyS2 created."
-
-    echo "Masking serial-getty service for ttyS2..."
+echo "Masking serial-getty service for ttyS2..."
     sudo systemctl mask serial-getty@ttyS2.service
     echo "serial-getty service for ttyS2 masked."
-
-    echo "Reloading udev rules..."
+echo "Reloading udev rules..."
     sudo udevadm control --reload-rules
     echo "udev rules reloaded."
-
-    echo "Triggering udev events..."
+echo "Triggering udev events..."
     sudo udevadm trigger
     echo "udev events triggered."
 
@@ -457,17 +435,14 @@ if [ -d "/dev/serial/by-id" ]; then
 
             # Use sed to update the serial line only within the [mcu Toolhead] section
             sudo sed -i "/\[mcu Toolhead\]/,/^\[/ {s|^serial:.*|serial: ${path}|}" "$PRINTER_CONFIG"
-            
-            echo "Updated serial path for the toolhead in $PRINTER_CONFIG"
+echo "Updated serial path for the toolhead in $PRINTER_CONFIG"
         else
-            echo "${RED}Error: $PRINTER_CONFIG not found!${RST}"
-        fi
+            printf "%b\n" "${RED}Error: $PRINTER_CONFIG not found!${RST}"        fi
     else
         echo "No serial device found in /dev/serial/by-id."
     fi
 else
-    echo "${RED}Error: no serial devices found in /dev/serial/by-id${RST}"
-fi
+    printf "%b\n" "${RED}Error: no serial devices found in /dev/serial/by-id${RST}"fi
 
 
 ################################################################################
@@ -478,20 +453,17 @@ fi
 echo "Activating Klipper virtual environment and installing Python packages..."
 
 if [ ! -d "$KLIPPER_ENV" ]; then
-	echo "${RED}reKlippy env doesn't exist so I can't continue installation...${RST}"
-	exit 1
+	printf "%b\n" "${RED}reKlippy env doesn't exist so I can't continue installation...${RST}"; exit 1
 fi
 
 PYTHON_V=$($KLIPPER_VENV_PYTHON_BIN -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
-echo "${GRN}Klipper environment python version: $PYTHON_V${RST}"
-
+printf "%b\n" "${GRN}Klipper environment python version: $PYTHON_V${RST}"
 # Arrange Python requirements from requirements.txt
 echo "Arranging Python requirements..."
 "${KLIPPER_ENV}/bin/pip" install --upgrade pip 
 "${KLIPPER_ENV}/bin/pip" install -r "${FREEDI_DIR}/requirements.txt"
 if [ $? -ne 0 ]; then
-    echo "${RED}Failed to install Python requirements.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Failed to install Python requirements.${RST}"; exit 1
 fi
 echo "Python requirements installed from requirements.txt."
 
@@ -550,7 +522,7 @@ if [ -f "${MOONRAKER_ASVC}" ]; then
     else
         # Append "FreeDi" to the end of the file
         echo "FreeDi" >> "${MOONRAKER_ASVC}"
-        echo "\"FreeDi\" has been added to the moonraker.asvc file."
+echo "\"FreeDi\" has been added to the moonraker.asvc file."
     fi
 else
     echo "moonraker.asvc file not found: ${MOONRAKER_ASVC}"
@@ -597,8 +569,7 @@ if [ "$IS_FREEDI_IMAGE" != true ]; then
     if [ -f "${FREEDI_DIR}/install/wifi.sh" ]; then
         . "${FREEDI_DIR}/install/wifi.sh"
     else
-        echo "${RED}Error: WiFi setup script not found at ${FREEDI_DIR}/install/wifi.sh${RST}"
-        exit 1
+        printf "%b\n" "${RED}Error: WiFi setup script not found at ${FREEDI_DIR}/install/wifi.sh${RST}"; exit 1
     fi
 else
     echo "WiFi setup skipped, OS image already supports WiFi devices."
@@ -632,20 +603,17 @@ echo "Systemd service file created: /etc/systemd/system/usb-mount@.service"
 # Make the script executable
 echo "Making the usbmounter.sh executable..."
 if [ ! -f "${FREEDI_DIR}/helpers/usbmounter.sh" ]; then
-    echo "${RED}Error: File ${FREEDI_DIR}/helpers/usbmounter.sh does not exist. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: File ${FREEDI_DIR}/helpers/usbmounter.sh does not exist. Aborting.${RST}"; exit 1
 fi
 chmod +x "${FREEDI_DIR}/helpers/usbmounter.sh"
 if [ $? -ne 0 ]; then
-    echo "${RED}Error: Failed to set executable permission for usbmounter.sh. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Failed to set executable permission for usbmounter.sh. Aborting.${RST}"; exit 1
 fi
 
 # Reload udev and systemd
 sudo udevadm control --reload-rules
 sudo systemctl daemon-reload
 echo "Udev and systemd have been reloaded."
-
 echo "USB mounter service created successfully!"
 
 
@@ -664,26 +632,22 @@ echo "FreeDi service stopped."
 # Move FreeDi.service to systemd directory
 echo "Moving FreeDi.service to /etc/systemd/system/"
 if [ ! -f "${FREEDI_DIR}/helpers/FreeDi.service" ]; then
-    echo "${RED}Error: Source file ${FREEDI_DIR}/helpers/FreeDi.service does not exist. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Source file ${FREEDI_DIR}/helpers/FreeDi.service does not exist. Aborting.${RST}"; exit 1
 fi
 sudo cp "${FREEDI_DIR}/helpers/FreeDi.service" /etc/systemd/system/FreeDi.service
 if [ $? -ne 0 ]; then
-    echo "${RED}Error: Failed to copy FreeDi.service to /etc/systemd/system/. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Failed to copy FreeDi.service to /etc/systemd/system/. Aborting.${RST}"; exit 1
 fi
 echo "FreeDi.service moved to /etc/systemd/system/"
 
 # Setting current user in FreeDi.service
 echo "Setting user to $USER_NAME in FreeDi.service"
 if [ ! -f /etc/systemd/system/FreeDi.service ]; then
-    echo "${RED}Error: File /etc/systemd/system/FreeDi.service does not exist. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: File /etc/systemd/system/FreeDi.service does not exist. Aborting.${RST}"; exit 1
 fi
 sudo sed -i "s/{{USER}}/${USER_NAME}/g" /etc/systemd/system/FreeDi.service
 if [ $? -ne 0 ]; then
-    echo "${RED}Error: Failed to replace user in /etc/systemd/system/FreeDi.service. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Failed to replace user in /etc/systemd/system/FreeDi.service. Aborting.${RST}"; exit 1
 fi
 
 # Enable FreeDi.service to start at boot
@@ -697,13 +661,11 @@ echo "FreeDi.service enabled to start at boot!"
 
 echo "Installing AutoFlasher.service..."
 if [ ! -f "${FREEDI_DIR}/helpers/AutoFlasher.service" ]; then
-    echo "${RED}Error: Source file ${FREEDI_DIR}/helpers/AutoFlasher.service does not exist. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Source file ${FREEDI_DIR}/helpers/AutoFlasher.service does not exist. Aborting.${RST}"; exit 1
 fi
 sudo cp "${FREEDI_DIR}/helpers/AutoFlasher.service" /etc/systemd/system/AutoFlasher.service
 if [ $? -ne 0 ]; then
-    echo "${RED}Error: Failed to copy AutoFlasher.service to /etc/systemd/system/. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Failed to copy AutoFlasher.service to /etc/systemd/system/. Aborting.${RST}"; exit 1
 fi
 echo "AutoFlasher.service installed!"
 
@@ -711,25 +673,21 @@ echo "AutoFlasher.service installed!"
 echo "Setting user to $USER_NAME in AutoFlasher.service"
 
 if [ ! -f "/etc/systemd/system/AutoFlasher.service" ]; then
-    echo "${RED}Error: File /etc/systemd/system/AutoFlasher.service does not exist. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: File /etc/systemd/system/AutoFlasher.service does not exist. Aborting.${RST}"; exit 1
 fi
 sudo sed -i "s/{{USER}}/${USER_NAME}/g" /etc/systemd/system/AutoFlasher.service
 if [ $? -ne 0 ]; then
-    echo "${RED}Error: Failed to replace user in /etc/systemd/system/AutoFlasher.service. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Failed to replace user in /etc/systemd/system/AutoFlasher.service. Aborting.${RST}"; exit 1
 fi
 
 
 # Make the script executable
 if [ ! -f "${FREEDI_DIR}/helpers/klipper_auto_flasher.sh" ]; then
-    echo "${RED}Error: File ${FREEDI_DIR}/helpers/klipper_auto_flasher.sh does not exist. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: File ${FREEDI_DIR}/helpers/klipper_auto_flasher.sh does not exist. Aborting.${RST}"; exit 1
 fi
 chmod +x "${FREEDI_DIR}/helpers/klipper_auto_flasher.sh"
 if [ $? -ne 0 ]; then
-    echo "${RED}Error: Failed to set executable permission for klipper_auto_flasher.sh. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Failed to set executable permission for klipper_auto_flasher.sh. Aborting.${RST}"; exit 1
 fi
 
 # Enable AutoFlasher.service to start at boot
@@ -740,13 +698,11 @@ echo "AutoFlasher.service enabled to start at boot!"
 # Make hid-flash executable
 echo "Making hid-flash executable..."
 if [ ! -f "${FREEDI_DIR}/helpers/hid-flash" ]; then
-    echo "${RED}Error: File ${FREEDI_DIR}/helpers/hid-flash does not exist. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: File ${FREEDI_DIR}/helpers/hid-flash does not exist. Aborting.${RST}"; exit 1
 fi
 chmod +x "${FREEDI_DIR}/helpers/hid-flash"
 if [ $? -ne 0 ]; then
-    echo "${RED}Error: Failed to set executable permission for hid-flash. Aborting.${RST}"
-    exit 1
+    printf "%b\n" "${RED}Error: Failed to set executable permission for hid-flash. Aborting.${RST}"; exit 1
 fi
 
 echo "AutoFlasher.service installed!"
@@ -757,13 +713,11 @@ echo "AutoFlasher.service installed!"
 echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
 echo "systemd manager configuration reloaded."
-
 echo "Starting FreeDi service..."
 sudo systemctl start FreeDi.service
 echo "FreeDi service started!"
-
 echo ""
 echo "=================================================================================="
-echo "${GREEN}Setup complete!${RST}"
-echo "${YLW}Please restart your system for the changes to take effect.${RST}"
+printf "%b\n" "${GRN}Setup complete!${RST}"
+printf "%b\n" "${YLW}Please restart your system for the changes to take effect.${RST}"
 echo "=================================================================================="
