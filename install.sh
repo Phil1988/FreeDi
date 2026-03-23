@@ -766,6 +766,52 @@ if [ -d "$KIAUH_DIR" ]; then
     fi
 fi
 
+#remove kiauh_backups directory if it was created during this installation
+KIAUH_BACKUP_DIR="$USER_HOME_DIR/kiauh_backups"
+if [ -d "$KIAUH_BACKUP_DIR" ]; then
+    echo "Removing KIAUH backup directory at $KIAUH_BACKUP_DIR..."
+    rm -rf "$KIAUH_BACKUP_DIR"
+    if [ $? -ne 0 ]; then
+        printf "%b\n" "${RED}Error: Failed to remove KIAUH backup directory at $KIAUH_BACKUP_DIR. Please remove it manually.${RST}"; exit 1
+    fi
+fi
+
+#check if crowsnest directory exists and ask if timlapse should be installed
+CROWSNEST_DIR="$USER_HOME_DIR/crowsnest"
+if [ -d "$CROWSNEST_DIR" ]; then
+    dialog --stdout --title "Crowsnest detected" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "Crowsnest directory detected at $CROWSNEST_DIR. Do you want to install the FreeDi timelapse module?" 10 70
+    if [ $? -eq 0 ]; then
+        echo "Installing timelapse module from git..."
+        # Clone the timelapse into home directory
+        TIMELAPSE_DIR="$USER_HOME_DIR/timelapse"
+        if [ -d "$TIMELAPSE_DIR" ]; then
+            echo "Timelapse directory already exists at $TIMELAPSE_DIR. Skipping clone."
+        else
+            git clone https://github.com/mainsail-crew/moonraker-timelapse.git "$TIMELAPSE_DIR"
+            if [ $? -ne 0 ]; then
+                printf "%b\n" "${RED}Error: Failed to clone timelapse repository.${RST}"; exit 1
+            fi
+        fi
+        echo "Timelapse module installed at $TIMELAPSE_DIR."
+        # execute make install for timelapse module
+        echo "Executing make install for timelapse module..."
+        if [ -f "${TIMELAPSE_DIR}/Makefile" ]; then
+            make -C "${TIMELAPSE_DIR}" install
+            if [ $? -ne 0 ]; then
+                printf "%b\n" "${RED}Error: Failed to execute make install for timelapse module.${RST}"; exit 1
+            fi
+            echo "Timelapse module installed successfully!"
+        else
+            printf "%b\n" "${RED}Error: Makefile not found in timelapse directory. Cannot install timelapse module.${RST}"; exit 1
+        fi
+    else
+        echo "Timelapse module installation skipped."
+    fi
+else
+    echo "No Crowsnest directory detected. Skipping timelapse module installation."
+fi
+    
+
 echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
 echo "systemd manager configuration reloaded."
