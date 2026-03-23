@@ -193,7 +193,7 @@ if [ ! -d "$KLIPPER_DIR" ]; then
         clear
         echo "Starting Klipper installation via KIAUH..."
         # Clone KIAUH installer
-        KIAUH_DIR="$(USER_HOME_DIR)/kiauh"
+        KIAUH_DIR="$USER_HOME_DIR/kiauh"
         if [ -d "$KIAUH_DIR" ]; then
             echo "KIAUH directory already exists at $KIAUH_DIR. Skipping clone."
         else
