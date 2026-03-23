@@ -749,7 +749,7 @@ echo "AutoFlasher.service installed!"
 
 # Check if crowsnest directory exists and ask if timelapse should be installed
 if [ -d "$CROWSNEST_DIR" ] && [ ! -d "$TIMELAPSE_DIR" ]; then
-    dialog --stdout --title "Crowsnest detected" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "Crowsnest directory detected at $CROWSNEST_DIR. Do you want to install the FreeDi timelapse module?" 10 70
+    dialog --stdout --title "Crowsnest detected" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "Crowsnest directory detected at $CROWSNEST_DIR. Do you want to install the moonraker timelapse module?" 10 70
     if [ $? -eq 0 ]; then
         echo "Installing timelapse module from git..."
         # Clone the timelapse into home directory
