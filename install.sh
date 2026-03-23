@@ -168,7 +168,15 @@ fi
 
 # Klipper installation check
 if [ ! -d "$KLIPPER_DIR" ]; then
-    printf "%b\n" "${RED}Error: Klipper directory not found at $KLIPPER_DIR. Please install Klipper first.${RST}"; exit 1
+    dialog --stdout --title "Klipper not found" --backtitle "FreeDi installation" --yes-label "Yes" --no-label "No" --yesno "Klipper directory not found at:\n$KLIPPER_DIR\n\nShould Klipper installation via KIAUH be started?" 10 70
+    klipper_dialog_exit=$?
+
+    if [ $klipper_dialog_exit -eq 0 ]; then
+        echo "[DUMMY] Starting Klipper installation via KIAUH..."
+        exit 0
+    else
+        printf "%b\n" "${RED}Error: Klipper directory not found at $KLIPPER_DIR. Please install Klipper first.${RST}"; exit 1
+    fi
 fi
 
 # Create a symbolic links for needed modules to the Klipper extras directory
