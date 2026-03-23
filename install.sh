@@ -318,12 +318,14 @@ echo "Exclude file resolved to: $exclude_file"
                 if run_as_user git -C "$repo" update-index --assume-unchanged -- "$f"; then
                     echo -e "Git will now ignore local changes to ${f} (assume-unchanged)."
                 else
-                    printf "%b\n" "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"                fi
+                    printf "%b\n" "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"                
+                fi
             else
                 if run_as_user git -C "$repo" update-index --skip-worktree -- "$f"; then
                     echo -e "Git will keep your local version of ${f} (skip-worktree)."
                 else
-                    printf "%b\n" "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"                fi
+                    printf "%b\n" "${RED}Warning: git update-index failed for ${f} – file NOT marked.${RST}"                
+                fi
             fi
 
             # If it was dirty, refresh index to clear existing change
