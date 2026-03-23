@@ -202,13 +202,13 @@ if [ ! -d "$KLIPPER_DIR" ]; then
                 printf "%b\n" "${RED}Error: Failed to clone KIAUH repository.${RST}"; exit 1
             fi
         fi
-        clear
-        # Run KIAUH installer
-        bash "$KIAUH_DIR/kiauh.sh"
     else
         clear
         printf "%b\n" "${RED}Error: Klipper directory not found at $KLIPPER_DIR. Please install Klipper first.${RST}"; exit 1
     fi
+    clear
+    # Run KIAUH installer
+    bash "$KIAUH_DIR/kiauh.sh"
 fi
 
 # Create a symbolic links for needed modules to the Klipper extras directory
