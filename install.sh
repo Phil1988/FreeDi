@@ -864,6 +864,25 @@ if [ -f "$MOONRAKER_CONF_BACKUP" ]; then
     fi
 fi
 
+# edit /etc/systemd/system/crowsnest service to restart on failure and delay starting by 5 seconds
+if [ -f "/etc/systemd/system/crowsnest.service" ]; then
+    echo "Configuring crowsnest.service to restart on failure and delay start by 5 seconds..."
+    sudo sed -i '/\[Service\]/a Restart=on-failure\nRestartSec=5' /etc/systemd/system/crowsnest.service
+    sudo sed -i '/\[Service\]/a ExecStartPre=/bin/sleep 5' /etc/systemd/system/crowsnest.service
+    if [ $? -ne 0 ]; then
+        printf "%b\n" "${RED}Error: Failed to configure crowsnest.service. Aborting.${RST}"; exit 1
+    fi
+    echo "crowsnest.service configured successfully."
+    sudo systemctl restart crowsnest.service
+    if [ $? -ne 0 ]; then
+        printf "%b\n" "${RED}Error: Failed to restart crowsnest.service after configuration changes. Please check the service status and logs.${RST}"
+    else
+        echo "crowsnest.service restarted successfully with new configuration."
+    fi
+else
+    echo "crowsnest.service not found at /etc/systemd/system/crowsnest.service. Skipping crowsnest service configuration."
+fi
+
 echo "Reloading systemd manager configuration..."
 sudo systemctl daemon-reload
 echo "systemd manager configuration reloaded."
