@@ -142,7 +142,6 @@ fi
 PULLABLE_FILES_KLIPPER=(
     "klippy/extras/freedi.py"
     "klippy/extras/auto_z_offset.py"
-    "klippy/extras/freedi_hall_filament_width_sensor.py"
 )
 
 BLOCKED_FILES_KLIPPER=()
@@ -188,7 +187,6 @@ FREEDI_MODULES=(
     "qidi_auto_z_offset/auto_z_offset.py"
     #"reverse_homing.py"
     #"hall_filament_width_sensor.py"
-    "freedi_hall_filament_width_sensor.py"
 )
 
 for MODULE_PATH in "${FREEDI_MODULES[@]}"; do
