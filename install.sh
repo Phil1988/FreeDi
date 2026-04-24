@@ -807,7 +807,7 @@ if [ -d "$CROWSNEST_DIR" ] && [ ! -d "$TIMELAPSE_DIR" ]; then
 [update_manager timelapse]
 type: git_repo
 primary_branch: main
-path: ~/moonraker-timelapse
+path: ~/timelapse
 origin: https://github.com/mainsail-crew/moonraker-timelapse.git
 managed_services: klipper moonraker
 EOL
