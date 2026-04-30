@@ -891,22 +891,6 @@ sudo systemctl start FreeDi.service
 echo "FreeDi service started!"
 if [ "$IMAGE_BUILD" = true ]; then
     echo "Image build mode enabled:"
-    # clear machine-id to prevent conflicts when flashing the image to multiple devices
-    echo "Clearing /etc/machine-id..."
-    : | sudo tee /etc/machine-id >/dev/null
-    if [ $? -ne 0 ]; then
-        printf "%b\n" "${RED}Error: Failed to clear /etc/machine-id.${RST}"; exit 1
-    fi
-    # change sshd config to prevent root login via ssh and show last login info
-    echo "Configuring sshd for image build..."
-    SSHD_CONFIG="/etc/ssh/sshd_config"
-    if [ -f "$SSHD_CONFIG" ]; then
-        sudo sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin no/' "$SSHD_CONFIG"
-        sudo sed -i 's/^#\?PrintLastLog.*/PrintLastLog yes/' "$SSHD_CONFIG"
-        echo "sshd configuration updated for image build."
-    else
-        printf "%b\n" "${RED}Error: sshd_config file not found at $SSHD_CONFIG. Aborting.${RST}"; exit 1
-    fi
 
     echo "Halting system for image build finalization..."
     sudo halt
