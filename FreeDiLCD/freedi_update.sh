@@ -97,17 +97,136 @@ if git config --bool core.sparseCheckout | grep -q true; then
 fi
 
 
-### Installing and update the new introduced freedi.cfg
-# 1. Copy freedi.cfg into the Klipper config directory
-if install -m 644 -T "${FREEDI_CFG_SRC}" "${FREEDI_CFG_DST}"; then
-    # Ensure proper ownership in case the script is executed as root
-    chown "${USER_NAME}:${USER_GROUP}" "${FREEDI_CFG_DST}"
-    echo "freedi.cfg copied and ownership set to ${USER_NAME}:${USER_GROUP}."
-else
-    echo "Error: failed to copy freedi.cfg." >&2
-fi
+### Installing and updating freedi.cfg (smart merge – preserves user values)
+python3 - "${FREEDI_CFG_SRC}" "${FREEDI_CFG_DST}" "${USER_NAME}:${USER_GROUP}" << 'EOF'
+import sys, re, os, shutil
 
-# 2. Comment out the legacy [freedi] section in printer.cfg
+canonical_path = sys.argv[1]
+user_path      = sys.argv[2]
+ownership      = sys.argv[3]   # "user:group" string, used for reporting only
+
+def read_file(p):
+    with open(p, 'r') as f: return f.read()
+
+def write_file(p, c):
+    with open(p, 'w') as f: f.write(c)
+
+def get_keys_in_section(text, header):
+    keys = set()
+    in_sec = False
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith('['):
+            in_sec = (s == f'[{header}]')
+            continue
+        if in_sec:
+            m = re.match(r'^(\w+)\s*:', s)
+            if m: keys.add(m.group(1))
+    return keys
+
+def section_exists(text, header):
+    return any(l.strip() == f'[{header}]' for l in text.splitlines())
+
+def extract_section(text, header):
+    lines = text.splitlines(keepends=True)
+    result, in_sec = [], False
+    for line in lines:
+        s = line.strip()
+        if s.startswith('['):
+            if s == f'[{header}]': in_sec = True; result.append(line)
+            elif in_sec: break
+        elif in_sec:
+            result.append(line)
+    return ''.join(result)
+
+def get_missing_entries(canonical, user, header):
+    user_keys = get_keys_in_section(user, header)
+    missing, in_sec, pending = [], False, []
+    for line in canonical.splitlines(keepends=True):
+        s = line.strip()
+        if s.startswith('['):
+            in_sec = (s == f'[{header}]'); pending = []; continue
+        if not in_sec: continue
+        if s.startswith('#') or s == '':
+            pending.append(line)
+        else:
+            m = re.match(r'^(\w+)\s*:', s)
+            if m:
+                if m.group(1) not in user_keys:
+                    missing.append((''.join(pending), line))
+                pending = []
+            else:
+                pending = []
+    return missing
+
+def inject_into_section(user_text, header, missing):
+    if not missing: return user_text
+    lines = user_text.splitlines(keepends=True)
+    in_sec, end_idx = False, None
+    for i, line in enumerate(lines):
+        s = line.strip()
+        if s.startswith('['):
+            if s == f'[{header}]': in_sec = True
+            elif in_sec: end_idx = i; break
+    if in_sec and end_idx is None: end_idx = len(lines)
+    if end_idx is None: return user_text
+
+    # Trim trailing blank lines before insertion point
+    insert_at = end_idx
+    while insert_at > 0 and lines[insert_at - 1].strip() == '':
+        insert_at -= 1
+
+    block = ['\n# --- Added by freedi_update (missing parameters) ---\n']
+    for comment, key_line in missing:
+        block.append(comment)
+        block.append(key_line)
+
+    return ''.join(lines[:insert_at] + block + ['\n'] + lines[insert_at:])
+
+
+canonical = read_file(canonical_path)
+
+# ── Case 1: File does not exist yet → fresh install ──────────────────────────
+if not os.path.exists(user_path):
+    shutil.copy2(canonical_path, user_path)
+    print(f"freedi.cfg installed (first install). Ownership set to {ownership}.")
+    sys.exit(0)
+
+user = read_file(user_path)
+modified = False
+
+# ── Case 2: [freedi] parameters – add only what is missing ───────────────────
+missing = get_missing_entries(canonical, user, 'freedi')
+if missing:
+    user = inject_into_section(user, 'freedi', missing)
+    keys = [re.match(r'^(\w+)\s*:', e[1].strip()).group(1) for e in missing]
+    print(f"Added {len(missing)} missing parameter(s) to [freedi]: {', '.join(keys)}")
+    modified = True
+else:
+    print("All [freedi] parameters already present – nothing to change.")
+
+# ── Case 3: gcode_macro sections – add only if entirely absent ────────────────
+for i in range(1, 5):
+    sec = f'gcode_macro PRESET_MACRO_{i}'
+    if not section_exists(user, sec):
+        block = extract_section(canonical, sec)
+        if block:
+            user = user.rstrip('\n') + '\n\n' + block + '\n'
+            print(f"Added missing section [{sec}].")
+            modified = True
+
+if modified:
+    write_file(user_path, user)
+    print("freedi.cfg updated successfully.")
+else:
+    print("freedi.cfg is up to date, no action needed.")
+EOF
+
+# Fix ownership regardless (harmless if already correct)
+chown "${USER_NAME}:${USER_GROUP}" "${FREEDI_CFG_DST}" 2>/dev/null || true
+
+
+# 2. Comment out the legacy [freedi] section in printer.cfg - if present
 if grep -q '^\[freedi\]$' "${PRINTER_CFG}"; then
     sed -i '
         /^\[freedi\]$/,/^\[/{         # range: from [freedi] up to next "[" line
@@ -166,8 +285,6 @@ echo "Python requirements installed from requirements.txt."
 FREEDI_MODULES=(
     "freedi.py"
     "qidi_auto_z_offset/auto_z_offset.py"
-    #"reverse_homing.py"
-    #"hall_filament_width_sensor.py"
 )
 
 for MODULE_PATH in "${FREEDI_MODULES[@]}"; do
@@ -185,9 +302,15 @@ for MODULE_PATH in "${FREEDI_MODULES[@]}"; do
 done
 
 
+
+###### Removing broken symlinks ######
+
+# Cleanup: remove broken symlinks in klipper extras
+find "${KLIPPER_EXTRAS_DIR}" -maxdepth 1 -type l ! -e -print -delete \
+    2>/dev/null && echo "Cleaned up broken symlinks in klipper extras." || true
+
+
 ############ Git housekeeping to prevent dirty repos and setting the correct logic (updateable or not) ############
-
-
 
 
 # Check if the script is run inside a Git repository
