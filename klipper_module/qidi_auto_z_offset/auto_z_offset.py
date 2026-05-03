@@ -24,7 +24,7 @@ class AutoZOffsetCommandHelper(probe.ProbeCommandHelper):
         self.calibrated_z_offset = config.getfloat("calibrated_z_offset", 0.0)
         self.last_state = False
         self.last_z_result = 0.0
-        self.last_probe_position = gcode.Coord((0., 0., 0.))
+        self.last_probe_position = gcode.Coord(0., 0., 0., 0.)
 
         # Register commands
         self.gcode = self.printer.lookup_object("gcode")
