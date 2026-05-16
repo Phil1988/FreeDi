@@ -83,4 +83,4 @@ FreeDi thrives on community input. Have ideas, feature requests, or improvements
 
 **Together, let's unlock the full potential of your printer!** 🎉
 
-For complete documentation, visit the [FreeDi Wiki](https://github.com/Phil1988/FreeDi/wiki).
+For complete documentation, visit the **[FreeDi Wiki](https://freedi-wiki.github.io/)**.
