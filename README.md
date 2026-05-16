@@ -9,12 +9,11 @@ Transform your QIDI printer with FreeDi - built on open Armbian OS, official Kli
 
 ---
 
-## 🚀 Quick Start
+## 📖 Documentation
 
-Ready to upgrade? Head to the 📖 **[Installation Guide](https://github.com/Phil1988/FreeDi/wiki/Introduction)** and follow the step-by-step instructions.
-
-**Version 2.xx** → [Installation Guide](https://github.com/Phil1988/FreeDi/wiki/Introduction)  
-**Version 1.xx** → [Legacy Installation Guide](https://github.com/Phil1988/FreeDi/wiki/Installation-guide) | [Video Tutorial](https://www.youtube.com/watch?v=_ZmSTJBWUus)
+> **The FreeDi Wiki has moved!**
+> 
+> 🌐 **[freedi-wiki.github.io](https://freedi-wiki.github.io/)** — Installation guides, configuration, troubleshooting and more.
 
 ---
 
