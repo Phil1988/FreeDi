@@ -12,11 +12,10 @@ from . import probe
 
 
 class AutoZOffsetCommandHelper(probe.ProbeCommandHelper):
-    def __init__(self, config, mcu_probe, query_endstop=None):
+    def __init__(self, config, probe, query_endstop=None):
         self.printer = config.get_printer()
         self.name = config.get_name()
-        gcode = self.printer.lookup_object('gcode')
-        self.mcu_probe = mcu_probe
+        self.mcu_probe = probe
         self.query_endstop = query_endstop
         self.z_offset = config.getfloat("z_offset", -0.1)
         self.probe_hop = config.getfloat("probe_hop", 5.0, minval=4.0)
@@ -24,10 +23,11 @@ class AutoZOffsetCommandHelper(probe.ProbeCommandHelper):
         self.calibrated_z_offset = config.getfloat("calibrated_z_offset", 0.0)
         self.last_state = False
         self.last_z_result = 0.0
-        self.last_probe_position = gcode.Coord((0., 0., 0.))
 
         # Register commands
         self.gcode = self.printer.lookup_object("gcode")
+        self.last_probe_position = self.gcode.Coord((0.0, 0.0, 0.0))
+
         self.gcode.register_command(
             "AUTO_Z_PROBE",
             self.cmd_AUTO_Z_PROBE,
@@ -83,7 +83,8 @@ class AutoZOffsetCommandHelper(probe.ProbeCommandHelper):
     def cmd_AUTO_Z_PROBE(self, gcmd):
         self._move_to_center(gcmd)
         pos = probe.run_single_probe(self.mcu_probe, gcmd)
-        self.last_z_result = neg(pos[2]) + self.z_offset
+        self.last_z_result = neg(pos.bed_z) + self.z_offset
+        self.last_probe_position = self.gcode.Coord((pos.bed_x, pos.bed_y, pos.bed_z))
         gcmd.respond_info("Result is z=%.6f" % self.last_z_result)
 
     cmd_AUTO_Z_HOME_Z_help = "Home Z using the bed sensors as an endstop"
@@ -121,9 +122,9 @@ class AutoZOffsetCommandHelper(probe.ProbeCommandHelper):
 
         # Use main probe to measure its own offset
         pos = probe.run_single_probe(main_probe, gcmd)
-        gcmd.respond_info("%s: probe measured offset: z=%.6f" % (self.name, pos[2]))
+        gcmd.respond_info("%s: probe measured offset: z=%.6f" % (self.name, pos.bed_z))
         self.lift_probe(gcmd)
-        return pos[2]
+        return pos.bed_z
 
     cmd_AUTO_Z_CALIBRATE_help = (
         "Set the Z-Offset by averaging multiple runs of AUTO_Z_MEASURE_OFFSET"
@@ -182,80 +183,42 @@ class AutoZOffsetCommandHelper(probe.ProbeCommandHelper):
         )
 
 
-# Homing via auto_z_offset:z_virtual_endstop
-class HomingViaAutoZHelper(probe.HomingViaProbeHelper):
-    def __init__(self, config, mcu_probe, param_helper):
-        self.printer = config.get_printer()
-        self.mcu_probe = mcu_probe
-        self.param_helper = param_helper
-        self.multi_probe_pending = False
-        self.z_min_position = probe.lookup_minimum_z(config)
-        self.results = []
-        probe.LookupZSteppers(config, self.mcu_probe.add_stepper)
-        # Register z_virtual_endstop pin
-        self.printer.lookup_object("pins").register_chip("auto_z_offset", self)
-        self.printer.register_event_handler(
-            "homing:homing_move_begin", self._handle_homing_move_begin
-        )
-        self.printer.register_event_handler(
-            "homing:homing_move_end", self._handle_homing_move_end
-        )
-        self.printer.register_event_handler(
-            "homing:home_rails_begin", self._handle_home_rails_begin
-        )
-        self.printer.register_event_handler(
-            "homing:home_rails_end", self._handle_home_rails_end
-        )
-        self.printer.register_event_handler(
-            "gcode:command_error", self._handle_command_error
-        )
-
-
-class AutoZOffsetEndstopWrapper:
-    def __init__(self, config):
+class AutoZOffsetEndstopWrapper(probe.ProbeEndstopWrapper):
+    def __init__(self, config, probe_offsets, param_helper):
         self.printer = config.get_printer()
         self.gcode = self.printer.lookup_object("gcode")
         self.probe_accel = config.getfloat("probe_accel", 0.0, minval=0.0)
-        self.probe_wrapper = probe.ProbeEndstopWrapper(config)
-        # Setup prepare_gcode
+        self.old_max_accel = 0.0
         gcode_macro = self.printer.load_object(config, "gcode_macro")
         self.prepare_gcode = gcode_macro.load_template(config, "prepare_gcode")
-        # Wrappers
-        self.get_mcu = self.probe_wrapper.get_mcu
-        self.add_stepper = self.probe_wrapper.add_stepper
-        self.get_steppers = self.probe_wrapper.get_steppers
-        self.home_start = self.probe_wrapper.home_start
-        self.home_wait = self.probe_wrapper.home_wait
-        self.query_endstop = self.probe_wrapper.query_endstop
-        self.multi_probe_end = self.probe_wrapper.multi_probe_end
+        super().__init__(config, probe_offsets, param_helper)
+        self.query_endstop = self.mcu_endstop.query_endstop
 
-    def multi_probe_begin(self):
+    def start_probe_session(self, gcmd):
         self.gcode.run_script_from_command(self.prepare_gcode.render())
-        self.probe_wrapper.multi_probe_begin()
+        return super().start_probe_session(gcmd)
 
-    def probe_prepare(self, hmove):
-        toolhead = self.printer.lookup_object("toolhead")
-        self.probe_wrapper.probe_prepare(hmove)
+    def _probe_prepare(self):
+        super()._probe_prepare()
         if self.probe_accel > 0.0:
             systime = self.printer.get_reactor().monotonic()
+            toolhead = self.printer.lookup_object("toolhead")
             toolhead_info = toolhead.get_status(systime)
             self.old_max_accel = toolhead_info["max_accel"]
             self.gcode.run_script_from_command("M204 S%.3f" % self.probe_accel)
 
-    def probe_finish(self, hmove):
+    def _probe_finish(self):
         if self.probe_accel > 0.0:
             self.gcode.run_script_from_command("M204 S%.3f" % self.old_max_accel)
-        self.probe_wrapper.probe_finish(hmove)
+        super()._probe_finish()
 
 
 class AutoZOffsetParameterHelper(probe.ProbeParameterHelper):
     def __init__(self, config):
         gcode = config.get_printer().lookup_object("gcode")
         self.dummy_gcode_cmd = gcode.create_gcode_command("", "", {})
-        # Configurable probing speeds
         self.speed = config.getfloat("speed", 5.0, above=0.0)
         self.lift_speed = config.getfloat("lift_speed", self.speed, above=0.0)
-        # Multi-sample support (for improved accuracy)
         self.sample_count = config.getint("samples", 5, minval=3)
         self.sample_retract_dist = config.getfloat(
             "sample_retract_dist", 2.0, above=0.0
@@ -266,18 +229,21 @@ class AutoZOffsetParameterHelper(probe.ProbeParameterHelper):
         self.samples_retries = config.getint("samples_tolerance_retries", 0, minval=0)
 
 
-class AutoZOffsetSessionHelper(probe.ProbeSessionHelper):
+class AutoZOffsetOffsetsHelper(probe.ProbeOffsetsHelper):
+    def __init__(self, config):
+        self.x_offset = config.getfloat("x_offset", 0.0)
+        self.y_offset = config.getfloat("y_offset", 0.0)
+        self.z_offset = config.getfloat("z_offset", 0.0)
+
+
+class AutoZOffsetSessionHelper(probe.SampleAveragingHelper):
     def __init__(self, config, param_helper, start_session_cb):
         self.printer = config.get_printer()
-        self.param_helper = param_helper
-        self.start_session_cb = start_session_cb
-        # Session state
-        self.hw_probe_session = None
-        self.results = []
-        # Register event handlers
-        self.printer.register_event_handler(
-            "gcode:command_error", self._handle_command_error
-        )
+        self.probe_z_offset = self.printer.lookup_object("probe").get_offsets()[2]
+        super().__init__(config, param_helper, start_session_cb)
+
+    def _adjusted_z(self, pos):
+        return pos.bed_z - self.probe_z_offset
 
     def run_probe(self, gcmd):
         if self.hw_probe_session is None:
@@ -289,62 +255,55 @@ class AutoZOffsetSessionHelper(probe.ProbeSessionHelper):
         positions = []
         sample_count = params["samples"]
         while len(positions) < sample_count:
-            # Probe position
+            # Probe position (returns a manual_probe.ProbeResult namedtuple).
             pos = self._probe(gcmd)
             positions.append(pos)
-            # Check samples tolerance
-            z_positions = [p[2] for p in positions]
+            # Check samples tolerance using the adjusted contact z.
+            z_positions = [self._adjusted_z(p) for p in positions]
             if max(z_positions) - min(z_positions) > params["samples_tolerance"]:
                 if retries >= params["samples_tolerance_retries"]:
                     raise gcmd.error("Probe samples exceed samples_tolerance")
                 gcmd.respond_info("Probe samples exceed tolerance. Retrying...")
                 retries += 1
                 positions = []
-            # Retract
+            # Retract (use current z, not the probe's reported z, matching
+            # upstream SampleAveragingHelper.run_probe).
             if len(positions) < sample_count:
+                cur_z = toolhead.get_position()[2]
                 toolhead.manual_move(
-                    probexy + [pos[2] + params["sample_retract_dist"]],
+                    probexy + [cur_z + params["sample_retract_dist"]],
                     params["lift_speed"],
                 )
-        # Discard highest and lowest values
-        positions.remove(max(positions))
-        positions.remove(min(positions))
-        # Calculate result
+        # Discard highest and lowest samples to reduce noise from the
+        # qidi piezo bed sensor (only meaningful when we have at least 3).
+        if len(positions) >= 3:
+            positions.sort(key=self._adjusted_z)
+            positions = positions[1:-1]
+        # Calculate result over the remaining samples. calc_probe_z_average
+        # averages all fields of the ProbeResult namedtuple.
         epos = probe.calc_probe_z_average(positions, params["samples_result"])
         self.results.append(epos)
-
-
-class AutoZOffsetOffsetsHelper:
-    def __init__(self, config):
-        self.x_offset = 0.0
-        self.y_offset = 0.0
-        self.z_offset = config.getfloat("z_offset", 0.0)
-
-    def get_offsets(self):
-        return 0.0, 0.0, self.z_offset
 
 
 class AutoZOffsetProbe:
     def __init__(self, config):
         self.printer = config.get_printer()
-        self.mcu_probe = AutoZOffsetEndstopWrapper(config)
-        self.cmd_helper = AutoZOffsetCommandHelper(
-            config, self, self.mcu_probe.query_endstop
-        )
         self.probe_offsets = AutoZOffsetOffsetsHelper(config)
         self.param_helper = AutoZOffsetParameterHelper(config)
-        self.homing_helper = HomingViaAutoZHelper(
-            config, self.mcu_probe, self.param_helper
+        self.mcu_probe = AutoZOffsetEndstopWrapper(
+            config, self.probe_offsets, self.param_helper
         )
         self.probe_session = AutoZOffsetSessionHelper(
-            config, self.param_helper, self.homing_helper.start_probe_session
+            config, self.param_helper, self.mcu_probe.start_probe_session
         )
+        query_endstop = self.mcu_probe.query_endstop
+        self.cmd_helper = AutoZOffsetCommandHelper(config, self, query_endstop)
 
     def get_probe_params(self, gcmd=None):
         return self.param_helper.get_probe_params(gcmd)
 
-    def get_offsets(self):
-        return self.probe_offsets.get_offsets()
+    def get_offsets(self, gcmd=None):
+        return self.probe_offsets.get_offsets(gcmd)
 
     def get_status(self, eventtime):
         return self.cmd_helper.get_status(eventtime)
