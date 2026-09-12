@@ -88,6 +88,9 @@ KATAPULT_USB_ID = "1d50:6177"
 KLIPPER_USB_ID = "1d50:614e"
 GS_CAN_USB_ID = "1d50:606f"
 SERIAL_BL_REQ = b"~ \x1c Request Serial Bootloader!! ~"
+# Seconds to wait after a bootloader request before the bootloader
+# session is opened, to let the MCU reset into Katapult.
+SERIAL_BL_SETTLE_TIME = 2.
 
 class FlashError(Exception):
     pass
@@ -855,6 +858,17 @@ class SerialSocket(BaseSocket):
         super().__init__(args)
         self._device = args.device
         self._baud = args.baud
+        # The bootloader request is answered by the running Klipper, the
+        # bootloader session by Katapult.  They need not share a baud rate.
+        # Compared as strings so that the int default of --baud and a
+        # string supplied on the command line do not read as different.
+        self._request_baud = args.request_baud
+        self._split_baud = (
+            args.request_baud is not None
+            and str(args.request_baud) != str(args.baud)
+        )
+        if self._request_baud is None:
+            self._request_baud = args.baud
         if not HAS_SERIAL:
             ser_inst_cmd = "pip3 install serial"
             if shutil.which("apt") is not None:
@@ -869,6 +883,11 @@ class SerialSocket(BaseSocket):
                 "The 'device' option must be specified to flash a device"
             )
         output_line(f"Connecting to Serial Device {self._device}, baud {self._baud}")
+        if self._split_baud:
+            output_line(
+                f"Bootloader requests will be sent at baud "
+                f"{self._request_baud}"
+            )
         self.serial: Optional[Serial] = None
         self.node = CanNode(0, self)
 
@@ -1052,10 +1071,18 @@ class SerialSocket(BaseSocket):
                 return
         elif self.is_bootloader_req:
             # Request serial bootloader and exit
-            await self._request_serial_bootloader(device, self._baud)
+            await self._request_serial_bootloader(device, self._request_baud)
             return
         else:
             usb_prod = ""
+            if self._split_baud:
+                # Klipper and Katapult are built for different baud rates.
+                # Request the bootloader at Klipper's rate, then fall through
+                # and open the session at Katapult's rate.
+                await self._request_serial_bootloader(
+                    device, self._request_baud
+                )
+                await asyncio.sleep(SERIAL_BL_SETTLE_TIME)
         self.serial = self._open_device(device, self._baud)
         self._loop.add_reader(self.serial.fileno(), self._handle_response)
         flasher = CanFlasher(self.node, self._fw_path)
@@ -1127,7 +1154,14 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "-b", "--baud", default=250000, metavar='<baud rate>',
-        help="Serial baud rate"
+        help="Serial baud rate used for the bootloader session (Katapult)"
+    )
+    parser.add_argument(
+        "-R", "--request-baud", default=None, metavar='<baud rate>',
+        help="Serial baud rate used to request the bootloader from the "
+             "running Klipper.  Defaults to --baud.  Set this when Klipper "
+             "and Katapult are built for different baud rates, so that a "
+             "single invocation can talk to both."
     )
     parser.add_argument(
         "-i", "--interface", default="can0", metavar='<can interface>',
