@@ -1,0 +1,11 @@
+[Unit]
+Description=Regenerate SSH host keys (removed when the FreeDi image was built)
+Before=ssh.service ssh.socket
+ConditionPathExistsGlob=!/etc/ssh/ssh_host_*_key
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ssh-keygen -A
+
+[Install]
+WantedBy=multi-user.target

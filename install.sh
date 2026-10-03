@@ -892,6 +892,25 @@ echo "FreeDi service started!"
 if [ "$IMAGE_BUILD" = true ]; then
     echo "Image build mode enabled:"
 
+    # Remove everything that must be unique per printer (or is private to the image builder),
+    # otherwise every printer flashed from the image shares it.
+    echo "Removing machine specific data from the image..."
+    # SSH host keys: identical keys on all printers allow impersonating any of them.
+    # They are regenerated on first boot by regenerate-ssh-host-keys.service.
+    sudo cp "${FREEDI_DIR}/helpers/regenerate-ssh-host-keys.service" /etc/systemd/system/
+    sudo systemctl enable regenerate-ssh-host-keys.service
+    sudo rm -f /etc/ssh/ssh_host_*
+    # machine-id: an empty file makes systemd generate a new one on first boot
+    sudo truncate -s 0 /etc/machine-id
+    sudo rm -f /var/lib/dbus/machine-id
+    # Wi-Fi connections (with passwords) of the build machine
+    for CONNECTION in /etc/NetworkManager/system-connections/*; do
+        [ -f "$CONNECTION" ] && sudo grep -q '^type=wifi' "$CONNECTION" && sudo rm -f "$CONNECTION"
+    done
+    # shell history of the build session
+    rm -f "${USER_HOME_DIR}/.bash_history"
+    sudo rm -f /root/.bash_history
+
     echo "Halting system for image build finalization..."
     sudo halt
 else
