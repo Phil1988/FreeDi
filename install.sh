@@ -53,11 +53,16 @@ else
 fi
 
 # ensure python3 exists and check exact supported versions
-PY_VER=$(python3 -c 'import sys; printf = "%d.%d"; print(printf % (sys.version_info.major, sys.version_info.minor))' 2>/dev/null)
+# FreeDiLCD runs in klippy-env, so check that interpreter if Klipper is already installed
+PY_BIN="python3"
+if [ -x "${KLIPPER_VENV_PYTHON_BIN}" ]; then
+    PY_BIN="${KLIPPER_VENV_PYTHON_BIN}"
+fi
+PY_VER=$("$PY_BIN" -c 'import sys; printf = "%d.%d"; print(printf % (sys.version_info.major, sys.version_info.minor))' 2>/dev/null)
 if [ $? -ne 0 ] || [ -z "$PY_VER" ]; then
     printf "%b\n" "${RED}Error: python3 is not installed or not working. FreeDi requires Python ${SUPPORTED_VERSIONS_JOINED}.${RST}"; exit 1
 fi
-printf "%b\n" "${GRN}Detected Python version: $PY_VER${RST}"
+printf "%b\n" "${GRN}Detected Python version: $PY_VER ($PY_BIN)${RST}"
 # Check if detected version is supported
 HAS_PYTHON_313=false
 SUPPORTED=false
