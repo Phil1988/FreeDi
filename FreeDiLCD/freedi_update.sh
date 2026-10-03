@@ -222,6 +222,30 @@ else:
     print("freedi.cfg is up to date, no action needed.")
 EOF
 
+### Sync the Moonraker API key into freedi.cfg
+# Moonraker >= 0.11 answers an invalid X-Api-Key with 401 instead of falling back to
+# trusted-client auth, so the "api_key: XXXXXX" placeholder breaks the LCD (#556).
+# Only read the key (GET); POST /access/api_key would generate a new one.
+MOONRAKER_PORT=$(awk -F": " '/^moonraker_port/ {print $2; exit}' "${FREEDI_CFG_DST}" 2>/dev/null | tr -d '\r\n ')
+API_KEY=$(curl -s --max-time 5 "http://127.0.0.1:${MOONRAKER_PORT:-7125}/access/api_key" 2>/dev/null |
+    python3 -c 'import json, sys; print(json.load(sys.stdin)["result"])' 2>/dev/null)
+if ! [[ "$API_KEY" =~ ^[0-9a-f]{32}$ ]] && [ -x "${USER_HOME_DIR}/moonraker/scripts/fetch-apikey.sh" ]; then
+    # Moonraker not reachable (or trusted-client auth disabled): read the key from its database
+    API_KEY=$("${USER_HOME_DIR}/moonraker/scripts/fetch-apikey.sh" -e "${USER_HOME_DIR}/moonraker-env" \
+        -d "${PRINTER_DATA_DIR}/database" 2>/dev/null | tail -n 1)
+fi
+if [[ "$API_KEY" =~ ^[0-9a-f]{32}$ ]]; then
+    if grep -qE "^api_key[[:space:]]*:[[:space:]]*${API_KEY}[[:space:]]*$" "${FREEDI_CFG_DST}"; then
+        echo "Moonraker API key in freedi.cfg is up to date."
+    elif grep -qE "^api_key[[:space:]]*:" "${FREEDI_CFG_DST}"; then
+        sed -i -E "s/^api_key[[:space:]]*:.*/api_key: ${API_KEY}/" "${FREEDI_CFG_DST}"
+        echo "Moonraker API key written to freedi.cfg."
+    fi
+else
+    echo "Could not read the Moonraker API key. If the LCD cannot control the printer, run"
+    echo "~/moonraker/scripts/fetch-apikey.sh and put the key into api_key in freedi.cfg."
+fi
+
 # Fix ownership regardless (harmless if already correct)
 chown "${USER_NAME}:${USER_GROUP}" "${FREEDI_CFG_DST}" 2>/dev/null || true
 
