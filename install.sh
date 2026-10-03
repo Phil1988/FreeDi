@@ -42,6 +42,13 @@ done
 # Source configuration from separate config file
 source "${FREEDI_DIR}/install/freedi_install.conf"
 
+# Remember what existed before this run, so cleanup only removes what the installer created
+KIAUH_BACKUP_DIR="$USER_HOME_DIR/kiauh_backups"
+MOONRAKER_CONF_BACKUP="${MOONRAKER_CONF}.backup"
+[ -d "$KIAUH_BACKUP_DIR" ] && KIAUH_BACKUP_DIR_EXISTED=true || KIAUH_BACKUP_DIR_EXISTED=false
+[ -f "$MOONRAKER_CONF_BACKUP" ] && MOONRAKER_CONF_BACKUP_EXISTED=true || MOONRAKER_CONF_BACKUP_EXISTED=false
+KIAUH_CLONED=false
+
 # Find OS Release codename
 if [ -f /etc/os-release ]; then
     . /etc/os-release
@@ -209,6 +216,7 @@ if [ ! -d "$KLIPPER_DIR" ] || [ ! -d "$MOONRAKER_DIR" ] || [ ! -d "$MAINSAIL_DIR
             echo "KIAUH directory already exists at $KIAUH_DIR. Skipping clone."
         else
             git clone https://github.com/dw-0/kiauh.git "$KIAUH_DIR"
+            KIAUH_CLONED=true
             if [ $? -ne 0 ]; then
                 printf "%b\n" "${RED}Error: Failed to clone KIAUH repository.${RST}"; exit 1
             fi
@@ -763,10 +771,24 @@ echo "AutoFlasher.service installed!"
 # FINALIZE INSTALLATION
 ################################################################################
 
-# copy files from config_section/generic to printer_data/config overwriting existing files
+# copy files from config_section/generic to printer_data/config overwriting existing files.
+# Changed files are backed up first; an existing freedi.cfg is kept (freedi_update.sh adds
+# new parameters to it on the next FreeDi start).
 if [ -d "${FREEDI_DIR}/config_section/generic" ]; then
     echo "Copying generic config section files to printer_data/config..."
-    sudo cp -r "${FREEDI_DIR}/config_section/generic/." "$PRINTER_DATA_DIR/config/"
+    BACKUP_SUFFIX="freedi-backup-$(date +%Y%m%d-%H%M%S)"
+    for SRC_FILE in "${FREEDI_DIR}/config_section/generic/"*; do
+        DST_FILE="$PRINTER_DATA_DIR/config/$(basename "$SRC_FILE")"
+        if [ -f "$DST_FILE" ] && [ "$(basename "$SRC_FILE")" = "freedi.cfg" ]; then
+            echo "Keeping existing $DST_FILE."
+            continue
+        fi
+        if [ -f "$DST_FILE" ] && ! cmp -s "$SRC_FILE" "$DST_FILE"; then
+            sudo cp -p "$DST_FILE" "${DST_FILE}.${BACKUP_SUFFIX}"
+            echo "Backed up existing $(basename "$DST_FILE") to $(basename "$DST_FILE").${BACKUP_SUFFIX}"
+        fi
+        sudo cp -r "$SRC_FILE" "$DST_FILE"
+    done
     sudo chown -R "${USER_NAME}:${USER_GROUP}" "$PRINTER_DATA_DIR/config/"
     echo "Generic config section files copied to printer_data/config."
 else
@@ -826,10 +848,25 @@ EOL
     fi
 elif [ -d "$TIMELAPSE_DIR" ]; then
     echo "Timelapse directory already exists at $TIMELAPSE_DIR. Skipping timelapse module installation."
+    # moonraker.conf was just replaced with the generic one, keep timelapse updates working
+    if [ -f "${MOONRAKER_CONF}" ] && ! grep -q "^\[update_manager timelapse\]" "${MOONRAKER_CONF}"; then
+        echo "Adding [update_manager timelapse] to ${MOONRAKER_CONF}..."
+        cat <<EOL >> "${MOONRAKER_CONF}"
+
+# Timelapse module update_manager entry
+
+[update_manager timelapse]
+type: git_repo
+primary_branch: main
+path: ~/moonraker-timelapse
+origin: https://github.com/mainsail-crew/moonraker-timelapse.git
+managed_services: klipper moonraker
+EOL
+    fi
 fi
 
 #remove kiauh directory if it was created during this installation
-if [ -d "$KIAUH_DIR" ]; then
+if [ "$KIAUH_CLONED" = true ] && [ -d "$KIAUH_DIR" ]; then
     echo "Removing KIAUH directory at $KIAUH_DIR..."
     rm -rf "$KIAUH_DIR"
     if [ $? -ne 0 ]; then
@@ -838,8 +875,7 @@ if [ -d "$KIAUH_DIR" ]; then
 fi
 
 #remove kiauh_backups directory if it was created during this installation
-KIAUH_BACKUP_DIR="$USER_HOME_DIR/kiauh_backups"
-if [ -d "$KIAUH_BACKUP_DIR" ]; then
+if [ "$KIAUH_BACKUP_DIR_EXISTED" = false ] && [ -d "$KIAUH_BACKUP_DIR" ]; then
     echo "Removing KIAUH backup directory at $KIAUH_BACKUP_DIR..."
     rm -rf "$KIAUH_BACKUP_DIR"
     if [ $? -ne 0 ]; then
@@ -855,8 +891,7 @@ if [ ! -f "$PRINTER_DATA_DIR/config/macros.cfg" ]; then
 fi
 
 #remove moonraker.conf.backup if it was created during this installation
-MOONRAKER_CONF_BACKUP="${MOONRAKER_CONF}.backup"
-if [ -f "$MOONRAKER_CONF_BACKUP" ]; then
+if [ "$MOONRAKER_CONF_BACKUP_EXISTED" = false ] && [ -f "$MOONRAKER_CONF_BACKUP" ]; then
     echo "Removing Moonraker configuration backup file at $MOONRAKER_CONF_BACKUP..."
     rm -f "$MOONRAKER_CONF_BACKUP"
     if [ $? -ne 0 ]; then
@@ -867,8 +902,12 @@ fi
 # edit /etc/systemd/system/crowsnest service to restart on failure and delay starting by 5 seconds
 if [ -f "/etc/systemd/system/crowsnest.service" ]; then
     echo "Configuring crowsnest.service to restart on failure and delay start by 5 seconds..."
-    sudo sed -i '/\[Service\]/a Restart=on-failure\nRestartSec=5' /etc/systemd/system/crowsnest.service
-    sudo sed -i '/\[Service\]/a ExecStartPre=/bin/sleep 5' /etc/systemd/system/crowsnest.service
+    if ! grep -q '^RestartSec=5' /etc/systemd/system/crowsnest.service; then
+        sudo sed -i '/\[Service\]/a Restart=on-failure\nRestartSec=5' /etc/systemd/system/crowsnest.service
+    fi
+    if ! grep -q '^ExecStartPre=/bin/sleep 5' /etc/systemd/system/crowsnest.service; then
+        sudo sed -i '/\[Service\]/a ExecStartPre=/bin/sleep 5' /etc/systemd/system/crowsnest.service
+    fi
     if [ $? -ne 0 ]; then
         printf "%b\n" "${RED}Error: Failed to configure crowsnest.service. Aborting.${RST}"; exit 1
     fi
