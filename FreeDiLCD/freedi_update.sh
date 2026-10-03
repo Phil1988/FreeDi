@@ -435,6 +435,20 @@ clean_repo "$KLIPPER_DIR"     blocked  "${BLOCKED_FILES_KLIPPER[@]}"
 
 
 
+############ Refresh FreeDi.service ############
+# install.sh only copies the unit once; keep existing installs in sync with helpers/FreeDi.service
+SERVICE_SRC="${FREEDI_DIR}/helpers/FreeDi.service"
+SERVICE_DST="/etc/systemd/system/${SERVICE}"
+chmod +x "${FREEDI_DIR}/helpers/freedi_prestart.sh" 2>/dev/null || true
+if [ -f "$SERVICE_SRC" ] && [ -f "$SERVICE_DST" ]; then
+    SERVICE_NEW=$(sed "s/{{USER}}/${USER_NAME}/g" "$SERVICE_SRC")
+    if [ "$SERVICE_NEW" != "$(cat "$SERVICE_DST")" ]; then
+        echo "Updating ${SERVICE_DST}..."
+        printf '%s\n' "$SERVICE_NEW" | sudo tee "$SERVICE_DST" > /dev/null && sudo systemctl daemon-reload
+    fi
+fi
+
+
 ############ Update finished: Restart klipper and FreeDi.service ############
 
 # Restart Klipper to load the new modules
